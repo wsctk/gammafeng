@@ -6,16 +6,16 @@
             <span>伽马蜂管理后台</span>
           </div>
           <div class="headR">
-          <span><i class="el-icon-s-fold"></i></span>
-          <span><i class="el-icon-search"></i></span>
-          <span><i class="el-icon-bell"></i></span>
-          <!-- <div class="zhanghao">dengruxinxi</div> -->
+            <span><i class="el-icon-s-fold"></i></span>
+            <span><i class="el-icon-search"></i></span>
+            <span><i class="el-icon-bell"></i></span>
+            <el-avatar size="small" fit="fill" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
+            <el-link href=# target="_blank" class="un">{{userName}}}</el-link>
           </div>
         </el-header>
         <el-container>
-          <el-aside :width="isCollapse ? '64px': '255px'">
-            <div class="taggle-button">|||</div>
-            <el-menu background-color="#333744" text-color="#fff" active-text-color="#409eff" unique-opened :collapse="isCollapse" :collapse-transition="false" router :default-active="activePath">
+          <el-aside :width="isCollapse ? '64px': '14%'">
+            <el-menu background-color="#333744" text-color="#fff" unique-opened router>
               <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
                 <template slot="title">
                   <i :class=iconObj[item.id]></i>
@@ -32,6 +32,14 @@
           </el-aside>
           <el-main>
             <router-view></router-view>
+            <el-footer height="80px">
+              <div class="foot">
+                <el-link type="info">帮助</el-link>
+                <el-link type="info">隐私</el-link>
+                <el-link type="info">条款</el-link>
+              </div>
+              <p class="pText">copyright&copy;2020 壹零(天津)信息技术有限公司</p>
+            </el-footer>
           </el-main>
         </el-container>
     </el-container>
@@ -40,20 +48,53 @@
 export default {
   data () {
     return {
+      userName: 'momo.zxy',
       menuList: [
         {
           authName: '用户管理',
           id: 1,
           children: [
-            { authName: '用户管理', id: 1, path: 'customerList' },
+            { authName: '普通用户', id: 1, path: 'normalcustomer' },
+            { authName: '飞手', id: 1, path: 'flyer' },
+            { authName: '农资商', id: 1, path: 'farmer' },
             { authName: '认证记录', id: 2, path: 'checkList' }
           ]
         },
-        { authName: '派单管理', id: 2 },
-        { authName: '商城管理', id: 3 },
-        { authName: '资讯管理', id: 4 },
+        {
+          authName: '派单管理',
+          id: 2,
+          children: [
+            { authName: '派单管理', id: 1, path: 'dispatch' }
+          ]
+        },
+        {
+          authName: '商城管理',
+          id: 3,
+          children: [
+            { authName: '商品管理', id: 1, path: 'shop' },
+            { authName: '订单管理', id: 1, path: 'order' },
+            { authName: '分销记录', id: 1, path: 'retail' },
+            { authName: '优惠券管理', id: 1, path: 'coupon' },
+            { authName: '图片管理', id: 1, path: 'img' },
+            { authName: '分类管理', id: 1, path: 'category' }
+          ]
+        },
+        {
+          authName: '资讯管理',
+          id: 4,
+          children: [
+            { authName: '资讯管理', id: 1, path: 'infoList' }
+          ]
+        },
         { authName: '提现管理', id: 5 },
-        { authName: '系统管理', id: 6 }
+        {
+          authName: '系统管理',
+          id: 6,
+          children: [
+            { authName: '通用配置', id: 1, path: 'normalset' },
+            { authName: '管理员管理', id: 2, path: 'keeper' }
+          ]
+        }
       ],
       iconObj: {
         1: 'iconfont icon-account',
@@ -104,33 +145,39 @@ export default {
     align-items: center;
     background-color: #000;
     height:100%;
-    width: 255px;
+    width: 14%;
     color: #fff;
     > span {
       margin-left: 15px
     }
   }
   > .headR{
-    line-height:58px;
+    display:flex;
+    align-items: center;
     height:58px;
     border-bottom: 2px solid #eee;
     width:86%;
   }
 }
+.un {
+  margin-left: 20px;
+}
 .el-icon-s-fold:before {
-  font-size:24px !important;
-  margin-left:25px;
+  font-size:28px !important;
+  margin-left: 25px;
+  margin-top: 20px;
 }
 .el-icon-search:before {
-  font-size:20px !important;
+  font-size:28px !important;
   margin-left:1300px;
 }
 .el-icon-bell:before {
-  font-size:20px !important;
+  font-size:28px !important;
   margin-left:15px;
 }
-.zhanghao {
+.el-avatar--small {
   margin-left: 15px;
+  height: 29px;
 }
 .el-aside {
   background-color: #333744;
@@ -139,7 +186,8 @@ export default {
   }
 }
 .el-main {
-  background-color: #fff
+  background-color: #eee;
+  padding: 0;
 }
 .home_container {
   height:100%
@@ -155,5 +203,23 @@ export default {
   text-align:center;
   letter-spacing:0.2em;
   cursor:pointer;
+}
+.el-footer{
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+  width:400px;
+  margin:0 auto;
+  padding:10px 20px;
+}
+.foot {
+  display:flex;
+  justify-content: space-between;
+  width:160px;
+  margin-bottom:10px;
+}
+.pText {
+  font-size: 14px;
+  color: #777;
 }
 </style>

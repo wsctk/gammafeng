@@ -1,26 +1,37 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-// import './plugins/element.js'
-import './assets/fonts/iconfont.css'
+import './plugins/element.js'
+import './assets/iconfont/iconfont.css'
 import './assets/css/global.css'
 import TreeTable from 'vue-table-with-tree-grid'
 import VueQuillEditor from 'vue-quill-editor'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+import qs from 'qs'
 import axios from 'axios'
-
-axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
+Vue.prototype.$qs = qs
+// axios.defaults.baseURL = 'http://192.168.18.15:8080/'
 axios.interceptors.request.use(config => {
   NProgress.start()
-  config.headers.Authorization = window.sessionStorage.getItem('token')
+  // config.headers.Authorization = window.sessionStorage.getItem('token')
   return config
 })
 axios.interceptors.response.use(config => {
   NProgress.done()
   return config
 })
-
-Vue.prototype.$http = axios
+var instance = axios.create({
+  baseURL: 'http://admin-api.gamma.it-10.com/',
+  timeout: 1000 * 12 // 创建axios实例,设定超时时间是12s
+  // header: {
+  //   'content-type': 'text/xml'
+  // }
+})
+Vue.prototype.$http = instance
 
 Vue.config.productionTip = false
 

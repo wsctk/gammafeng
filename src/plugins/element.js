@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { Button, Input, Form, FormItem, Message, Container, Header, Aside, Main, Menu, Submenu, MenuItem, MenuItemGroup, Breadcrumb, BreadcrumbItem, Card, Row, Col, Table, TableColumn, Switch, Tooltip, Pagination, Dialog, MessageBox, Tag, Tree, Select, Option, Cascader, Alert, TabPane, Tabs, Step, Steps, Checkbox, CheckboxGroup, Upload } from 'element-ui'
+import { Button, Input, Form, FormItem, Message, Container, Header, Aside, Main, Menu, Submenu, MenuItem, MenuItemGroup, Breadcrumb, BreadcrumbItem, Card, Row, Col, Table, TableColumn, Switch, Tooltip, Pagination, Dialog, MessageBox, Tag, Tree, Select, Option, Cascader, Alert, TabPane, Tabs, Step, Steps, Checkbox, CheckboxGroup, Upload, Link, Footer, Avatar, Radio, RadioGroup } from 'element-ui'
 import Timeline from './timeline/index.js'
 import TimelineItem from './timeline-item/index.js'
 
@@ -41,5 +41,10 @@ Vue.use(Checkbox)
 Vue.use(Upload)
 Vue.use(Timeline)
 Vue.use(TimelineItem)
+Vue.use(Link)
+Vue.use(Footer)
+Vue.use(Avatar)
+Vue.use(Radio)
+Vue.use(RadioGroup)
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm

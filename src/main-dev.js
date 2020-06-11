@@ -9,21 +9,29 @@ import VueQuillEditor from 'vue-quill-editor'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
-// import NProgress from 'nprogress'
+import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-// import axios from 'axios'
-// axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
-// axios.interceptors.request.use(config => {
-//   NProgress.start()
-//   config.headers.Authorization = window.sessionStorage.getItem('token')
-//   return config
-// })
-// axios.interceptors.response.use(config => {
-//   NProgress.done()
-//   return config
-// })
-
-// Vue.prototype.$http = axios
+import qs from 'qs'
+import axios from 'axios'
+Vue.prototype.$qs = qs
+// axios.defaults.baseURL = 'http://192.168.18.15:8080/'
+axios.interceptors.request.use(config => {
+  NProgress.start()
+  // config.headers.Authorization = window.sessionStorage.getItem('token')
+  return config
+})
+axios.interceptors.response.use(config => {
+  NProgress.done()
+  return config
+})
+var instance = axios.create({
+  baseURL: 'http://192.168.18.15:8181/',
+  // timeout: 1000 * 12, // 创建axios实例,设定超时时间是12s
+  header: {
+    'content-type': 'application/x-www-form-urlencode'
+  }
+})
+Vue.prototype.$http = instance
 
 Vue.config.productionTip = false
 
