@@ -9,50 +9,50 @@
       <p class="indexText">认证记录</p>
     </div>
     <el-card>
-      <el-form :inline="true">
-        <el-form-item label="用户名：" class="firInput">
-          <el-input placeholder="请输入"></el-input>
+      <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
+        <el-form-item label="用户名：" class="firInput" prop="wechatName">
+          <el-input placeholder="请输入" v-model="queryInfo.wechatName"></el-input>
         </el-form-item>
-        <el-form-item label="手机号码：">
-          <el-input placeholder="请输入"></el-input>
+        <el-form-item label="手机号码：" prop="phoneNumber">
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber"></el-input>
         </el-form-item>
-        <el-form-item label="用户身份：">
-          <el-select placeholder="请选择">
-            <el-option label="身份一" value="shanghai"></el-option>
-            <el-option label="身份二" value="beijing"></el-option>
+        <el-form-item label="用户身份：" prop="status">
+          <el-select placeholder="请选择" v-model="queryInfo.status">
+            <el-option label="飞手" value="1"></el-option>
+            <el-option label="农资商" value="2"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary">查询</el-button>
-          <el-button plain>重置</el-button>
+          <el-button type="primary" @click="queryinfo">查询</el-button>
+          <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="tableData" style="width: 100%" border>
         <el-table-column align="center" prop="id" label="用户ID">
         </el-table-column>
-        <el-table-column align="center" prop="name" label="用户名">
+        <el-table-column align="center" prop="wechatName" label="用户名">
         </el-table-column>
-        <el-table-column align="center" prop="touxiang" label="微信头像">
+        <el-table-column align="center" prop="wechatAvatar" label="微信头像">
         </el-table-column>
-        <el-table-column align="center" prop="mobile" label="手机号">
+        <el-table-column align="center" prop="phoneNumber" label="手机号">
         </el-table-column>
-        <el-table-column align="center" prop="shenfen" label="认证身份">
+        <el-table-column align="center" prop="status" label="认证身份">
         </el-table-column>
-        <el-table-column align="center" prop="idcard" label="身份证号码">
+        <el-table-column align="center" prop="idNumber" label="身份证号码">
         </el-table-column>
-        <el-table-column align="center" prop="idcardimg0" label="身份证正面">
+        <el-table-column align="center" prop="idCardFront" label="身份证正面">
         </el-table-column>
-        <el-table-column align="center" prop="idcardimg1" label="身份证背面">
+        <el-table-column align="center" prop="idCardReverse" label="身份证背面">
         </el-table-column>
-        <el-table-column align="center" prop="state" label="认证状态">
+        <el-table-column align="center" prop="authenticationState" label="认证状态">
         </el-table-column>
-        <el-table-column align="center" prop="time" label="提交时间">
+        <el-table-column align="center" prop="createTime" label="提交时间">
         </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="280px">
+        <el-table-column align="center" label="操作" width="280px" v-slot="scope">
           <template>
-            <el-button size="small" type="primary">认证通过</el-button>
-            <el-button size="small" type="warning">驳回</el-button>
-            <el-button size="small" type="danger">删除</el-button>
+            <el-button size="small" type="primary" @click="authsuccess(scope.row.id)">认证通过</el-button>
+            <el-button size="small" type="warning" @click="refuse(scope.row)">驳回</el-button>
+            <el-button size="small" type="danger" @click="remove(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
     </el-table>
@@ -73,7 +73,11 @@
 export default {
   data () {
     return {
-      status: '0',
+      queryInfo: {
+        wechatName: '',
+        phoneNumber: '',
+        status: ''
+      },
       currentPage: 1,
       tableData: [],
       total: 400,
@@ -81,12 +85,52 @@ export default {
     }
   },
   created () {
-    this.getCustomerList()
+    this.getAuthList()
   },
   methods: {
-    async getCustomerList () {
-      const msg = await this.$http.post('user/userList', this.$qs.stringify({ userStatus: this.status }))
+    resetQueryForm () {
+      this.$refs.queryInfoRef.resetFields()
+    },
+    async getAuthList () {
+      const msg = await this.$http.get('auth/authList')
+      console.log(msg.data.data)
+      this.tableData = msg.data.data
+    },
+    async queryinfo () {
+      console.log(this.queryInfo.wechatName)
+      const msg = await this.$http.get('auth/authList?', { params: this.queryInfo })
+      console.log(msg.data.data)
+      this.tableData = msg.data.data
+    },
+    async authsuccess (id) {
+      const msg = await this.$http.post('auth/authPass', this.$qs.stringify({ id: id }))
       console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('认证请求失败！')
+      }
+      this.$message.success('认证成功！')
+      this.getAuthList()
+    },
+    async refuse (user) {
+      if (user.authenticationState !== 0) {
+        return this.$message.error('认证已通过或已驳回！')
+      }
+      const msg = await this.$http.post('auth/authRefuse', this.$qs.stringify({ id: user.id }))
+      console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('驳回请求失败！')
+      }
+      this.$message.success('驳回成功！')
+      this.getAuthList()
+    },
+    async remove (id) {
+      const msg = await this.$http.post('auth/deleteAuth', this.$qs.stringify({ id: id }))
+      console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('删除失败！')
+      }
+      this.$message.success('删除成功！')
+      this.getAuthList()
     }
   }
 }

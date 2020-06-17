@@ -15,7 +15,7 @@
         </el-header>
         <el-container>
           <el-aside :width="isCollapse ? '64px': '14%'">
-            <el-menu background-color="#333744" text-color="#fff" unique-opened router>
+            <el-menu background-color="#333744" text-color="#fff" unique-opened router default-active="/normalcustomer">
               <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
                 <template slot="title">
                   <i :class=iconObj[item.id]></i>
@@ -52,44 +52,50 @@ export default {
       menuList: [
         {
           authName: '用户管理',
-          id: 1,
+          id: 0,
           children: [
             { authName: '普通用户', id: 1, path: 'normalcustomer' },
-            { authName: '飞手', id: 1, path: 'flyer' },
-            { authName: '农资商', id: 1, path: 'farmer' },
-            { authName: '认证记录', id: 2, path: 'checkList' }
+            { authName: '飞手', id: 2, path: 'flyer' },
+            { authName: '农资商', id: 3, path: 'farmer' },
+            { authName: '认证记录', id: 4, path: 'checkList' }
           ]
         },
         {
           authName: '派单管理',
-          id: 2,
+          id: 1,
           children: [
             { authName: '派单管理', id: 1, path: 'dispatch' }
           ]
         },
         {
           authName: '商城管理',
-          id: 3,
+          id: 2,
           children: [
             { authName: '商品管理', id: 1, path: 'shop' },
-            { authName: '订单管理', id: 1, path: 'order' },
-            { authName: '分销记录', id: 1, path: 'retail' },
-            { authName: '优惠券管理', id: 1, path: 'coupon' },
-            { authName: '图片管理', id: 1, path: 'img' },
-            { authName: '分类管理', id: 1, path: 'category' }
+            { authName: '订单管理', id: 2, path: 'order' },
+            { authName: '分销记录', id: 3, path: 'retail' },
+            { authName: '优惠券管理', id: 4, path: 'coupon' },
+            { authName: '图片管理', id: 5, path: 'img' },
+            { authName: '分类管理', id: 6, path: 'category' }
           ]
         },
         {
           authName: '资讯管理',
-          id: 4,
+          id: 3,
           children: [
             { authName: '资讯管理', id: 1, path: 'infoList' }
           ]
         },
-        { authName: '提现管理', id: 5 },
+        {
+          authName: '提现管理',
+          id: 4,
+          children: [
+            { authName: '提现管理', id: 1, path: 'tixian' }
+          ]
+        },
         {
           authName: '系统管理',
-          id: 6,
+          id: 5,
           children: [
             { authName: '通用配置', id: 1, path: 'normalset' },
             { authName: '管理员管理', id: 2, path: 'keeper' }
@@ -97,12 +103,12 @@ export default {
         }
       ],
       iconObj: {
+        0: 'iconfont icon-account',
         1: 'iconfont icon-account',
-        2: 'iconfont icon-account',
-        3: 'iconfont icon-editor',
-        4: 'iconfont icon-data',
-        5: 'iconfont icon-rejected-order',
-        6: 'iconfont icon-signboard'
+        2: 'iconfont icon-editor',
+        3: 'iconfont icon-data',
+        4: 'iconfont icon-rejected-order',
+        5: 'iconfont icon-signboard'
       },
       isCollapse: false,
       activePath: ''

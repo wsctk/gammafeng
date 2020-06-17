@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Vuecookies from 'vue-cookie'
 import Login from '../components/Login.vue'
 // const Login = () => import(/* webpackChunkName: "login_home_welcome" */ '../components/Login.vue')
 import Home from '../components/Home.vue'
 // const Home = () => import(/* webpackChunkName: "login_home_welcome" */ '../components/Home.vue')
-import Welcome from '../components/Welcome.vue'
 // const Welcome = () => import(/* webpackChunkName: "login_home_welcome" */ '../components/Welcome.vue')
 // import Users from '../components/user/Users.vue'
 import Normalcustomer from '../components/customer/Normalcustomer.vue'
@@ -19,7 +19,9 @@ import Retail from '../components/shop/Retail.vue'
 import Img from '../components/shop/Img.vue'
 import Coupon from '../components/shop/Coupon.vue'
 import Category from '../components/shop/Category.vue'
+import Tixian from '../components/Tixian/Tixian.vue'
 import System from '../components/system/System.vue'
+import Keeper from '../components/system/Keeper.vue'
 // const Users = () => import(/* webpackChunkName: "user_rights_roles" */ '../components/user/Users.vue')
 // import Rights from '../components/power/Rights.vue'
 // const Rights = () => import(/* webpackChunkName: "user_rights_roles" */ '../components/power/Rights.vue')
@@ -41,7 +43,11 @@ import System from '../components/system/System.vue'
 // // import Report from '../components/report/Report.vue'
 // const Report = () => import(/* webpackChunkName: "order_report" */ '../components/report/Report.vue')
 Vue.use(VueRouter)
-
+Vue.use(Vuecookies)
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push (location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 const router = new VueRouter({
   routes: [
     { path: '/', redirect: '/login' },
@@ -49,9 +55,8 @@ const router = new VueRouter({
     {
       path: '/home',
       component: Home,
-      redirect: '/welcome',
+      redirect: '/normalcustomer',
       children: [
-        { path: '/welcome', component: Welcome },
         { path: '/infoList', component: InfoList },
         { path: '/normalcustomer', component: Normalcustomer },
         { path: '/flyer', component: Flyer },
@@ -64,15 +69,17 @@ const router = new VueRouter({
         { path: '/img', component: Img },
         { path: '/coupon', component: Coupon },
         { path: '/category', component: Category },
-        { path: '/normalset', component: System }
+        { path: '/tixian', component: Tixian },
+        { path: '/normalset', component: System },
+        { path: '/keeper', component: Keeper }
       ]
     }
   ]
 })
 // router.beforeEach((to, from, next) => {
-//   // if (to.path === '/login') return next()
-//   // const tokenStr = window.sessionStorage.getItem('token')
-//   // if (!tokenStr) return next('/login')
+//   if (to.path === '/login') return next()
+//   const tokenStr = window.sessionStorage.getItem('token')
+//   if (!tokenStr) return next('/login')
 //   next()
 // })
 export default router

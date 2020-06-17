@@ -32,7 +32,7 @@
         </el-table-column>
         <el-table-column align="center" label="封面图片">
           <template v-slot="scope">
-            <img :src=scope.row.cover style="width: 100px; height: 100px" />
+            <img :src=scope.row.cover style="width: 50px; height: 50px" />
           </template>
         </el-table-column>
         <el-table-column align="center" prop="createTime" label="发布时间">
@@ -40,20 +40,17 @@
             {{ scope.row.createTime | dateFormat}}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="scannumber" label="查看人数">
+        <el-table-column align="center" prop="readNumber" label="查看人数">
         </el-table-column>
-        <el-table-column align="center" prop="status" label="状态">
+        <el-table-column align="center" prop="orderStateName" label="状态">
         </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px">
+        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
           <template>
-            <el-button size="small" type="primary">编辑</el-button>
-            <el-button size="small" type="danger">删除</el-button>
+            <el-button size="small" type="primary" @click="showeditform(scope.row)">编辑</el-button>
+            <el-button size="small" type="danger" @click="removerow(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
     </el-table>
-    <!-- <img
-    style="width: 100px; height: 100px"
-    :src="img" /> -->
     <el-pagination
       background
       :page-sizes="[1, 5, 10, 20]"
@@ -65,8 +62,8 @@
       <span class="slotText">第{{queryInfo.pageNum}}/{{total/5}}页</span>
     </el-pagination>
     </el-card>
-     <el-dialog title="新增资讯" :visible.sync="dialogVisible" width="40%">
-      <el-form label-width="100px" :model="additionalInfo">
+    <el-dialog title="新增资讯" :visible.sync="dialogVisible" width="40%">
+      <el-form label-width="100px" :model="additionalInfo" ref="additionalInfoRef">
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="文章标题:" prop="title">
@@ -78,10 +75,11 @@
           <el-col :span="15" :offset="4">
             <el-form-item label="商品封面:">
               <el-upload
-                :http-request="uploadSectionFile"
+                ref="uploadRef"
+                :limit=1
+                :http-request="uploadaddFormFile"
                 action="#"
                 list-type="picture-card"
-                :file-list="fileList"
                 :on-preview="handlePictureCardPreview"
                 :on-remove="handleRemove">
                 <i class="el-icon-plus"></i>
@@ -96,10 +94,11 @@
           <el-col :span="15" :offset="4">
             <el-form-item label="文章详情:">
               <el-input
+                resize="none"
                 type="textarea"
                 :rows="4"
                 placeholder="富文本编辑器"
-                v-model="textarea">
+                v-model="additionalInfo.article">
               </el-input>
             </el-form-item>
           </el-col>
@@ -107,15 +106,69 @@
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="资讯状态:">
-              <el-radio v-model="radio" label="1">正常</el-radio>
-              <el-radio v-model="radio" label="2">禁用</el-radio>
+              <el-radio v-model="additionalInfo.state" label="5">正常</el-radio>
+              <el-radio v-model="additionalInfo.state" label="6">禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button @click="closeaddform">取消</el-button>
+        <el-button type="primary" @click="submitaddinfo">确定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="编辑资讯" :visible.sync="dialogVisible1" width="40%">
+      <el-form label-width="100px" :model="editForm">
+        <el-row>
+          <el-col :span="15" :offset="4">
+            <el-form-item label="文章标题:" prop="articleName">
+              <el-input placeholder="请输入" v-model="editForm.articleName"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="4">
+            <el-form-item label="商品封面:">
+              <el-upload
+                :limit=1
+                :http-request="uploadeditFormFile"
+                action="#"
+                list-type="picture-card"
+                :file-list="fileList"
+                :on-preview="handlePictureCardPreview"
+                :on-remove="handleRemove">
+                <i class="el-icon-plus"></i>
+              </el-upload>
+              <el-dialog :visible.sync="dialogVisible3">
+                <img width="100%" :src="dialogImageUrl" alt="">
+              </el-dialog>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="4">
+            <el-form-item label="文章详情:">
+              <el-input
+                type="textarea"
+                :rows="4"
+                placeholder="富文本编辑器"
+                v-model="editForm.article">
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="4">
+            <el-form-item label="资讯状态:">
+              <el-radio v-model="editForm.state" label="5">正常</el-radio>
+              <el-radio v-model="editForm.state" label="6">禁用</el-radio>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeForm">取消</el-button>
+        <el-button type="primary" @click="submiteditinfo">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -126,21 +179,23 @@ export default {
     return {
       queryInfo: {
         articlename: '',
-        publishtime: '',
-        pageNum: 1,
-        pagesize: 8
+        publishtime: ''
       },
       radio: '2',
       dialogVisible: false,
       additionalInfo: {
-        title: '123',
-        fengmian: '123',
-        xiangqing: '123'
+        title: '',
+        fengmian: '',
+        state: '',
+        article: ''
       },
+      editForm: {},
+      dialogVisible1: false,
       dialogVisible2: false,
+      dialogVisible3: false,
       dialogImageUrl: '',
       textarea: '',
-      fileList: [{ name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100' }],
+      fileList: [],
       tableData: [],
       total: 400
     }
@@ -152,6 +207,13 @@ export default {
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    closeaddform () {
+      this.additionalInfo.title = ''
+      this.additionalInfo.article = ''
+      this.$refs.uploadRef.clearFiles()
+      this.additionalInfo.state = ''
+      this.dialogVisible = false
+    },
     async getInformationList () {
       const msg = await this.$http.get('information/getInformationList')
       console.log(msg.data)
@@ -161,6 +223,33 @@ export default {
     showAddForm () {
       this.dialogVisible = true
     },
+    showeditform (user) {
+      this.dialogVisible1 = true
+      this.editForm = user
+      console.log(this.editForm)
+      this.fileList.push({ url: user.cover })
+    },
+    closeForm () {
+      this.dialogVisible1 = false
+      this.fileList.pop()
+    },
+    async removeuser (id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const msg = await this.$http.delete('user/deleteUser', { params: { id: id } })
+      console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('删除用户失败')
+      }
+      this.$message.success('用户已删除')
+      this.getCustomerList()
+    },
     handlePictureCardPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible2 = true
@@ -168,65 +257,43 @@ export default {
     handleRemove (file, fileList) {
       console.log(file, fileList)
     },
-    async uploadSectionFile (params) {
-      const file = params.file
-      // fileType = file.type,
-      // isImage = fileType.indexOf("image") != -1,
-      // isLt2M = file.size / 1024 / 1024 < 2;
-      // // 这里常规检验，看项目需求而定
-      // if (!isImage) {
-      // this.$message.error("只能上传图片格式png、jpg、gif!");
-      // return;
-      // }
-      // if (!isLt2M) {
-      // this.$message.error("只能上传图片大小小于2M");
-      // return;
-      // }
-      // 根据后台需求数据格式
+    uploadaddFormFile (params) {
+      this.additionalInfo.fengmian = params.file
+    },
+    uploadeditFormFile (params) {
+      this.editForm.fengmian = params.file
+    },
+    async submitaddinfo () {
       const formData = new FormData()
-      // 文件对象
-      formData.append('file', file)
-      // 本例子主要要在请求时添加特定属性，所以要用自己方法覆盖默认的action
+      formData.append('file', this.additionalInfo.fengmian)
       formData.append('articleName', this.additionalInfo.title)
-      formData.append('content', this.additionalInfo.xiangqing)
-      console.log(formData.get('img'))
+      formData.append('content', this.additionalInfo.article)
+      formData.append('state', this.additionalInfo.state)
       const add = await this.$http.post('information/addInformation', formData)
-      // {
-      //   articleName: this.additionalInfo.title,
-      //   content: this.additionalInfo.fengmian,
-      //   file: this.additionalInfo.xiangqing
-      // })
-      // console.log(add)
-      this.img = add.data.data
-      console.log(this.img)
-      console.log(add.data.data)
+      console.log(add)
+      this.dialogVisible = false
       this.getInformationList()
-      // 项目封装的请求方法，下面做简单介绍
-      // imageUpload(form)
-      // .then(res => {
-      //     //自行处理各种情况
-      //     // const code = res && parseInt(res.code, 10);
-      //     // if (code === 200) {
-      //     // // xxx
-      //     // } else {
-      //     // // xxx
-      //     // }
-      //     console.log(res)
-      // })
-      // .catch(() => {
-      //     // xxx
-      // });
+    },
+    async submiteditinfo () {
+      const formData = new FormData()
+      formData.append('file', this.editForm.fengmian)
+      formData.append('articleName', this.additionalInfo.title)
+      formData.append('content', this.additionalInfo.article)
+      formData.append('state', this.additionalInfo.state)
+      formData.append('id', this.additionalInfo.id)
+      const add = await this.$http.post('information/addInformation', formData)
+      console.log(add.data.data)
+      this.dialogVisible1 = false
+      this.getInformationList()
+    },
+    async removerow (id) {
+      const msg = await this.$http.post('information/deleteInformationList', this.$qs.stringify({ id: id }))
+      if (msg !== 200) {
+        return this.$message.error('删除失败！')
+      }
+      this.$message.success('删除成功！')
+      this.getInformationList()
     }
-    // async uploadAddInfo () {
-    //   const add = await this.$http.post('information/addInformation',
-    //     {
-    //       articleName: this.additionalInfo.title,
-    //       content: this.additionalInfo.fengmian,
-    //       file: this.additionalInfo.xiangqing
-    //     })
-    //   console.log(add)
-    // }
-    // this.getInformationList()
   }
 }
 </script>

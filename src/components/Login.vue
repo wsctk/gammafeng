@@ -12,7 +12,7 @@
                   <el-input v-model="loginMessage.userName" placeholder="账户" prefix-icon="el-icon-user"></el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                  <el-input v-model="loginMessage.password" placeholder="密码" prefix-icon="el-icon-lock"></el-input>
+                  <el-input :show-password=true v-model="loginMessage.password" placeholder="密码" prefix-icon="el-icon-lock"></el-input>
                 </el-form-item>
                 <el-form-item prop="imgCode" class="lastFormItem">
                   <el-row>
@@ -20,8 +20,8 @@
                       <el-input v-model="loginMessage.imgCode" placeholder="验证码" prefix-icon="el-icon-message"></el-input>
                     </el-col>
                     <el-col :span="7" class="btndiv">
-                      <el-button class="yanzhengma">
-                        <img style="width:100px;height:40px" src="../assets/yzm.jpg" />
+                      <el-button class="yanzhengma" :click="uploadimgcode">
+                        <img style="width:100px;height:40px" :src="img" />
                       </el-button>
                     </el-col>
                   </el-row>
@@ -81,13 +81,15 @@ export default {
       cb(new Error('请输入合法的手机号码'))
     }
     return {
+      img: '',
       activeName: 'zhanghaomimadengluTab',
       loginMessage: {
         userName: '',
         phoneNumber: '',
         password: '',
         code: '',
-        imgCode: ''
+        imgCode: '',
+        imgcodekey: ''
       },
       checked: false,
       loginFormRules: {
@@ -112,6 +114,9 @@ export default {
       }
     }
   },
+  created () {
+    this.getimgcode()
+  },
   mounted () {
     this.autoLogin()
   },
@@ -119,30 +124,88 @@ export default {
     resetLoginForm () {
       this.$refs.loginFormRef.resetFields()
     },
+    async getimgcode () {
+      const msg = await this.$http.get('code/getImgCode')
+      console.log(msg)
+      this.img = msg.data.data
+      this.loginMessage.imgcodekey = msg.data.imgCodeKey
+    },
+    uploadimgcode () {
+      this.getimgcode()
+    },
+    // this.img = msg.data
+    // const zm = this.utf8ToUtf16(msg.data)
+    // console.log(zm)
+    // this.img = this.convertBase64UrlToFile(msg.data)
+    // console.log(this.img)
+    // },
+    // utf8ToUtf16 (utf8Arr) {
+    //   var utf16Str = ''
+    //   for (var i = 0; i < utf8Arr.length; i++) {
+    //     // 每个字节都转换为2进制字符串进行判断
+    //     var one = utf8Arr[i].toString(2)
+    //     // 正则表达式判断该字节是否符合>=2个1和1个0的情况
+    //     var v = one.match(/^1+?(?=0)/)
+    //     // 多个字节编码
+    //     if (v && one.length === 8) {
+    //       // 获取该编码是多少个字节长度
+    //       var bytesLength = v[0].length
+    //       // 首个字节中的数据,因为首字节有效数据长度为8位减去1个0位，再减去bytesLength位的剩余位数
+    //       var store = utf8Arr[i].toString(2).slice(7 - bytesLength)
+    //       for (var st = 1; st < bytesLength; st++) {
+    //         // 后面剩余字节中的数据，因为后面字节都是10xxxxxxx，所以slice中的2指的是去除10
+    //         store += utf8Arr[st + i].toString(2).slice(2)
+    //       }
+    //       // 转换为Unicode码值
+    //       utf16Str += String.fromCharCode(parseInt(store, 2))
+    //       // 调整剩余字节数
+    //       i += bytesLength - 1
+    //     } else {
+    //       // 单个字节编码，和Unicode码值一致，直接将该字节转换为UTF-16
+    //       utf16Str += String.fromCharCode(utf8Arr[i])
+    //     }
+    //   }
+    //   return utf16Str
+    // },
+    // convertBase64UrlToFile (base64) {
+    //   const bytes = this.$base64.decode(base64)
+    // console.log(bytes)
+    // const ab = new ArrayBuffer(bytes.length)
+    // const ia = new Uint8Array(ab)
+    // for (let i = 0; i < bytes.length; i++) {
+    //   ia[i] = bytes.charCodeAt(i)
+    // }
+    // return new Blob([ab], { type: 'image/png' })
+    // },
     async autoLogin () {
       const pn = window.sessionStorage.getItem('zhanghao')
       const mm = window.sessionStorage.getItem('mima')
       if (pn === null || mm === null) {
         return ''
+      } else {
+        const msg = await this.$http.post('SMSLogin',
+          {
+            userName: pn,
+            password: mm
+          })
+        if (msg === 'success') {
+          return this.$message.success('登录成功')
+        } else {
+          this.$message.error('登录状态失效，请尝试重新登录！')
+        }
       }
-      const msg = await this.$http.post('SMSLogin',
-        {
-          userName: pn,
-          password: mm
-        })
-      if (msg === 'success') {
-        return this.$message.success('登录成功')
-      }
-      this.$message.error('登录状态失效，请尝试重新登录！')
     },
     async login () {
       if (this.activeName === 'zhanghaomimadengluTab') {
         this.$refs.loginFormRef1.validate(async valid => {
           if (!valid) return
+          this.$cookie.set('test', 'Hello world!', 1)
           const msg = await this.$http.post('adminLogin',
             this.$qs.stringify({
               userName: this.loginMessage.userName,
-              password: this.loginMessage.password
+              password: this.loginMessage.password,
+              key: this.loginMessage.imgcodekey,
+              code: this.loginMessage.imgCode
             }))
           console.log(msg)
           if (msg.data.message === 'success') {
@@ -164,7 +227,7 @@ export default {
               phoneNumber: this.loginMessage.phoneNumber,
               code: this.loginMessage.code
             }))
-          console.log(msg.data)
+          // console.log(msg.data)
           if (msg.data === 'success') {
             this.$message.success('登录成功')
             this.$router.push('/home')

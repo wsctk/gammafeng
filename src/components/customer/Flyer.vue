@@ -10,45 +10,45 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="用户名：" class="firInput" prop="username">
-          <el-input placeholder="请输入" v-model="queryInfo.username"></el-input>
+        <el-form-item label="用户名：" class="firInput" prop="wechatName">
+          <el-input placeholder="请输入" v-model="queryInfo.wechatName"></el-input>
         </el-form-item>
-        <el-form-item label="手机号码：" prop="phonenumber">
-          <el-input placeholder="请输入" v-model="queryInfo.phonenumber"></el-input>
+        <el-form-item label="手机号码：" prop="phoneNummber">
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNummber"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary">查询</el-button>
+          <el-button type="primary" @click="queryinfo">查询</el-button>
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="用户ID">
-        </el-table-column>
-        <el-table-column align="center" prop="name" label="用户名">
-        </el-table-column>
-        <el-table-column align="center" prop="touxiang" label="微信头像">
-        </el-table-column>
-        <el-table-column align="center" prop="mobile" label="手机号">
-        </el-table-column>
-        <el-table-column align="center" prop="state" label="身份状态">
-        </el-table-column>
-        <el-table-column align="center" prop="jifen" label="用户积分">
-        </el-table-column>
-        <el-table-column align="center" prop="bili" label="佣金分成比例">
-        </el-table-column>
-        <el-table-column align="center" prop="duoyu" label="钱包余额">
-        </el-table-column>
-        <el-table-column align="center" prop="inviter" label="邀请人">
-        </el-table-column>
-        <el-table-column align="center" prop="registerTime" label="注册时间">
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px">
-          <template>
-            <el-button size="small" type="primary" @click="showDialogForm">编辑</el-button>
-            <el-button size="small" type="danger">删除</el-button>
-          </template>
-        </el-table-column>
-    </el-table>
+      <el-table :data="tableData" style="width: 100%" border :key="tableData.id">
+          <el-table-column align="center" prop="id" label="用户ID">
+          </el-table-column>
+          <el-table-column align="center" prop="wechatName" label="用户名">
+          </el-table-column>
+          <el-table-column align="center" prop="wechatAvatar" label="微信头像">
+          </el-table-column>
+          <el-table-column align="center" prop="phoneNumber" label="手机号">
+          </el-table-column>
+          <el-table-column align="center" prop="statusState" label="身份状态">
+          </el-table-column>
+          <el-table-column align="center" prop="points" label="用户积分">
+          </el-table-column>
+          <el-table-column align="center" prop="commissionRate" label="佣金分成比例">
+          </el-table-column>
+          <el-table-column align="center" prop="balance" label="钱包余额">
+          </el-table-column>
+          <el-table-column align="center" prop="parentId" label="邀请人">
+          </el-table-column>
+          <el-table-column align="center" prop="registerTime" label="注册时间">
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" width="180px">
+            <template>
+              <el-button size="small" type="primary" @click="showDialogForm">编辑</el-button>
+              <el-button size="small" type="danger">删除</el-button>
+            </template>
+          </el-table-column>
+      </el-table>
     <el-pagination background :page-sizes="[1, 5, 10, 20]" :page-size="10" :page-count="11" :current-page="currentPage" layout="total, slot, prev, pager, next, sizes, jumper" :total="total">
       <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
     </el-pagination>
@@ -176,8 +176,9 @@ export default {
       radio1: '2',
       radio2: '2',
       queryInfo: {
-        username: '',
-        phonenumber: ''
+        wechatName: '',
+        phoneNumber: '',
+        userStatus: 1
       },
       dialogImageUrl: '',
       dialogVisible2: false,
@@ -223,8 +224,7 @@ export default {
         ]
       },
       total: 400,
-      pageNum: 1,
-      status: '1'
+      pageNum: 1
     }
   },
   created () {
@@ -238,7 +238,14 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async getCustomerList () {
-      const msg = await this.$http.get('user/userList', this.$qs.stringify({ userStatus: this.status }))
+      const msg = await this.$http.get('user/userList', { params: { userStatus: '1' } })
+      console.log(this.status)
+      console.log(msg.data)
+      this.tableData = msg.data
+    },
+    async queryinfo () {
+      console.log(this.queryInfo.wechatName)
+      const msg = await this.$http.get('user/userList?', { params: this.queryInfo })
       console.log(msg.data)
       this.tableData = msg.data
     },
