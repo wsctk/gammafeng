@@ -2,7 +2,7 @@
     <el-container class="home_container">
         <el-header>
           <div class="headL">
-            <img src='../assets/heima.png' alt='图标'/>
+            <img class="tbimg" src='../assets/tx.jpg' alt='图标' style="width:40px;height:40px;">
             <span>伽马蜂管理后台</span>
           </div>
           <div class="headR">
@@ -10,20 +10,19 @@
             <span><i class="el-icon-search"></i></span>
             <span><i class="el-icon-bell"></i></span>
             <el-avatar size="small" fit="fill" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
-            <el-link href=# target="_blank" class="un">{{userName}}}</el-link>
+            <el-button size='small' class="quit" @click="quitlogin">退出登录</el-button>
           </div>
         </el-header>
         <el-container>
           <el-aside :width="isCollapse ? '64px': '14%'">
-            <el-menu background-color="#333744" text-color="#fff" unique-opened router default-active="/normalcustomer">
+            <el-menu background-color="#333744" text-color="#fff" unique-opened router default-active="activepath">
               <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
                 <template slot="title">
                   <i :class=iconObj[item.id]></i>
                   <span>{{item.authName}}</span>
                 </template>
-                <el-menu-item :index="'/'+subItem.path" v-for="subItem in item.children" :key="subItem.id">
+                <el-menu-item :index="'/'+subItem.path" v-for="subItem in item.children" :key="subItem.id" @click="saveNavState('/'+subItem.path)">
                   <template slot="title" >
-                    <!-- <i class="el-icon-menu"></i> -->
                     <span>{{subItem.authName}}</span>
                   </template>
                 </el-menu-item>
@@ -48,7 +47,7 @@
 export default {
   data () {
     return {
-      userName: 'momo.zxy',
+      activepath: '',
       menuList: [
         {
           authName: '用户管理',
@@ -97,8 +96,9 @@ export default {
           authName: '系统管理',
           id: 5,
           children: [
-            { authName: '通用配置', id: 1, path: 'normalset' },
-            { authName: '管理员管理', id: 2, path: 'keeper' }
+            { authName: '分销提现门槛', id: 1, path: 'tixianmenkan' },
+            { authName: '亩数定价范围', id: 2, path: 'mushu' },
+            { authName: '管理员管理', id: 3, path: 'keeper' }
           ]
         }
       ],
@@ -113,32 +113,29 @@ export default {
       isCollapse: false,
       activePath: ''
     }
+  },
+  methods: {
+    async quitlogin () {
+      const msg = await this.$http.post('loginOut')
+      if (msg.status !== 200) {
+        return this.$message.error('登出失败！')
+      }
+      window.sessionStorage.clear()
+      localStorage.removeItem('checked')
+      this.$message.success('登出成功！')
+      this.$router.push('/login')
+    },
+    saveNavState (activePath) {
+      window.sessionStorage.setItem('activePath', activePath)
+      this.activepath = activePath
+    }
   }
-  // created () {
-  //   this.getMenuList()
-  //   this.activePath = window.sessionStorage.getItem('activePath')
-  // }
-  // methods: {
-  //   logOut () {
-  //     window.sessionStorage.clear()
-  //     this.$router.push('/login')
-  //   },
-  //   async getMenuList () {
-  //     const { data: res } = await this.$http.get('menus')
-  //     if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
-  //     this.menuList = res.data
-  //   },
-  //   toggleCollapse () {
-  //     this.isCollapse = !this.isCollapse
-  //   },
-  //   saveNavState (activePath) {
-  //     window.sessionStorage.setItem('activePath', activePath)
-  //     this.activePath = activePath
-  //   }
-  // }
 }
 </script>
 <style lang="less" scoped>
+.tbimg {
+  margin-left:20px;
+}
 .el-header {
   display:flex;
   justify-content: flex-start;
@@ -165,7 +162,7 @@ export default {
     width:86%;
   }
 }
-.un {
+.quit {
   margin-left: 20px;
 }
 .el-icon-s-fold:before {

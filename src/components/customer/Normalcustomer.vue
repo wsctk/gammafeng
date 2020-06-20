@@ -38,7 +38,7 @@
         </el-table-column>
         <el-table-column align="center" prop="balance" label="钱包余额">
         </el-table-column>
-        <el-table-column align="center" prop="parentId" label="邀请人">
+        <el-table-column align="center" prop="parentPhoneNumber" label="邀请人">
         </el-table-column>
         <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope">
           <template>
@@ -56,112 +56,33 @@
       <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="50%">
+    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="30%">
       <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right">
         <el-row>
-          <el-col :span="10">
-            <el-form-item label="用户名：" prop="wechatName">
-              <el-input placeholder="请输入" v-model="editForm.wechatName"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="手机号：" prop="phoneNumber">
-              <el-input placeholder="请输入" v-model="editForm.phoneNumber"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="10">
+          <el-col :span="17" :offset="3">
             <el-form-item label="商品佣金分成比例：" prop="commissionRate">
-              <el-input placeholder="请输入" v-model="editForm.commissionRate"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="认证状态：">
-              <el-radio v-model="radio2" label="1">已认证</el-radio>
-              <el-radio v-model="radio2" label="2">未认证</el-radio>
+              <el-input v-model="editForm.commissionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="10">
-            <el-form-item label="用户积分：" prop="points">
-              <el-input placeholder="请输入" v-model="editForm.points"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="派单佣金分成比例：" prop="fenchengbili">
-              <el-input placeholder="请输入" v-model="editForm.paidanfenchengbili"></el-input>
+          <el-col :span="17" :offset="3">
+            <el-form-item label="派单佣金分成比例：" prop="distributionRate">
+              <el-input v-model="editForm.distributionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="10">
-            <el-form-item label="钱包余额：" prop="balance">
-              <el-input placeholder="请输入" v-model="editForm.balance"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="邀请人：" prop="parentId">
-              <!-- <el-select v-model="value" placeholder="请选择">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select> -->
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="10">
-            <el-form-item label="注册时间：" prop="registerTime">
-              <el-input placeholder="请输入" v-model="editForm.registerTime"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="身份证号码：" prop="idcode">
-              <el-input placeholder="请输入" v-model="editForm.idcode"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="10">
-            <el-form-item label="身份证正面：">
-              <el-upload
-                action=#
-                list-type="picture-card"
-                :file-list="fileList1"
-                :on-preview="handlePictureCardPreview"
-                :on-remove="handleRemove">
-                <i class="el-icon-plus"></i>
-              </el-upload>
-              <el-dialog :visible.sync="dialogVisible2">
-                <img width="100%" :src="dialogImageUrl" alt="">
-              </el-dialog>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="身份证背面：">
-              <el-upload
-                action=#
-                list-type="picture-card"
-                :file-list="fileList2"
-                :on-preview="handlePictureCardPreview"
-                :on-remove="handleRemove">
-                <i class="el-icon-plus"></i>
-              </el-upload>
-              <el-dialog :visible.sync="dialogVisible3">
-                <img width="100%" :src="dialogImageUrl" alt="">
-              </el-dialog>
+          <el-col :span="17" :offset="3">
+            <el-form-item label="邀请人：" prop="parentPhoneNumber">
+              <el-input v-model="editForm.parentPhoneNumber"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible1 = false">取消</el-button>
-        <el-button type="primary" @click="edituserinfo">确定</el-button>
+        <el-button type="primary" @click="editdialog">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -172,8 +93,6 @@ export default {
     return {
       dialogVisible1: false,
       currentPage: 1,
-      radio1: '2',
-      radio2: '2',
       queryInfo: {
         wechatName: '',
         phoneNumber: '',
@@ -182,8 +101,8 @@ export default {
       dialogImageUrl: '',
       dialogVisible2: false,
       dialogVisible3: false,
-      fileList1: [{ name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100' }],
-      fileList2: [{ name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100' }],
+      fileList1: [],
+      fileList2: [],
       tableData: [],
       editForm: {},
       editFormRules: {
@@ -217,24 +136,40 @@ export default {
     this.getCustomerList()
   },
   methods: {
-    showDialogForm (id) {
+    async getCustomerList () {
+      const msg = await this.$http.get('user/userList', { params: { userStatus: '0' } })
+      console.log(msg.data)
+      if (msg.status !== 200) {
+        return this.$message.error('获取用户列表失败！')
+      }
+      this.tableData = msg.data
+    },
+    showDialogForm (user) {
       this.dialogVisible1 = true
-      console.log(id)
-      this.editForm = id
+      console.log(user)
+      this.editForm = user
     },
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
-      console.log(this.queryInfo.wechatName)
       const msg = await this.$http.get('user/userList', { params: this.queryInfo })
       console.log(msg.data)
+      if (msg.status !== 200) {
+        return this.$message.erro('查询失败！')
+      }
       this.tableData = msg.data
     },
-    async getCustomerList () {
-      const msg = await this.$http.get('user/userList', { params: { userStatus: '0' } })
+    async editdialog () {
+      const msg = await this.$http.post('user/updateUser', this.$qs.stringify(this.editForm))
       console.log(msg.data)
-      this.tableData = msg.data
+      if (msg.status !== 200) {
+        return this.$message.error('编辑失败！')
+      }
+      if (msg.data.code === 9) {
+        return this.$message.error('上级号码不存在！')
+      }
+      this.$message.success('编辑成功!')
     },
     async removeuser (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
@@ -252,10 +187,6 @@ export default {
       }
       this.$message.success('用户已删除')
       this.getCustomerList()
-    },
-    async edituserinfo () {
-      const msg = await this.$http.post('user/updateUser', this.$qs.stringify(this.editForm))
-      console.log(msg)
     },
     handleRemove (file, fileList) {
       console.log(file, fileList)

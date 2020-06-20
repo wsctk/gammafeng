@@ -10,53 +10,47 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="账户号：" class="firInput" prop="articlename">
-          <el-input placeholder="请输入" v-model="queryInfo.articlename"></el-input>
+        <el-form-item label="账户号：" class="firInput" prop="userName">
+          <el-input placeholder="请输入" v-model="queryInfo.userName"></el-input>
         </el-form-item>
-        <el-form-item label="手机号码：" class="firInput" prop="articlename">
-          <el-input placeholder="请输入" v-model="queryInfo.articlename"></el-input>
+        <el-form-item label="手机号码：" class="firInput" prop="phoneNumber">
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber"></el-input>
         </el-form-item>
-        <el-form-item label="管理员状态：" prop="publishtime">
-          <el-select placeholder="请选择" v-model="queryInfo.publishtime">
-            <el-option label="身份一" value="shanghai"></el-option>
-            <el-option label="身份二" value="beijing"></el-option>
+        <el-form-item label="管理员状态：" prop="status">
+          <el-select placeholder="请选择" v-model="queryInfo.status">
+            <el-option label="正常" value=1></el-option>
+            <el-option label="禁用" value=0></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary">查询</el-button>
+          <el-button type="primary" @click="querykeeper">查询</el-button>
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-button class="addbtn" type="primary" size="large" @click="showAddForm">+ 新建</el-button>
+      <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       <el-table max-height=400 :data="tableData" style="width: 100%" border>
         <el-table-column align="center" prop="id" label="用户ID">
         </el-table-column>
-        <el-table-column align="center" prop="articleName" label="管理员姓名">
+        <el-table-column align="center" prop="realName" label="管理员姓名">
         </el-table-column>
-        <el-table-column align="center" label="管理员帐号">
-          <!-- <template v-slot="scope">
-            <img :src=scope.row.cover style="width: 100px; height: 100px" />
-          </template> -->
+        <el-table-column align="center" prop="userName" label="管理员帐号">
         </el-table-column>
-        <el-table-column align="center" prop="createTime" label="手机号">
-          <!-- <template v-slot="scope">
+        <el-table-column align="center" prop="phoneNumber" label="手机号">
+        </el-table-column>
+        <el-table-column align="center" prop="status" label="管理员状态">
+        </el-table-column>
+        <el-table-column align="center" prop="createTime" label="创建时间">
+          <template v-slot="scope">
             {{ scope.row.createTime | dateFormat}}
-          </template> -->
+          </template>
         </el-table-column>
-        <el-table-column align="center" prop="scannumber" label="管理员状态">
-        </el-table-column>
-        <el-table-column align="center" prop="status" label="创建时间">
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px">
+        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
           <template>
-            <el-button size="small" type="primary">编辑</el-button>
-            <el-button size="small" type="danger">删除</el-button>
+            <el-button size="small" type="primary" @click="showeditform(scope.row)">编辑</el-button>
+            <el-button size="small" type="danger" @click="removekeeper(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
     </el-table>
-    <!-- <img
-    style="width: 100px; height: 100px"
-    :src="img" /> -->
     <el-pagination
       background
       :page-sizes="[1, 5, 10, 20]"
@@ -68,57 +62,92 @@
       <span class="slotText">第{{queryInfo.pageNum}}/{{total/5}}页</span>
     </el-pagination>
     </el-card>
-     <el-dialog title="新增资讯" :visible.sync="dialogVisible" width="40%">
-      <el-form label-width="100px" :model="additionalInfo">
+    <el-dialog title="新增管理员" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
+      <el-form label-width="100px" :model="addForm" ref="addFormRef">
         <el-row>
           <el-col :span="15" :offset="4">
-            <el-form-item label="文章标题:" prop="title">
-              <el-input placeholder="请输入" v-model="additionalInfo.title"></el-input>
+            <el-form-item label="管理员姓名:" prop="realName">
+              <el-input placeholder="请输入" v-model="addForm.realName"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="15" :offset="4">
-            <el-form-item label="商品封面:">
-              <el-upload
-                :http-request="uploadSectionFile"
-                action="#"
-                list-type="picture-card"
-                :file-list="fileList"
-                :on-preview="handlePictureCardPreview"
-                :on-remove="handleRemove">
-                <i class="el-icon-plus"></i>
-              </el-upload>
-              <el-dialog :visible.sync="dialogVisible2">
-                <img width="100%" :src="dialogImageUrl" alt="">
-              </el-dialog>
+            <el-form-item label="账号名:" prop="userName">
+              <el-input placeholder="请输入" v-model="addForm.userName"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="15" :offset="4">
-            <el-form-item label="文章详情:">
-              <el-input
-                type="textarea"
-                :rows="4"
-                placeholder="富文本编辑器"
-                v-model="textarea">
-              </el-input>
+            <el-form-item label="密码:" prop="password">
+              <el-input placeholder="请输入" v-model="addForm.password"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="15" :offset="4">
-            <el-form-item label="资讯状态:">
-              <el-radio v-model="radio" label="1">正常</el-radio>
-              <el-radio v-model="radio" label="2">禁用</el-radio>
+            <el-form-item label="手机号码:" prop="phoneNumber">
+              <el-input placeholder="请输入" v-model="addForm.phoneNumber"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="4">
+            <el-form-item label="管理员状态:">
+              <el-radio v-model="addForm.status" :label=1>正常</el-radio>
+              <el-radio v-model="addForm.status" :label=0>禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button @click="dialogVisible=false">取消</el-button>
+        <el-button type="primary" @click="addkeeper">确定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="编辑管理员" :visible.sync="dialogVisible1" width="40%">
+      <el-form label-width="100px" :model="editForm">
+        <el-row>
+          <el-col :span="15" :offset="4">
+            <el-form-item label="管理员姓名:" prop="realName">
+              <el-input placeholder="请输入" v-model="editForm.realName"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="4">
+            <el-form-item label="账号名:" prop="userName">
+              <el-input placeholder="请输入" v-model="editForm.userName"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="4">
+            <el-form-item label="密码:" prop="password">
+              <el-input placeholder="请输入" v-model="editForm.password"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="4">
+            <el-form-item label="手机号码:" prop="phoneNumber">
+              <el-input placeholder="请输入" v-model="editForm.phoneNumber"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="4">
+            <el-form-item label="管理员状态:" prop="status">
+              <el-radio v-model="editForm.status" label=1>正常</el-radio>
+              <el-radio v-model="editForm.status" label=0>禁用</el-radio>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible1=false">取消</el-button>
+        <el-button type="primary" @click="editkeeper">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -128,22 +157,20 @@ export default {
   data () {
     return {
       queryInfo: {
-        articlename: '',
-        publishtime: '',
-        pageNum: 1,
-        pagesize: 8
+        userName: '',
+        phoneNumber: '',
+        status: ''
       },
-      radio: '2',
       dialogVisible: false,
-      additionalInfo: {
-        title: '123',
-        fengmian: '123',
-        xiangqing: '123'
+      dialogVisible1: false,
+      addForm: {
+        realName: '',
+        userName: '',
+        password: '',
+        phoneNumber: '',
+        status: ''
       },
-      dialogVisible2: false,
-      dialogImageUrl: '',
-      textarea: '',
-      fileList: [{ name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100' }],
+      editForm: {},
       tableData: [],
       total: 400
     }
@@ -156,80 +183,58 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async getInformationList () {
-      const msg = await this.$http.get('information/getInformationList')
-      console.log(msg.data)
-      this.tableData = msg.data
-      this.total = msg.data.length + 1
+      const msg = await this.$http.get('admin/getAdminList')
+      this.tableData = msg.data.data
     },
-    showAddForm () {
-      this.dialogVisible = true
+    async querykeeper () {
+      const msg = await this.$http.get('admin/getAdminList', { params: this.queryInfo })
+      this.tableData = msg.data.data
     },
-    handlePictureCardPreview (file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible2 = true
-    },
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
-    },
-    async uploadSectionFile (params) {
-      const file = params.file
-      // fileType = file.type,
-      // isImage = fileType.indexOf("image") != -1,
-      // isLt2M = file.size / 1024 / 1024 < 2;
-      // // 这里常规检验，看项目需求而定
-      // if (!isImage) {
-      // this.$message.error("只能上传图片格式png、jpg、gif!");
-      // return;
-      // }
-      // if (!isLt2M) {
-      // this.$message.error("只能上传图片大小小于2M");
-      // return;
-      // }
-      // 根据后台需求数据格式
-      const formData = new FormData()
-      // 文件对象
-      formData.append('file', file)
-      // 本例子主要要在请求时添加特定属性，所以要用自己方法覆盖默认的action
-      formData.append('articleName', this.additionalInfo.title)
-      formData.append('content', this.additionalInfo.xiangqing)
-      console.log(formData.get('img'))
-      const add = await this.$http.post('information/addInformation', formData)
-      // {
-      //   articleName: this.additionalInfo.title,
-      //   content: this.additionalInfo.fengmian,
-      //   file: this.additionalInfo.xiangqing
-      // })
-      // console.log(add)
-      this.img = add.data.data
-      console.log(this.img)
-      console.log(add.data.data)
+    async addkeeper () {
+      const msg = await this.$http.post('admin/addAdmin', this.$qs.stringify(this.addForm))
+      if (msg.status !== 200) {
+        this.dialogVisible = false
+        return this.$message.error('新增管理员失败！')
+      }
+      this.$message.success('新增管理员成功！')
+      this.dialogVisible = false
       this.getInformationList()
-      // 项目封装的请求方法，下面做简单介绍
-      // imageUpload(form)
-      // .then(res => {
-      //     //自行处理各种情况
-      //     // const code = res && parseInt(res.code, 10);
-      //     // if (code === 200) {
-      //     // // xxx
-      //     // } else {
-      //     // // xxx
-      //     // }
-      //     console.log(res)
-      // })
-      // .catch(() => {
-      //     // xxx
-      // });
+    },
+    showeditform (user) {
+      this.editForm = user
+      this.dialogVisible1 = true
+    },
+    async editkeeper () {
+      const msg = await this.$http.post('admin/updateAdmin', this.$qs.stringify(this.editForm))
+      console.log(msg)
+      if (msg.status !== 200) {
+        this.dialogVisible1 = false
+        return this.$message.error('编辑管理员失败！')
+      }
+      this.$message.success('编辑管理员成功！')
+      this.dialogVisible1 = false
+      this.getInformationList()
+    },
+    closeaddform () {
+      this.$refs.addFormRef.resetFields()
+    },
+    async removekeeper (id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该管理员, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const msg = await this.$http.post('admin/deleteAdmin', this.$qs.stringify({ id: id }))
+      console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('删除失败！')
+      }
+      this.$message.success('删除成功！')
+      this.getInformationList()
     }
-    // async uploadAddInfo () {
-    //   const add = await this.$http.post('information/addInformation',
-    //     {
-    //       articleName: this.additionalInfo.title,
-    //       content: this.additionalInfo.fengmian,
-    //       file: this.additionalInfo.xiangqing
-    //     })
-    //   console.log(add)
-    // }
-    // this.getInformationList()
   }
 }
 </script>

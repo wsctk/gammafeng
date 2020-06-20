@@ -9,41 +9,43 @@
       <p class="indexText">提现记录</p>
     </div>
     <el-card>
-      <el-form :inline="true">
+      <el-form :inline="true" :model="queryinfo" ref="queryInfoRef">
         <el-form-item label="用户手机号：" class="firInput">
-          <el-input placeholder="请输入"></el-input>
+          <el-input placeholder="请输入" v-model="queryinfo.phoneNumber"></el-input>
         </el-form-item>
         <el-form-item label="用户身份：">
-          <el-select placeholder="请选择">
-            <el-option label="身份一" value="shanghai"></el-option>
-            <el-option label="身份二" value="beijing"></el-option>
+          <el-select placeholder="请选择" v-model="queryinfo.userStatus">
+            <el-option label="普通用户" value="0"></el-option>
+            <el-option label="飞手" value="1"></el-option>
+            <el-option label="农资商" value="2"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary">查询</el-button>
-          <el-button plain>重置</el-button>
+          <el-button type="primary" @click="querylist">查询</el-button>
+          <el-button plain @click="resetField">重置</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="tableData" style="width: 100%" border>
         <el-table-column align="center" prop="id" label="提现记录ID">
         </el-table-column>
-        <el-table-column align="center" prop="name" label="用户名">
+        <el-table-column align="center" prop="gmUser.wechatName" label="用户名">
         </el-table-column>
-        <el-table-column align="center" prop="touxiang" label="手机号码">
+        <el-table-column align="center" prop="gmUser.phoneNumber" label="手机号码">
         </el-table-column>
-        <el-table-column align="center" prop="mobile" label="用户身份">
+        <el-table-column align="center" prop="gmUser.userStatus" label="用户身份">
         </el-table-column>
-        <el-table-column align="center" prop="shenfen" label="提现金额">
+        <el-table-column align="center" prop="drawMoney" label="提现金额">
         </el-table-column>
-        <el-table-column align="center" prop="idcard" label="钱包余额">
+        <el-table-column align="center" prop="balance" label="钱包余额">
         </el-table-column>
-        <el-table-column align="center" prop="idcardimg0" label="发起时间">
+        <el-table-column align="center" prop="drawTime" label="发起时间">
+          <template v-slot="scope">
+            {{ scope.row.drawTime | dateFormat}}
+          </template>
         </el-table-column>
-        <el-table-column align="center" prop="idcardimg1" label="到账时间">
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作">
-          <template>
-            <el-button size="small" type="danger">删除</el-button>
+        <el-table-column align="center" prop="accountTime" label="到账时间">
+          <template v-slot="scope">
+            {{ scope.row.accountTime | dateFormat}}
           </template>
         </el-table-column>
     </el-table>
@@ -64,7 +66,10 @@
 export default {
   data () {
     return {
-      status: '0',
+      queryinfo: {
+        userStatus: '',
+        phoneNumber: ''
+      },
       currentPage: 1,
       tableData: [],
       total: 400,
@@ -75,9 +80,37 @@ export default {
     this.getCustomerList()
   },
   methods: {
+    resetField () {
+      this.$refs.queryInfoRef.resetFields()
+    },
     async getCustomerList () {
-      const msg = await this.$http.post('user/userList', this.$qs.stringify({ userStatus: this.status }))
+      const msg = await this.$http.get('draw/drawList')
+      console.log(msg.data.data)
+      // if (msg.status !== 200) {
+      //   return this.$message.error('获取提现列表失败！')
+      // }
+      // for (item in msg.data.data) {
+      //   switch (item.status) {
+      //     case 0:
+      //       item.status = '普通用户'
+      //       break
+      //     case 1:
+      //       item.status = '飞手'
+      //       break
+      //     case 2:
+      //       item.status = '农资商'
+      //       break
+      //   }
+      // }
+      this.tableData = msg.data.data
+    },
+    async querylist () {
+      const msg = await this.$http.get('draw/drawList', { params: { phoneNumber: this.queryinfo.phoneNumber, userStatus: this.queryinfo.userStatus } })
       console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('查询失败！')
+      }
+      this.tableData = msg.data.data
     }
   }
 }

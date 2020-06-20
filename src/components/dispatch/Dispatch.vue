@@ -10,19 +10,16 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="用户手机号" class="firInput" prop="userphonenumber">
-          <el-input placeholder="请输入" v-model="queryInfo.articlename"></el-input>
+        <el-form-item label="用户手机号" class="firInput" prop="phone_number">
+          <el-input placeholder="请输入" v-model="queryInfo.phone_number"></el-input>
         </el-form-item>
-         <!-- <el-form-item label="飞手手机号" prop="flyerphonenumber">
-          <el-input placeholder="请输入" v-model="queryInfo.flyerphonenumber"></el-input>
-        </el-form-item> -->
-        <el-form-item label="派单状态" prop="dispatchstatus">
-          <el-select placeholder="请选择" v-model="queryInfo.publishtime">
-            <el-option label="待付款" value="shanghai"></el-option>
-            <el-option label="待指派" value="beijing"></el-option>
-            <el-option label="待服务" value="beijing"></el-option>
-            <el-option label="待确认" value="beijing"></el-option>
-            <el-option label="已完成" value="beijing"></el-option>
+        <el-form-item label="订单状态">
+          <el-select placeholder="请选择" v-model="queryInfo.order_state_name">
+            <el-option label="待付款" value="0"></el-option>
+            <el-option label="待指派" value="1"></el-option>
+            <el-option label="待服务" value="2"></el-option>
+            <el-option label="待确认" value="3"></el-option>
+            <el-option label="已完成" value="4"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
@@ -95,9 +92,8 @@ export default {
   data () {
     return {
       queryInfo: {
-        userPhoneNumber: '',
-        // flyerphonenumber: '',
-        dispatchstatus: ''
+        phone_number: '',
+        order_state_name: ''
       },
       dialogVisible: false,
       appointForm: {
@@ -136,8 +132,11 @@ export default {
       this.addtable = msg.data.data
     },
     async queryInfomation () {
-      const msg = await this.$http.get('dispatcher/getDispatcherList', this.$qs.stringify({ userPhoneNumber: this.queryInfo.userPhoneNumber }))
+      const msg = await this.$http.get('dispatcher/getDispatcherList', this.$qs.stringify({ phone_number: this.queryInfo.phone_number }))
       console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('查询失败！')
+      }
       this.tableData = msg.data
     },
     closeForm () {

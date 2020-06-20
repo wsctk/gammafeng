@@ -2,7 +2,6 @@
   <div>
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
         <el-breadcrumb-item>用户管理</el-breadcrumb-item>
         <el-breadcrumb-item>认证记录</el-breadcrumb-item>
       </el-breadcrumb>
@@ -40,9 +39,15 @@
         </el-table-column>
         <el-table-column align="center" prop="idNumber" label="身份证号码">
         </el-table-column>
-        <el-table-column align="center" prop="idCardFront" label="身份证正面">
+        <el-table-column align="center" prop="idCardFront" label="身份证正面" v-slot="scope">
+          <template>
+            <img :src=scope.row.idCardFront style="width:50px; height:50px" />
+          </template>
         </el-table-column>
-        <el-table-column align="center" prop="idCardReverse" label="身份证背面">
+        <el-table-column align="center" prop="idCardReverse" label="身份证背面" v-slot="scope">
+          <template>
+            <img :src=scope.row.idCardReverse style="width:50px; height:50px" />
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="authenticationState" label="认证状态">
         </el-table-column>
@@ -124,6 +129,14 @@ export default {
       this.getAuthList()
     },
     async remove (id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
       const msg = await this.$http.post('auth/deleteAuth', this.$qs.stringify({ id: id }))
       console.log(msg)
       if (msg.status !== 200) {

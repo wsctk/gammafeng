@@ -8,16 +8,6 @@
         <p class="indexText">通用配置</p>
       </div>
       <el-card>
-        <el-row>
-          <el-col :span="6">
-            <el-form label-width="140px">
-              <el-form-item label="分销提现门槛：">
-                  <el-input placeholder="请输入" v-model="tixian"></el-input>
-              </el-form-item>
-            </el-form>
-          </el-col>
-        </el-row>
-        <el-button type="primary" @click="save">提交</el-button>
         <el-row v-for="item in rowlist" :key="item.id">
             <template>
               <el-col :span="1" class="middletext">
@@ -36,10 +26,10 @@
                 元，超出部分进入下一级结算
               </el-col>
             </template>
-          </el-row>
-        <el-button type="primary" @click="add">新增</el-button>
-        <el-button type="primary" @click="remove">删减</el-button>
-        <el-button type="primary" @click="rangeload">提交</el-button>
+        </el-row>
+        <el-button type="warning" @click="add" class="btn">新增</el-button>
+        <el-button type="danger" @click="remove" class="btn">删减</el-button>
+        <el-button type="primary" @click="rangeload" class="btn">提交</el-button>
       </el-card>
     </div>
 </template>
@@ -52,16 +42,11 @@ export default {
         { end: 100, price: 4 },
         { end: 200, price: 3 }
       ],
-      tixian: '',
       range1: 50,
       mushu: []
     }
   },
   methods: {
-    async save () {
-      const msg = await this.$http.post('system/updatesystemconfig', { minCash: this.tixian })
-      console.log(msg)
-    },
     add () {
       this.rowlist.push({ end: 0, price: 0 })
     },
@@ -71,6 +56,10 @@ export default {
     async rangeload () {
       const msg = await this.$http.post('system/updateMuPrice', this.rowlist)
       console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('提交失败！')
+      }
+      this.$message.success('提交成功!')
     }
   }
 }
@@ -80,8 +69,12 @@ export default {
   background-color: #fff;
   height: 88px;
 }
-.el-button--primary {
-  margin-left: 30px;
+.btn{
+  margin-left: 50px;
+  margin-top: 20px;
+}
+.el-button+.el-button {
+  margin-left: 50px;
 }
 .middletext {
   text-align: center;

@@ -27,28 +27,29 @@
           <el-button type="primary">查询</el-button>
           <el-button plain>重置</el-button>
         </el-form-item>
+        <el-button class="addbtn" type="primary" size="large" @click="showAddForm">+ 新建</el-button>
       </el-form>
       <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="couponid" label="优惠券ID">
+        <el-table-column align="center" prop="id" label="优惠券ID">
         </el-table-column>
-        <el-table-column align="center" prop="bindeduser" label="被绑定用户">
+        <el-table-column align="center" prop="phoneNumber" label="被绑定用户">
         </el-table-column>
-        <el-table-column align="center" prop="couponsize" label="优惠券面额">
+        <el-table-column align="center" prop="value" label="优惠券面额">
         </el-table-column>
-        <el-table-column align="center" prop="coupontype" label="优惠券类型">
+        <el-table-column align="center" prop="useCondition" label="优惠券类型">
         </el-table-column>
-        <el-table-column align="center" prop="validcoupon" label="优惠券有效期">
+        <el-table-column align="center" prop="expirationDate" label="优惠券有效期">
         </el-table-column>
-        <el-table-column align="center" prop="status" label="优惠券状态">
+        <el-table-column align="center" prop="state" label="优惠券状态">
         </el-table-column>
-        <el-table-column align="center" prop="createtime" label="创建时间">
+        <el-table-column align="center" prop="createTime" label="创建时间">
         </el-table-column>
-        <el-table-column align="center" prop="usetime" label="使用时间">
+        <el-table-column align="center" prop="useTime" label="使用时间">
         </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="280px">
+        <el-table-column align="center" prop="" label="操作" width="280px" v-slot="scope">
           <template>
-            <el-button size="small" type="primary" @click="showEditForm">编辑</el-button>
-            <el-button size="small" type="danger">删除</el-button>
+            <el-button size="small" type="primary" @click="showEditForm(scope.row)">编辑</el-button>
+            <el-button size="small" type="danger" @click="removecoupon(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
     </el-table>
@@ -124,23 +125,7 @@ export default {
     return {
       currentPage: 1,
       dialogVisible: false,
-      tableData: [
-        {
-          couponid: '0031121',
-          bindeduser: '梁朝伟',
-          couponsize: '50元',
-          coupontype: '直减',
-          validcoupon: '2020-05-30',
-          status: '未使用',
-          createtime: '2020-05-20 13:14',
-          usetime: '2020-05-20 18:37'
-        },
-        {},
-        {},
-        {},
-        {},
-        {}
-      ],
+      tableData: [],
       editForm: {
         couponsize: '',
         validcoupon: '',
@@ -152,9 +137,44 @@ export default {
       pageNum: 1
     }
   },
+  created () {
+    this.getcouponlist()
+  },
   methods: {
-    showEditForm () {
+    showEditForm (user) {
       this.dialogVisible = true
+      this.editForm = user
+    },
+    async getcouponlist () {
+      const msg = await this.$http.get('coupons/couponsList')
+      console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('获取优惠券列表失败！')
+      }
+      this.tableData = msg.data.data
+    },
+    async editdialog () {
+      const msg = await this.$http.post('')
+      if (msg.status !== 200) {
+        return this.$message.error('编辑失败！')
+      }
+      this.$message.success('编辑成功！')
+      this.dialogVisible = false
+    },
+    async removecoupon (id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const msg = await this.$http.post()
+      if (msg.status !== 200) {
+        return this.$message.error('删除优惠券失败！')
+      }
+      this.$$message.success('删除成功！')
     }
   }
 }

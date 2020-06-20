@@ -10,21 +10,21 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="文章名称" class="firInput" prop="articlename">
-          <el-input placeholder="请输入" v-model="queryInfo.articlename"></el-input>
+        <el-form-item label="文章名称" class="firInput">
+          <el-input placeholder="请输入" v-model="queryInfo.articleName"></el-input>
         </el-form-item>
-        <el-form-item label="发布时间：" prop="publishtime">
+        <el-form-item label="发布时间：">
           <el-select placeholder="请选择" v-model="queryInfo.publishtime">
             <el-option label="身份一" value="shanghai"></el-option>
             <el-option label="身份二" value="beijing"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary">查询</el-button>
+          <el-button type="primary" @click="queryinfo">查询</el-button>
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-button class="addbtn" type="primary" size="large" @click="showAddForm">+ 新建</el-button>
+      <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       <el-table max-height=400 :data="tableData" style="width: 100%" border>
         <el-table-column align="center" prop="id" label="图文ID">
         </el-table-column>
@@ -47,7 +47,7 @@
         <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
           <template>
             <el-button size="small" type="primary" @click="showeditform(scope.row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="removerow(scope.row.id)">删除</el-button>
+            <el-button size="small" type="danger" @click="removeuser(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
     </el-table>
@@ -62,7 +62,7 @@
       <span class="slotText">第{{queryInfo.pageNum}}/{{total/5}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="新增资讯" :visible.sync="dialogVisible" width="40%">
+    <el-dialog title="新增资讯" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
       <el-form label-width="100px" :model="additionalInfo" ref="additionalInfoRef">
         <el-row>
           <el-col :span="15" :offset="4">
@@ -106,18 +106,18 @@
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="资讯状态:">
-              <el-radio v-model="additionalInfo.state" label="5">正常</el-radio>
-              <el-radio v-model="additionalInfo.state" label="6">禁用</el-radio>
+              <el-radio v-model="additionalInfo.state" :label="5">正常</el-radio>
+              <el-radio v-model="additionalInfo.state" :label="6">禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="closeaddform">取消</el-button>
+        <el-button @click="dialogVisible=false">取消</el-button>
         <el-button type="primary" @click="submitaddinfo">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑资讯" :visible.sync="dialogVisible1" width="40%">
+    <el-dialog title="编辑资讯" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
       <el-form label-width="100px" :model="editForm">
         <el-row>
           <el-col :span="15" :offset="4">
@@ -159,15 +159,15 @@
         </el-row>
         <el-row>
           <el-col :span="15" :offset="4">
-            <el-form-item label="资讯状态:">
-              <el-radio v-model="editForm.state" label="5">正常</el-radio>
-              <el-radio v-model="editForm.state" label="6">禁用</el-radio>
+            <el-form-item label="资讯状态:" prop="state">
+              <el-radio v-model="editForm.state" :label=5>正常</el-radio>
+              <el-radio v-model="editForm.state" :label=6>禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="closeForm">取消</el-button>
+        <el-button @click="dialogVisible1=false">取消</el-button>
         <el-button type="primary" @click="submiteditinfo">确定</el-button>
       </div>
     </el-dialog>
@@ -178,7 +178,7 @@ export default {
   data () {
     return {
       queryInfo: {
-        articlename: '',
+        articleName: '',
         publishtime: ''
       },
       radio: '2',
@@ -189,7 +189,9 @@ export default {
         state: '',
         article: ''
       },
-      editForm: {},
+      editForm: {
+        fengmian: ''
+      },
       dialogVisible1: false,
       dialogVisible2: false,
       dialogVisible3: false,
@@ -207,34 +209,33 @@ export default {
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    async queryinfo () {
+      const msg = await this.$http.get('information/selectInformation', { params: { articleName: this.queryInfo.articleName } })
+      console.log(msg)
+      this.tableData = msg.data.data
+    },
     closeaddform () {
-      this.additionalInfo.title = ''
+      this.additionalInfo.articleName = ''
       this.additionalInfo.article = ''
       this.$refs.uploadRef.clearFiles()
       this.additionalInfo.state = ''
-      this.dialogVisible = false
+    },
+    closeeditform () {
+      this.editForm = {}
+      this.fileList = []
     },
     async getInformationList () {
       const msg = await this.$http.get('information/getInformationList')
-      console.log(msg.data)
       this.tableData = msg.data
       this.total = msg.data.length + 1
-    },
-    showAddForm () {
-      this.dialogVisible = true
     },
     showeditform (user) {
       this.dialogVisible1 = true
       this.editForm = user
-      console.log(this.editForm)
       this.fileList.push({ url: user.cover })
     },
-    closeForm () {
-      this.dialogVisible1 = false
-      this.fileList.pop()
-    },
     async removeuser (id) {
-      const confirmResult = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+      const confirmResult = await this.$confirm('此操作将永久删除该条资讯, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -242,7 +243,7 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      const msg = await this.$http.delete('user/deleteUser', { params: { id: id } })
+      const msg = await this.$http.post('user/deleteUser', this.$qs.stringify({ id: id }))
       console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('删除用户失败')
@@ -269,30 +270,32 @@ export default {
       formData.append('articleName', this.additionalInfo.title)
       formData.append('content', this.additionalInfo.article)
       formData.append('state', this.additionalInfo.state)
-      const add = await this.$http.post('information/addInformation', formData)
-      console.log(add)
-      this.dialogVisible = false
+      const msg = await this.$http.post('information/addInformation', formData)
+      console.log(typeof (formData.get('state')))
+      if (msg.status !== 200) {
+        return this.$message.error('添加商品信息失败！')
+      }
+      this.$message.success('添加商品成功！')
       this.getInformationList()
+      this.dialogVisible = false
     },
     async submiteditinfo () {
       const formData = new FormData()
+      formData.append('path', this.editForm.cover)
       formData.append('file', this.editForm.fengmian)
-      formData.append('articleName', this.additionalInfo.title)
-      formData.append('content', this.additionalInfo.article)
-      formData.append('state', this.additionalInfo.state)
-      formData.append('id', this.additionalInfo.id)
-      const add = await this.$http.post('information/addInformation', formData)
-      console.log(add.data.data)
-      this.dialogVisible1 = false
-      this.getInformationList()
-    },
-    async removerow (id) {
-      const msg = await this.$http.post('information/deleteInformationList', this.$qs.stringify({ id: id }))
-      if (msg !== 200) {
-        return this.$message.error('删除失败！')
+      formData.append('articleName', this.editForm.articleName)
+      formData.append('content', this.editForm.article)
+      formData.append('state', this.editForm.state)
+      formData.append('id', this.editForm.id)
+      console.log(typeof (this.editForm.state))
+      const msg = await this.$http.post('information/editInformation', formData)
+      console.log(msg.cover)
+      if (msg.status !== 200) {
+        return this.$message.error('编辑提交失败！')
       }
-      this.$message.success('删除成功！')
+      this.$message.success('编辑成功！')
       this.getInformationList()
+      this.dialogVisible1 = false
     }
   }
 }

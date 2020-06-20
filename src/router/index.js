@@ -1,49 +1,32 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Vuecookies from 'vue-cookie'
-import Login from '../components/Login.vue'
-// const Login = () => import(/* webpackChunkName: "login_home_welcome" */ '../components/Login.vue')
-import Home from '../components/Home.vue'
-// const Home = () => import(/* webpackChunkName: "login_home_welcome" */ '../components/Home.vue')
-// const Welcome = () => import(/* webpackChunkName: "login_home_welcome" */ '../components/Welcome.vue')
-// import Users from '../components/user/Users.vue'
-import Normalcustomer from '../components/customer/Normalcustomer.vue'
-import Flyer from '../components/customer/Flyer.vue'
-import Farmer from '../components/customer/Farmer.vue'
+
 import CheckList from '../components/customer/CheckList.vue'
-import InfoList from '../components/InfoList/InfoList.vue'
+import Farmer from '../components/customer/Farmer.vue'
+import Flyer from '../components/customer/Flyer.vue'
+import Normalcustomer from '../components/customer/Normalcustomer.vue'
+
 import Dispatch from '../components/dispatch/Dispatch.vue'
-import Shop from '../components/shop/Shop.vue'
+
+import InfoList from '../components/InfoList/InfoList.vue'
+
+import Category from '../components/shop/Category.vue'
+import Coupon from '../components/shop/Coupon.vue'
+import Img from '../components/shop/Img.vue'
 import Order from '../components/shop/Order.vue'
 import Retail from '../components/shop/Retail.vue'
-import Img from '../components/shop/Img.vue'
-import Coupon from '../components/shop/Coupon.vue'
-import Category from '../components/shop/Category.vue'
-import Tixian from '../components/Tixian/Tixian.vue'
-import System from '../components/system/System.vue'
+import Shop from '../components/shop/Shop.vue'
+
 import Keeper from '../components/system/Keeper.vue'
-// const Users = () => import(/* webpackChunkName: "user_rights_roles" */ '../components/user/Users.vue')
-// import Rights from '../components/power/Rights.vue'
-// const Rights = () => import(/* webpackChunkName: "user_rights_roles" */ '../components/power/Rights.vue')
-// import Roles from '../components/power/Roles.vue'
-// const Roles = () => import(/* webpackChunkName: "user_rights_roles" */ '../components/power/Roles.vue')
+import Mushu from '../components/system/Mushu.vue'
+import Tixianmenkan from '../components/system/Tixianmenkan.vue'
 
-// import Cate from '../components/goods/Cate.vue'
-// const Cate = () => import(/* webpackChunkName: "cate_params" */ '../components/goods/Cate.vue')
-// import Params from '../components/goods/Params.vue'
-// const Params = () => import(/* webpackChunkName: "cate_params" */ '../components/goods/Params.vue')
+import Tixian from '../components/Tixian/Tixian.vue'
 
-// import List from '../components/goods/List.vue'
-// const List = () => import(/* webpackChunkName: "list_add" */ '../components/goods/List.vue')
-// import Add from '../components/goods/Add.vue'
-// const Add = () => import(/* webpackChunkName: "list_add" */ '../components/goods/Add.vue')
+import Login from '../components/Login.vue'
+import Home from '../components/Home.vue'
 
-// // import Order from '../components/order/Order.vue'
-// const Order = () => import(/* webpackChunkName: "order_report" */ '../components/order/Order.vue')
-// // import Report from '../components/report/Report.vue'
-// const Report = () => import(/* webpackChunkName: "order_report" */ '../components/report/Report.vue')
 Vue.use(VueRouter)
-Vue.use(Vuecookies)
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push (location) {
   return originalPush.call(this, location).catch(err => err)
@@ -70,16 +53,21 @@ const router = new VueRouter({
         { path: '/coupon', component: Coupon },
         { path: '/category', component: Category },
         { path: '/tixian', component: Tixian },
-        { path: '/normalset', component: System },
+        { path: '/tixianmenkan', component: Tixianmenkan },
+        { path: '/mushu', component: Mushu },
         { path: '/keeper', component: Keeper }
       ]
     }
   ]
 })
-// router.beforeEach((to, from, next) => {
-//   if (to.path === '/login') return next()
-//   const tokenStr = window.sessionStorage.getItem('token')
-//   if (!tokenStr) return next('/login')
-//   next()
-// })
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login') {
+    const checked = localStorage.getItem('checked')
+    if (checked === true) return next('/home')
+    next()
+  }
+  const login = window.sessionStorage.getItem('login')
+  if (!login) return next('/login')
+  next()
+})
 export default router

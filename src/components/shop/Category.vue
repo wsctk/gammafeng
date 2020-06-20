@@ -10,24 +10,30 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="分类名称：" class="firInput" prop="userphonenumber">
-          <el-input placeholder="请输入" v-model="queryInfo.articlename"></el-input>
+        <el-form-item label="分类名称：" class="firInput">
+          <el-input placeholder="请输入" v-model="queryInfo.categoryName"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary">查询</el-button>
+          <el-button type="primary" @click="querycate">查询</el-button>
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
       <el-button class="addbtn" type="primary" size="large" @click="showAddForm">+ 新建</el-button>
       <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="cateid" label="分类ID">
+        <el-table-column align="center" prop="id" label="分类ID">
         </el-table-column>
-        <el-table-column align="center" prop="catename" label="分类名称">
+        <el-table-column align="center" prop="categoryName" label="分类名称">
         </el-table-column>
-        <el-table-column align="center" prop="status" label="分类状态">
+        <el-table-column align="center" prop="categoryState" label="分类状态">
         </el-table-column>
-        <el-table-column align="center" prop="createtime" label="创建时间">
+        <el-table-column align="center" prop="createTime" label="创建时间">
         </el-table-column>
+        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
+            <template>
+              <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
+              <el-button size="small" type="danger" @click="removecate(scope.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
     </el-table>
     <el-pagination
       background
@@ -41,70 +47,49 @@
     </el-pagination>
     </el-card>
     <el-dialog title="新增分类" :visible.sync="dialogVisible1" width="40%">
-      <el-form :hide-required-asterisk="true" label-width="100px" :model="additionalInfo" ref="additionalInfoRef" rules="additionalInfoRules">
+      <el-form :hide-required-asterisk="true" label-width="100px" :model="addForm" ref="addFormRef" rules="addFormRules">
         <el-row>
           <el-col :span="15" :offset="4">
-            <el-form-item label="分类名称:" prop="imgid">
-              <el-select placeholder="请选择">
-                <!-- <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option> -->
-              </el-select>
+            <el-form-item label="分类名称:" prop="categoryName">
+              <el-input v-model=addForm.categoryName></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="15" :offset="4">
-            <el-form-item label="分类状态:" prop="goodname">
-              <el-radio v-model="radio" label="1">正常</el-radio>
-              <el-radio v-model="radio" label="2">禁用</el-radio>
+            <el-form-item label="分类状态:" prop="categoryState">
+              <el-radio v-model="addForm.categoryState" label="1">正常</el-radio>
+              <el-radio v-model="addForm.categoryState" label="0">禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible1 = false">取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button type="primary" @click="addcate">确定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑分类" :visible.sync="dialogVisible2" width="40%">
       <el-form :hide-required-asterisk="true" label-width="100px" :model="editForm" ref="editFormRef" rules="editFormRules">
         <el-row>
           <el-col :span="11" :offset="4">
-            <el-form-item label="分类ID:" prop="cateid">
-              <el-input v-model="editForm.cateid"></el-input>
+            <el-form-item label="分类名称:" prop="categoryName">
+              <el-input v-model=editForm.categoryName></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="15" :offset="4">
-            <el-form-item label="分类名称:" prop="catename">
-              <el-select placeholder="请选择">
-                <!-- <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option> -->
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15" :offset="4">
-            <el-form-item label="分类状态:" prop="status">
-              <el-radio v-model="radio" label="1">正常</el-radio>
-              <el-radio v-model="radio" label="2">禁用</el-radio>
+            <el-form-item label="分类状态:" prop="categoryState">
+              <el-radio v-model="editForm.categoryState" label="1">正常</el-radio>
+              <el-radio v-model="editForm.categoryState" label="0">禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible2 = false">取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button type="primary" @click="editcate">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -114,41 +99,22 @@ export default {
   data () {
     return {
       queryInfo: {
-        userphonenumber: '',
-        flyerphonenumber: '',
-        dispatchstatus: ''
+        categoryName: ''
       },
-      additionalInfo: {
-        catename: '',
-        status: ''
+      addForm: {
+        categoryName: '',
+        categoryState: ''
       },
       additionalInfoRules: {
         catename: [
           { required: true, message: '请输入分类名称', trigger: 'blur' }
         ]
       },
-      editForm: {
-        cateid: '',
-        catename: '',
-        status: ''
-      },
-      radio: '2',
+      editForm: {},
       dialogVisible1: false,
       currentPage: 1,
       dialogVisible2: false,
-      tableData: [
-        {
-          cateid: '0030121',
-          catename: '',
-          status: '正常',
-          createtime: '05-20 13:00'
-        },
-        {},
-        {},
-        {},
-        {},
-        {}
-      ],
+      tableData: [],
       total: 400,
       pageNum: 1
     }
@@ -161,11 +127,33 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async getInformationList () {
-      const msg = await this.$http.get('/distribution/getDistribution')
+      const msg = await this.$http.get('category/categoryList')
       console.log(msg)
+      this.tableData = msg.data.data
+    },
+    async querycate () {
+      const msg = await this.$http.get('category/categoryList', { params: { categoryName: this.queryInfo.categoryName } })
+      console.log(msg)
+      this.tableData = msg.data.data
     },
     showAddForm () {
       this.dialogVisible1 = true
+    },
+    async addcate () {
+      const msg = await this.$http.post('category/addCategory', this.$qs.stringify(this.addForm))
+      console.log(msg)
+    },
+    showDialogForm (user) {
+      this.dialogVisible2 = true
+      this.editForm = user
+    },
+    async editcate () {
+      const msg = await this.$http.post('category/updateCategory', this.$qs.stringify(this.editForm))
+      console.log(msg)
+    },
+    async removecate (id) {
+      const msg = await this.$http.post('category/deleteCategory', this.$qs.stringify({ id: id }))
+      console.log(msg)
     },
     handlePictureCardPreview (file) {
       this.dialogImageUrl = file.url

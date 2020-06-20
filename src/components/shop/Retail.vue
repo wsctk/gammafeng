@@ -38,9 +38,12 @@
         </el-table-column>
         <el-table-column align="center" prop="seconde_name" label="二级用户">
         </el-table-column>
-        <el-table-column align="center" prop="goods_name" label="分销类型">
+        <el-table-column align="center" prop="goods_name" label="分销类型" width="200px">
         </el-table-column>
         <el-table-column align="center" prop="goods_cover" label="商品图片">
+          <template v-slot="scope">
+            <img :src=scope.row.goods_cover style="wight:50px;height:50px" />
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="order_amount" label="订单金额">
         </el-table-column>

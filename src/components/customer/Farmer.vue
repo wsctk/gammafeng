@@ -13,8 +13,8 @@
         <el-form-item label="用户名：" class="firInput" prop="wechatName">
           <el-input placeholder="请输入" v-model="queryInfo.wechatName"></el-input>
         </el-form-item>
-        <el-form-item label="手机号码：" prop="phoneNummber">
-          <el-input placeholder="请输入" v-model="queryInfo.phoneNummber"></el-input>
+        <el-form-item label="手机号码：" prop="phoneNumber">
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
           <el-button type="primary" @click="queryinfo">查询</el-button>
@@ -38,14 +38,17 @@
         </el-table-column>
         <el-table-column align="center" prop="balance" label="钱包余额">
         </el-table-column>
-        <el-table-column align="center" prop="parentId" label="邀请人">
+        <el-table-column align="center" prop="parentPhoneNumber" label="邀请人">
         </el-table-column>
-        <el-table-column align="center" prop="registerTime" label="注册时间">
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px">
+        <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope">
           <template>
-            <el-button size="small" type="primary" @click="showDialogForm">编辑</el-button>
-            <el-button size="small" type="danger">删除</el-button>
+            {{scope.row.registerTime | dateFormat}}
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
+          <template>
+            <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
+            <el-button size="small" type="danger" @click="removefarmer(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
     </el-table>
@@ -53,116 +56,33 @@
       <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="50%">
-      <el-form label-width="130px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right">
+    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="30%">
+      <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right">
         <el-row>
-          <el-col :span="10">
-            <el-form-item label="用户名：" prop="username">
-              <el-input placeholder="请输入" v-model="editForm.username"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="手机号：" prop="phonenumber">
-              <el-input placeholder="请输入" v-model="editForm.phonenumber"></el-input>
+          <el-col :span="17" :offset="3">
+            <el-form-item label="商品佣金分成比例：" prop="commissionRate">
+              <el-input v-model="editForm.commissionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="10">
-            <el-form-item label="注册身份：">
-              <el-radio-group v-model='radio1'>
-                <el-radio label="1">普通用户</el-radio>
-                <el-radio label="2">飞手</el-radio>
-                <el-radio label="3">农资商</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="认证状态：">
-              <el-radio v-model="radio2" label="1">已认证</el-radio>
-              <el-radio v-model="radio2" label="2">未认证</el-radio>
+          <el-col :span="17" :offset="3">
+            <el-form-item label="派单佣金分成比例：" prop="distributionRate">
+              <el-input v-model="editForm.distributionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="10">
-            <el-form-item label="用户积分：" prop="jifen">
-              <el-input placeholder="请输入" v-model="editForm.jifen"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="佣金分成比例：" prop="fenchengbili">
-              <el-input placeholder="请输入" v-model="editForm.fenchengbili"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="10">
-            <el-form-item label="钱包余额：" prop="surplus">
-              <el-input placeholder="请输入" v-model="editForm.surplus"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="邀请人：" prop="inviter">
-              <!-- <el-select v-model="value" placeholder="请选择">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select> -->
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="10">
-            <el-form-item label="注册时间：" prop="registerTime">
-              <el-input placeholder="请输入" v-model="editForm.registerTime"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="身份证号码：" prop="idcode">
-              <el-input placeholder="请输入" v-model="editForm.idcode"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="10">
-            <el-form-item label="身份证正面：">
-              <el-upload
-                action="https://jsonplaceholder.typicode.com/posts/"
-                list-type="picture-card"
-                :file-list="fileList1"
-                :on-preview="handlePictureCardPreview"
-                :on-remove="handleRemove">
-                <i class="el-icon-plus"></i>
-              </el-upload>
-              <el-dialog :visible.sync="dialogVisible2">
-                <img width="100%" :src="dialogImageUrl" alt="">
-              </el-dialog>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="身份证背面：">
-              <el-upload
-                action="https://jsonplaceholder.typicode.com/posts/"
-                list-type="picture-card"
-                :file-list="fileList2"
-                :on-preview="handlePictureCardPreview"
-                :on-remove="handleRemove">
-                <i class="el-icon-plus"></i>
-              </el-upload>
-              <el-dialog :visible.sync="dialogVisible3">
-                <img width="100%" :src="dialogImageUrl" alt="">
-              </el-dialog>
+          <el-col :span="17" :offset="3">
+            <el-form-item label="邀请人：" prop="parentPhoneNumber">
+              <el-input v-model="editForm.parentPhoneNumber"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible1 = false">取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button type="primary" @click="editdialog">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -171,36 +91,15 @@
 export default {
   data () {
     return {
-      status: 2,
       dialogVisible1: false,
       currentPage: 1,
-      radio1: '2',
-      radio2: '2',
       queryInfo: {
         wechatName: '',
         phoneNumber: '',
         userStatus: 2
       },
-      dialogImageUrl: '',
-      dialogVisible2: false,
-      dialogVisible3: false,
-      fileList1: [{ name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100' }],
-      fileList2: [{ name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100' }],
       tableData: [],
-      editForm: {
-        username: '',
-        phonenumber: '',
-        identity: '',
-        status: '',
-        jifen: '',
-        fenchengbili: '',
-        surplus: '',
-        inviter: '',
-        registerTime: '',
-        idcode: '',
-        idimg1: '',
-        idimg2: ''
-      },
+      editForm: {},
       editFormRules: {
         username: [
           { required: true, message: '请输入用户邮箱', trigger: 'blur' }
@@ -232,21 +131,53 @@ export default {
     this.getCustomerList()
   },
   methods: {
-    showDialogForm () {
+    showDialogForm (user) {
       this.dialogVisible1 = true
+      this.editForm = user
     },
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
     async getCustomerList () {
       const msg = await this.$http.get('user/userList', { params: { userStatus: 2 } })
+      if (msg.status !== 200) {
+        return this.$message.error('获取农资商列表失败！')
+      }
       this.tableData = msg.data
     },
     async queryinfo () {
-      console.log(this.queryInfo.wechatName)
       const msg = await this.$http.get('user/userList', { params: this.queryInfo })
       console.log(msg)
       this.tableData = msg.data
+    },
+    async editdialog () {
+      const msg = await this.$http.post('user/updateUser', this.$qs.stringify({ commissionRate: this.editForm.commissionRate, parentPhoneNumber: this.editForm.parentPhoneNumber, distributionRate: this.editForm.distributionRate, id: this.editForm.id }))
+      console.log(this.editForm)
+      if (msg.status !== 200) {
+        return this.$message.error('编辑飞手信息失败！')
+      }
+      if (msg.data.code === 9) {
+        return this.$message.error('上级用户不存在！')
+      }
+      this.getCustomerList()
+      this.dialogVisible1 = false
+    },
+    async removefarmer (id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该飞手, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const msg = await this.$http.delete('user/deleteUser', { params: { id: id } })
+      console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('删除飞手失败')
+      }
+      this.$message.success('飞手已删除')
+      this.getCustomerList()
     },
     handleRemove (file, fileList) {
       console.log(file, fileList)
