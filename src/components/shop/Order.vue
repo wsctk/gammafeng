@@ -2,7 +2,6 @@
   <div>
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
         <el-breadcrumb-item>商城管理</el-breadcrumb-item>
         <el-breadcrumb-item>订单管理</el-breadcrumb-item>
       </el-breadcrumb>
@@ -21,15 +20,15 @@
         </el-form-item>
         <el-form-item label="订单状态：" prop="status">
           <el-select placeholder="请选择">
-            <el-option label="等待付款" value="unpay"></el-option>
-            <el-option label="等待发货" value="unsend"></el-option>
-            <el-option label="已发货" value="sended"></el-option>
-            <el-option label="已取消" value="canceled"></el-option>
-            <el-option label="已退货" value="rejected"></el-option>
+            <el-option label="等待付款" value="0"></el-option>
+            <el-option label="等待发货" value="1"></el-option>
+            <el-option label="已发货" value="2"></el-option>
+            <el-option label="已取消" value="3"></el-option>
+            <el-option label="已退货" value="4"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
-      <el-button type="primary">查询</el-button>
+      <el-button type="primary" @click="queryinfo">查询</el-button>
       <el-button plain @click="resetQueryForm">重置</el-button>
       <el-table :data="tableData" style="width: 100%" border>
         <el-table-column align="center" prop="orderid" label="订单ID">
@@ -53,11 +52,6 @@
         <el-table-column align="center" prop="transformdeal" label="物流单号">
         </el-table-column>
         <el-table-column align="center" prop="createtime" label="创建时间">
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px">
-          <template>
-            <el-button size="small" type="danger">删除</el-button>
-          </template>
         </el-table-column>
     </el-table>
     <el-pagination
@@ -83,26 +77,7 @@ export default {
         goodname: '',
         phonenumber: ''
       },
-      tableData: [
-        {
-          orderid: '0031121',
-          goodname: '土鸡蛋',
-          ordermoney: '50.00',
-          realpay: '45.00',
-          paytime: '05-20 13:14',
-          status: '等待付款',
-          nickname: '刘德华',
-          phonenumber: '18020220001',
-          transformcompany: '顺丰',
-          transformdeal: '121332222',
-          createtime: '05-20 13:14'
-        },
-        {},
-        {},
-        {},
-        {},
-        {}
-      ],
+      tableData: [],
       total: 400,
       pageNum: 1
     }
@@ -110,6 +85,13 @@ export default {
   methods: {
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFileds()
+    },
+    async queryinfo () {
+      const msg = await this.$http.post()
+      console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('查询订单失败！')
+      }
     }
   }
 }
