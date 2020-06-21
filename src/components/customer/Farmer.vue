@@ -155,12 +155,13 @@ export default {
         console.log(this.editForm)
         if (msg.status !== 200) {
           this.dialogVisible1 = false
-          return this.$message.error('编辑飞手信息失败！')
+          return this.$message.error('编辑农资商信息失败！')
         }
         if (msg.data.code === 9) {
           return this.$message.error('上级用户不存在！')
         }
         this.getCustomerList()
+        this.$message.success("编辑农资商信息成功！")
         this.dialogVisible1 = false
       })
     },

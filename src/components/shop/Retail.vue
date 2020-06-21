@@ -14,30 +14,37 @@
         </el-form-item>
         <el-form-item label="一级用户：" prop="nativeuser">
           <el-select placeholder="请选择" v-model="queryInfo.nativeuser">
-            <el-option label="等待付款" value="unpay"></el-option>
-            <el-option label="等待发货" value="unsend"></el-option>
+            <el-option
+              v-for="item in father"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="二级用户：" prop="senioruser">
           <el-select placeholder="请选择" v-model="queryInfo.senioruser">
-            <el-option label="已发货" value="sended"></el-option>
-            <el-option label="已取消" value="canceled"></el-option>
-            <el-option label="已退货" value="rejected"></el-option>
+            <el-option
+              v-for="item in son"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="small">查询</el-button>
+          <el-button type="primary" size="small" @click="queryretail">查询</el-button>
           <el-button plain size="small" @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="did" label="分销ID">
+        <el-table-column align="center" prop="id" label="分销ID">
         </el-table-column>
         <el-table-column align="center" prop="first_name" label="一级用户">
         </el-table-column>
         <el-table-column align="center" prop="seconde_name" label="二级用户">
         </el-table-column>
-        <el-table-column align="center" prop="goods_name" label="分销类型" width="200px">
+        <el-table-column align="center" prop="goods_name" label="分销商品">
         </el-table-column>
         <el-table-column align="center" prop="goods_cover" label="商品图片">
           <template v-slot="scope">
@@ -72,25 +79,16 @@ export default {
   data () {
     return {
       currentPage: 1,
+      tableData: [],
+      total: 400,
+      pageNum: 1,
       queryInfo: {
         goodname: '',
         nativeuser: '',
         senioruser: ''
       },
-      queryInfoRules: {
-        goodname: [
-          { required: true, message: '请输入分销比例', trigger: blur }
-        ],
-        nativeuser: [
-          { required: true, message: '请输入分销比例', trigger: blur }
-        ],
-        senioruser: [
-          { required: true, message: '请输入分销比例', trigger: blur }
-        ]
-      },
-      tableData: [],
-      total: 400,
-      pageNum: 1
+      father: {},
+      son: {}
     }
   },
   created  () {
@@ -98,12 +96,25 @@ export default {
   },
   methods: {
     async getInformationList () {
-      const msg = await this.$http.get('/distribution/getDistribution')
+      const msg = await this.$http.get('')
       console.log(msg.data)
+      if (msg.status !== 200) {
+        this.$message.error('获取分销列表失败！')
+      }
       this.tableData = msg.data
+      this.father = msg.data
+      this.son = msg.data
     },
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFileds()
+    },
+    async queryretail () {
+      const msg = this.$http.get('', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      this.tableData = msg.data.data
     }
   }
 }

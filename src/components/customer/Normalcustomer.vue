@@ -121,6 +121,14 @@ export default {
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    async queryinfo () {
+      const msg = await this.$http.get('user/userList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      this.tableData = msg.data
+    },
     async getCustomerList () {
       const msg = await this.$http.get('user/userList', { params: { userStatus: '0' } })
       console.log(msg.data)
@@ -147,14 +155,6 @@ export default {
       this.editForm = {}
       this.getCustomerList()
     },
-    async queryinfo () {
-      const msg = await this.$http.get('user/userList', { params: this.queryInfo })
-      if (msg.status !== 200) {
-        this.resetQueryForm()
-        return this.$message.error('查询失败！')
-      }
-      this.tableData = msg.data
-    },
     async editdialog () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
@@ -162,13 +162,14 @@ export default {
         console.log(msg.data)
         if (msg.status !== 200) {
           this.dialogVisible1 = false
-          return this.$message.error('编辑失败！')
+          return this.$message.error('编辑普通用户信息失败！')
         }
         if (msg.data.code === 9) {
           return this.$message.error('上级号码不存在！')
         }
+        this.getCustomerList()
         this.dialogVisible1 = false
-        this.$message.success('编辑成功!')
+        this.$message.success('编辑普通用户信息成功!')
       })
     },
     async removeuser (id) {

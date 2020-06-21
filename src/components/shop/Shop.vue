@@ -2,7 +2,6 @@
   <div>
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
         <el-breadcrumb-item>商城管理</el-breadcrumb-item>
         <el-breadcrumb-item>商品管理</el-breadcrumb-item>
       </el-breadcrumb>
@@ -18,8 +17,8 @@
         </el-form-item>
         <el-form-item label="商品归属：" prop="goodsClassfication">
           <el-select placeholder="请选择" v-model="queryInfo.goodsClassfication">
-            <el-option label="用户商城" value="customer"></el-option>
-            <el-option label="积分商城" value="intergration"></el-option>
+            <el-option label="用户商城" value="0"></el-option>
+            <el-option label="积分商城" value="1"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
@@ -27,7 +26,7 @@
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-button class="addbtn" type="primary" size="large" @click="showAddForm">+ 新建</el-button>
+      <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       <el-table :data="tableData" style="width: 100%" border>
         <el-table-column align="center" prop="id" label="商品ID">
         </el-table-column>
@@ -40,7 +39,10 @@
             <img :src="scope.row.goodsCover" style="width: 50px; height: 50px" />
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="imgs" label="项目图册">
+        <el-table-column align="center" label="项目图册">
+          <template v-slot="scope">
+            <el-button type="primary" size="small" @click="showimgs(scope.row)"></el-button>
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="goodsPrice" label="价格(元)">
         </el-table-column>
@@ -51,6 +53,9 @@
         <el-table-column align="center" prop="goodsState" label="状态">
         </el-table-column>
         <el-table-column align="center" prop="createTime" label="创建时间">
+          <template>
+            {{scope.row.createTime | dateFormat}}
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
           <template>
@@ -63,8 +68,8 @@
        <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
      </el-pagination>
     </el-card>
-    <el-dialog title="新增商品" :visible.sync="dialogVisible" width="50%">
-      <el-form label-width="130px" :model="addForm" ref="addFormRef" :rules="addFormRules" label-position="right">
+    <el-dialog title="新增商品" :visible.sync="dialogVisible" width="50%" @close="closeaddform">
+      <el-form label-width="130px" :model="addForm" ref="addFormRef" :rules="addFormRules" label-position="right" hide-required-asterisk>
         <el-row>
           <el-col :span="10">
             <el-form-item label="商品名称：">
@@ -99,7 +104,7 @@
         <el-form-item label="商品封面" class="uploadimg">
           <el-upload
             :limit=1
-            :http-request="uploadaddFormFile"
+            :http-request="uploadaddimg"
             action=#
             list-type="picture-card"
             :on-preview="handlePictureCardPreview"
@@ -107,12 +112,12 @@
             <i class="el-icon-plus"></i>
           </el-upload>
           <el-dialog :visible.sync="dialogVisible2">
-            <img width="100%" :src="dialogImageUrl" alt="">
+            <img width="100%" :src="dialogImageUrl">
           </el-dialog>
         </el-form-item>
         <el-form-item label="商品图册" class="uploadimg">
           <el-upload
-            :http-request="uploadimgs"
+            :http-request="uploadaddimgs"
             action=#
             list-type="picture-card"
             :on-preview="handlePictureCardPreview"
@@ -120,18 +125,18 @@
             <i class="el-icon-plus"></i>
           </el-upload>
           <el-dialog :visible.sync="dialogVisible3">
-            <img width="100%" :src="dialogImageUrl" alt="">
+            <img width="100%" :src="dialogImageUrl">
           </el-dialog>
         </el-form-item>
         <el-row>
           <el-col :span="10">
-            <el-form-item label="商品归属：">
+            <el-form-item label="商品归属：" prop="goodsClassfication">
               <el-radio v-model="addForm.goodsClassfication" label="0">商城商品</el-radio>
               <el-radio v-model="addForm.goodsClassfication" label="1">积分商品</el-radio>
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
-            <el-form-item label="商品状态：">
+            <el-form-item label="商品状态：" prop="goodsState">
               <el-radio v-model="addForm.goodsState" label="1">正常</el-radio>
               <el-radio v-model="addForm.goodsState" label="0">下架</el-radio>
             </el-form-item>
@@ -150,41 +155,50 @@
           </el-col>
         </el-row>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
+      <div slot="footer">
+        <el-button @click="dialogVisible=false">取消</el-button>
         <el-button type="primary" @click="submitaddform">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑商品" :visible.sync="dialogVisible1" width="50%">
-      <el-form label-width="130px" :model="addForm" ref="addFormRef" :rules="editFormRules" label-position="right">
+    <el-dialog title="编辑商品" :visible.sync="dialogVisible1" width="50%" @click="closeeditform">
+      <el-form label-width="130px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" hide-required-asterisk>
         <el-row>
           <el-col :span="10">
             <el-form-item label="商品名称：" prop="goodsName">
               <el-input placeholder="请输入" v-model="editForm.goodname"></el-input>
             </el-form-item>
           </el-col>
+          // 回显商品分类
           <el-col :span="10" :offset="2">
-            <el-form-item label="商品分类：" prop="cateGoryName">
-              <el-input placeholder="请输入" v-model="editForm.category"></el-input>
+            <el-form-item label="商品分类：">
+               <el-select v-model="editForm.categoryId">
+                <el-option
+                  v-for="item in category"
+                  :key="item.id"
+                  :label="item.categoryName"
+                  :value="item.id">
+                </el-option>
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="10">
             <el-form-item label="商品价格：" prop="goodsPrice">
-              <el-input placeholder="请输入" v-model="editForm.price"></el-input>
+              <el-input placeholder="请输入" v-model="editForm.goodsPrice"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
             <el-form-item label="商品库存：" prop="inventory">
-              <el-input placeholder="请输入" v-model="editForm.storage"></el-input>
+              <el-input placeholder="请输入" v-model="editForm.inventory"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-form-item label="商品封面" class="uploadimg">
           <el-upload
+            :file-list="editimglist"
             :limit=1
-            :http-request="uploadaddFormFile"
+            :http-request="uploadeditimg"
             action=#
             list-type="picture-card"
             :on-preview="handlePictureCardPreview"
@@ -197,7 +211,8 @@
         </el-form-item>
         <el-form-item label="商品图册" class="uploadimg">
           <el-upload
-            :http-request="uploadimgs"
+            :file-list="editimgslist"
+            :http-request="uploadeditimgs"
             action=#
             list-type="picture-card"
             :on-preview="handlePictureCardPreview"
@@ -211,14 +226,14 @@
         <el-row>
           <el-col :span="10">
             <el-form-item label="商品归属：" prop="radio1">
-              <el-radio v-model="addForm.goodsClassfication" label="0">商城商品</el-radio>
-              <el-radio v-model="addForm.goodsClassfication" label="1">积分商品</el-radio>
+              <el-radio v-model="editForm.goodsClassfication" label="0">商城商品</el-radio>
+              <el-radio v-model="editForm.goodsClassfication" label="1">积分商品</el-radio>
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
             <el-form-item label="商品状态：" prop="radio2">
-              <el-radio v-model="addForm.goodsState" label="1">正常</el-radio>
-              <el-radio v-model="addForm.goodsState" label="0">下架</el-radio>
+              <el-radio v-model="editForm.goodsState" label="1">正常</el-radio>
+              <el-radio v-model="editForm.goodsState" label="0">下架</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
@@ -229,15 +244,27 @@
                 type="textarea"
                 :rows="6"
                 placeholder="富文本编辑器"
-                v-model="addForm.textarea">
+                v-model="editForm.textarea">
               </el-input>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <div slot="footer">
         <el-button @click="dialogVisible1 = false">取消</el-button>
         <el-button type="primary" @click="submiteditform">确定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="项目图册" :visible.sync="dialogVisibleimgs" width="40%">
+      <el-row v-for="item in showimgslist" :key="item.id">
+        <template>
+          <el-col :span="10" :offset="3">
+          <img :src=item style="width:100px;height:100px;" />
+          </el-col>
+        </template>
+      </el-row>
+      <div slot="footer">
+        <el-button @click="dialogVisibleimgs=false">关闭</el-button>
       </div>
     </el-dialog>
   </div>
@@ -246,7 +273,9 @@
 export default {
   data () {
     return {
-      dialogVisible: false,
+      tableData: [],
+      total: 400,
+      pageNum: 1,
       currentPage: 1,
       queryInfo: {
         goodsName: '',
@@ -255,13 +284,13 @@ export default {
       },
       category: [],
       dialogImageUrl: '',
+      dialogVisible: false,
       dialogVisible1: false,
       dialogVisible2: false,
       dialogVisible3: false,
       dialogVisible4: false,
       dialogVisible5: false,
-      tableData: [],
-      editForm: {},
+      dialogVisibleimgs: false,
       addForm: {
         textarea: '',
         goodsName: '123',
@@ -272,100 +301,163 @@ export default {
         goodsState: '0',
         goodsDescription: '123'
       },
-      editFormRules: {
-        goodname: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        category: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        price: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        storage: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        goodbelong: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ]
-      },
-      multipartFileile: '',
-      file: [],
       addFormRules: {
-        goodname: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
+        goodsName: [
+          { required: true, message: '请输入商品名称', trigger: 'blur' }
         ],
-        category: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
+        categoryId: [
+          { required: true, message: '请输入商品分类', trigger: 'blur' }
         ],
-        price: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
+        goodsPrice: [
+          { required: true, message: '请输入商品价格', trigger: 'blur' }
         ],
-        storage: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
+        inventory: [
+          { required: true, message: '请输入商品库存', trigger: 'blur' }
         ]
       },
-      total: 400,
-      pageNum: 1
+      addimg: '',
+      addimgs: [],
+      editForm: {},
+      editFormRules: {
+        goodsName: [
+          { required: true, message: '请输入商品名称', trigger: 'blur' }
+        ],
+        categoryId: [
+          { required: true, message: '请输入商品分类', trigger: 'blur' }
+        ],
+        goodsPrice: [
+          { required: true, message: '请输入商品价格', trigger: 'blur' }
+        ],
+        inventory: [
+          { required: true, message: '请输入商品库存', trigger: 'blur' }
+        ]
+      },
+      editimg: '',
+      editimgs: [],
+      editimglist: [],
+      editimgslist: [],
+      showimgslist: []
     }
   },
   created () {
     this.getgoodList()
+    this.getcategory()
   },
   methods: {
+    resetQueryForm () {
+      this.$refs.queryInfoRef.resetFields()
+    },
+    async query () {
+      const msg = await this.$http.post('', this.queryInfo)
+      console.log(msg)
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      this.tableData = msg.data.data
+    },
     async getgoodList () {
       const msg = await this.$http.get('store/goodsList')
       console.log(msg.data.data)
+      if (msg.status !== 200) {
+        return this.$message.error('获取商品列表失败')
+      }
+      for (let item in msg.data.data) {
+        switch (item.goodsClassfication) {
+          case 1:
+            item.goodsClassfication = '用户商城'
+            break
+          case 2:
+            item.goodsClassfication = '积分商城'
+            break
+        }
+        switch (item.goodsState) {
+          case 0:
+            item.goodsState = '下架'
+            break
+          case 1:
+            item.goodsState = '正常'
+            break
+        }
+      }
       this.tableData = msg.data.data
+    },
+    async getcategory () {
       const cate = await this.$http.get('category/categoryList')
       console.log(cate.data.data)
+      if (msg.status !== 200) {
+        return this.$message.error('获取商品分类失败！')
+      }
       this.category = cate.data.data
     },
-    async query () {
-      const msg = await this.$http.post()
-      console.log(msg)
+    uploadaddimg (params) {
+      this.addimg = params.file
     },
-    showAddForm () {
-      this.dialogVisible = true
-    },
-    uploadaddFormFile (params) {
-      this.multipartFileile = params.file
-    },
-    uploadimgs (params) {
-      this.file.push(params.file)
+    uploadaddimgs (params) {
+      this.addimgs.push(params.file)
       console.log(this.file)
     },
     async submitaddform () {
-      const formData = new FormData()
-      formData.append('multipartFileile', this.multipartFileile)
-      for (var i = 0; i < this.file.length; i++) {
-        formData.append('file', this.file[i])
-      }
-      const add = await this.$http.post('store/addGoods', formData, { params: this.addForm })
-      console.log(add)
-      // this.dialogVisible = false
-      // this.getInformationList()
+      this.$refs.addFormRef.validate(async valid => {
+        if (!valid) return
+        const formData = new FormData()
+        formData.append('multipartFileile', this.addimg)
+        for (var i = 0; i < this.addimgs.length; i++) {
+          formData.append('file', this.addimgs[i])
+        }
+        const msg = await this.$http.post('store/addGoods', formData, { params: this.addForm })
+        if (msg.status !== 200) {
+          this.dialogVisible = false
+          return this.$message.error('添加商品失败！')
+        }
+        this.getInformationList()
+        this.$message.success('添加商品成功！')
+        this.dialogVisible = false
+      })
     },
-    async showeditForm (user) {
+    closeaddform () {
+      this.multipartFileile = '',
+      this.file = []
+      this.$refs.addFormRef.resetFields()
+    },
+    showeditForm (user) {
       this.dialogVisible1 = true
       this.editForm = user
+      this.editimglist.push({ url: user.goodsCover })
+      for (let item in user.goodsimg) {
+        this.editimgslist.push({ url: item})
+      }
+    },
+    uploadeditimg (params) {
+      this.editimg = params.file
+    },
+    uploadeditimgs (params) {
+      this.editimgs = params.file
     },
     async submiteditform () {
-      const formData = new FormData()
-      formData.append('multipartFileile', this.multipartFileile)
-      for (var i = 0; i < this.file.length; i++) {
-        formData.append('file', this.file[i])
-      }
-      const add = await this.$http.post('store/addGoods', formData, { params: this.editForm })
-      console.log(add)
-      // this.dialogVisible = false
-      // this.getInformationList()
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return
+        const formData = new FormData()
+        formData.append('multipartFileile', this.editimg)
+        for (var i = 0; i < this.editimgs.length; i++) {
+          formData.append('file', this.editimgs[i])
+        }
+        const msg = await this.$http.post('store/addGoods', formData, { params: this.editForm })
+        console.log(msg)
+        if (msg.status !== 200) {
+          this.dialogVisible1 = false
+          return this.$message.error('编辑商品信息失败！')
+        }
+        this.getInformationList()
+        this.dialogVisible1 = false
+        this.$message.success('编辑商品信息成功！')
+      })
     },
-    resetQueryForm () {
-      this.$refs.queryInfoRef.resetFields()
+    closeeditform () {
+      this.editForm = {}
+      this.editimglist = ''
+      this.editimgslist = []
+      this.getInformationList()
     },
     handleRemove (file, fileList) {
       console.log(file, fileList)
@@ -373,6 +465,10 @@ export default {
     handlePictureCardPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible2 = true
+    },
+    showimgs (user) {
+      this.dialogVisibleimgs = true
+      this.showimgslist = user.goosimgs
     }
   }
 }

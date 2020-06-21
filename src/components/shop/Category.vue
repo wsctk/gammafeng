@@ -2,7 +2,6 @@
   <div>
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
         <el-breadcrumb-item>商城管理</el-breadcrumb-item>
         <el-breadcrumb-item>分类管理</el-breadcrumb-item>
       </el-breadcrumb>
@@ -18,7 +17,7 @@
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-button class="addbtn" type="primary" size="large" @click="showAddForm">+ 新建</el-button>
+      <el-button class="addbtn" type="primary" size="large" @click="dialogVisible1=true">+ 新建</el-button>
       <el-table :data="tableData" style="width: 100%" border>
         <el-table-column align="center" prop="id" label="分类ID">
         </el-table-column>
@@ -46,8 +45,8 @@
       <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="新增分类" :visible.sync="dialogVisible1" width="40%">
-      <el-form :hide-required-asterisk="true" label-width="100px" :model="addForm" ref="addFormRef" rules="addFormRules">
+    <el-dialog title="新增分类" :visible.sync="dialogVisible1" width="40%" @close="closeaddform">
+      <el-form hide-required-asterisk label-width="100px" :model="addForm" ref="addFormRef" rules="addFormRules">
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="分类名称:" prop="categoryName">
@@ -69,8 +68,8 @@
         <el-button type="primary" @click="addcate">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑分类" :visible.sync="dialogVisible2" width="40%">
-      <el-form :hide-required-asterisk="true" label-width="100px" :model="editForm" ref="editFormRef" rules="editFormRules">
+    <el-dialog title="编辑分类" :visible.sync="dialogVisible2" width="40%" @close="closeeditform">
+      <el-form hide-required-asterisk label-width="100px" :model="editForm" ref="editFormRef" rules="editFormRules">
         <el-row>
           <el-col :span="11" :offset="4">
             <el-form-item label="分类名称:" prop="categoryName">
@@ -98,6 +97,10 @@
 export default {
   data () {
     return {
+      tableData: [],
+      total: 400,
+      pageNum: 1,
+      currentPage: 1,
       queryInfo: {
         categoryName: ''
       },
@@ -105,18 +108,19 @@ export default {
         categoryName: '',
         categoryState: ''
       },
-      additionalInfoRules: {
-        catename: [
+      addFormRules: {
+        categoryName: [
           { required: true, message: '请输入分类名称', trigger: 'blur' }
         ]
       },
       editForm: {},
+      editFormRules: {
+        categoryName: [
+          { required: true, message: '请输入分类名称', trigger: 'blur' }
+        ]
+      },
       dialogVisible1: false,
-      currentPage: 1,
       dialogVisible2: false,
-      tableData: [],
-      total: 400,
-      pageNum: 1
     }
   },
   created () {
@@ -126,41 +130,83 @@ export default {
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
-    async getInformationList () {
-      const msg = await this.$http.get('category/categoryList')
-      console.log(msg)
-      this.tableData = msg.data.data
-    },
     async querycate () {
       const msg = await this.$http.get('category/categoryList', { params: { categoryName: this.queryInfo.categoryName } })
       console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('查询失败！')
+      }
       this.tableData = msg.data.data
     },
-    showAddForm () {
-      this.dialogVisible1 = true
+    async getInformationList () {
+      const msg = await this.$http.get('category/categoryList')
+      if (msg.status !== 200) {
+        return this.$message.error('获取分类列表失败！')
+      }
+      for (let item in msg.data.data) {
+        switch (item.categoryState) {
+          case 0:
+            item.categoryState = '禁用'
+            break
+          case 1:
+            item.categoryState = '正常'
+            break
+        }
+      }
+      this.tableData = msg.data.data
     },
     async addcate () {
-      const msg = await this.$http.post('category/addCategory', this.$qs.stringify(this.addForm))
-      console.log(msg)
+      this.$refs.addFormRef.validate(async valid => {
+        if (!valid) return
+        const msg = await this.$http.post('category/addCategory', this.$qs.stringify(this.addForm))
+        console.log(msg)
+        if (msg.status !== 200) {
+          return this.$message.error('添加分类失败！')
+        }
+        this.getInformationList()
+        this.$message.success('添加分类成功！')
+        this.dialogVisible1 = false
+      })
+    },
+    closeaddform () {
+      this.$refs.addFormRef.resetFields()
     },
     showDialogForm (user) {
       this.dialogVisible2 = true
       this.editForm = user
     },
     async editcate () {
-      const msg = await this.$http.post('category/updateCategory', this.$qs.stringify(this.editForm))
-      console.log(msg)
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return
+        const msg = await this.$http.post('category/updateCategory', this.$qs.stringify(this.editForm))
+        if (msg.status !== 200) {
+          return this.$message.error('编辑分类失败！')
+        }
+        this.getInformationList()
+        this.$message.success('编辑分类成功！')
+        this.dialogVisible2 = false
+      })
+    },
+    closeeditform () {
+      this.editForm = {}
+      this.$refs.editFormRef.resetFields()
     },
     async removecate (id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
       const msg = await this.$http.post('category/deleteCategory', this.$qs.stringify({ id: id }))
       console.log(msg)
-    },
-    handlePictureCardPreview (file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible2 = true
-    },
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
+      if (msg.status !== 200) {
+        return this.$message.error('删除分类失败！')
+      }
+      this.getInformationList()
+      this.$message.success('删除分类成功！')
     }
   }
 }

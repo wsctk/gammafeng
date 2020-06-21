@@ -52,6 +52,9 @@
         <el-table-column align="center" prop="authenticationState" label="认证状态">
         </el-table-column>
         <el-table-column align="center" prop="createTime" label="提交时间">
+          <template v-slot="scope">
+            {{ scope.row.createTime | dateFormat}}
+          </template>
         </el-table-column>
         <el-table-column align="center" label="操作" width="280px" v-slot="scope">
           <template>

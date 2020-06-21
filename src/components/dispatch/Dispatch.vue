@@ -39,14 +39,23 @@
         <el-table-column align="center" prop="order_amount" label="订单金额">
         </el-table-column>
         <el-table-column align="center" prop="pay_time" label="付款时间">
+          <template v-slot="scope">
+            {{ scope.row.pay_time | dateFormat}}
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="feishou_name" label="服务飞手">
         </el-table-column>
         <el-table-column align="center" prop="order_state_name" label="订单状态">
         </el-table-column>
         <el-table-column align="center" prop="create_time" label="创建时间">
+          <template v-slot="scope">
+            {{ scope.row.create_time | dateFormat}}
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="process_time" label="处理时间">
+          <template v-slot="scope">
+            {{ scope.row.process_time | dateFormat}}
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
           <template>

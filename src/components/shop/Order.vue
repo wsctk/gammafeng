@@ -8,7 +8,7 @@
       <p class="indexText">订单管理</p>
     </div>
     <el-card>
-      <el-form :inline="true" :model="queryInfo" ref="queryInfoRef" rules="queryInfoRules">
+      <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="订单ID：" class="firInput" prop="orderid">
           <el-input placeholder="请输入" v-model="queryInfo.orderid"></el-input>
         </el-form-item>
@@ -19,7 +19,7 @@
           <el-input placeholder="请输入" v-model="queryInfo.phonenumber"></el-input>
         </el-form-item>
         <el-form-item label="订单状态：" prop="status">
-          <el-select placeholder="请选择">
+          <el-select placeholder="请选择" v-model="queryInfo.status">
             <el-option label="等待付款" value="0"></el-option>
             <el-option label="等待发货" value="1"></el-option>
             <el-option label="已发货" value="2"></el-option>
@@ -40,6 +40,9 @@
         <el-table-column align="center" prop="realpay" label="实付金额">
         </el-table-column>
         <el-table-column align="center" prop="paytime" label="付款时间">
+          <template v-slot="scope">
+            {{ scope.row.pay_time | dateFormat}}
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="status" label="订单状态">
         </el-table-column>
@@ -52,6 +55,9 @@
         <el-table-column align="center" prop="transformdeal" label="物流单号">
         </el-table-column>
         <el-table-column align="center" prop="createtime" label="创建时间">
+          <template v-slot="scope">
+            {{ scope.row.pay_time | dateFormat}}
+          </template>
         </el-table-column>
     </el-table>
     <el-pagination
@@ -71,27 +77,58 @@
 export default {
   data () {
     return {
+      tableData: [],
+      total: 400,
+      pageNum: 1,
       currentPage: 1,
       queryInfo: {
         orderid: '',
         goodname: '',
         phonenumber: ''
       },
-      tableData: [],
-      total: 400,
-      pageNum: 1
     }
+  },
+  created () {
+    this.getorderlist()
   },
   methods: {
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFileds()
     },
     async queryinfo () {
-      const msg = await this.$http.post()
+      const msg = await this.$http.post('', this.$qs.stringify(this.queryInfo))
       console.log(msg)
       if (msg.status !== 200) {
+        this.resetQueryForm()
         return this.$message.error('查询订单失败！')
       }
+      this.tableData = msg.data.data
+    },
+    async getorderlist () {
+      const msg = await this.$http.get('')
+      if (msg.status !== 200) {
+        this.$message.error('获取订单列表失败！')
+      }
+      for (let item in msg.data.data) {
+        switch (item.status) {
+          case 0:
+            item.status = '等待付款'
+            break
+          case 1:
+            item.status = '等待发货'
+            break
+          case 2:
+            item.status = '已发货'
+            break
+          case 3:
+            item.status = '已取消'
+            break
+          case 4:
+            item.status = '已退货'
+            break
+        }
+      }
+      this.tableData = msg.data.data
     }
   }
 }

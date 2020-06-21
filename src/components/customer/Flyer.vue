@@ -161,6 +161,7 @@ export default {
           return this.$message.error('上级用户不存在！')
         }
         this.getCustomerList()
+        this.$message.success('编辑飞手信息成功！')
         this.dialogVisible1 = false
       })
     },
