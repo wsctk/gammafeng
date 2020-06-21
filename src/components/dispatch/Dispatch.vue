@@ -139,6 +139,14 @@ export default {
       }
       this.tableData = msg.data.data
     },
+    async queryInfomation () {
+      const msg = await this.$http.get('dispatcher/getDispatcherList', this.$qs.stringify({ phone_number: this.queryInfo.phone_number }))
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      this.tableData = msg.data
+    },
     async showAppoint (order) {
       if (!(order.feishou_name === '未设置')) {
         return this.$message.error('飞手已设置！')
@@ -151,17 +159,6 @@ export default {
       msg.data.data.checkid = order.id
       this.addtable = msg.data.data
     },
-    async queryInfomation () {
-      const msg = await this.$http.get('dispatcher/getDispatcherList', this.$qs.stringify({ phone_number: this.queryInfo.phone_number }))
-      if (msg.status !== 200) {
-        this.resetQueryForm()
-        return this.$message.error('查询失败！')
-      }
-      this.tableData = msg.data
-    },
-    closeForm () {
-      this.$refs.addFormRef.resetFields()
-    },
     async addfly () {
       const msg = await this.$http.post('dispatcher/dispatcher', { userId: this.picked, id: this.addtable.checkid })
       if (msg.status !== 200) {
@@ -171,7 +168,10 @@ export default {
       this.$message.success('指派飞手成功！')
       this.dialogVisible = false
       this.getInformationList()
-    }
+    },
+    closeForm () {
+      this.$refs.addFormRef.resetFields()
+    },
   }
 }
 </script>
