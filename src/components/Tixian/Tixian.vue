@@ -2,7 +2,6 @@
   <div>
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
         <el-breadcrumb-item>提现管理</el-breadcrumb-item>
         <el-breadcrumb-item>提现记录</el-breadcrumb-item>
       </el-breadcrumb>
@@ -66,14 +65,14 @@
 export default {
   data () {
     return {
+      tableData: [],
+      currentPage: 1,
+      total: 400,
+      pageNum: 1,
       queryinfo: {
         userStatus: '',
         phoneNumber: ''
-      },
-      currentPage: 1,
-      tableData: [],
-      total: 400,
-      pageNum: 1
+      }
     }
   },
   created () {
@@ -86,28 +85,28 @@ export default {
     async getCustomerList () {
       const msg = await this.$http.get('draw/drawList')
       console.log(msg.data.data)
-      // if (msg.status !== 200) {
-      //   return this.$message.error('获取提现列表失败！')
-      // }
-      // for (item in msg.data.data) {
-      //   switch (item.status) {
-      //     case 0:
-      //       item.status = '普通用户'
-      //       break
-      //     case 1:
-      //       item.status = '飞手'
-      //       break
-      //     case 2:
-      //       item.status = '农资商'
-      //       break
-      //   }
-      // }
+      if (msg.status !== 200) {
+        return this.$message.error('获取提现列表失败！')
+      }
+      for (let item in msg.data.data) {
+        switch (item.status) {
+          case 0:
+            item.status = '普通用户'
+            break
+          case 1:
+            item.status = '飞手'
+            break
+          case 2:
+            item.status = '农资商'
+            break
+        }
+      }
       this.tableData = msg.data.data
     },
     async querylist () {
       const msg = await this.$http.get('draw/drawList', { params: { phoneNumber: this.queryinfo.phoneNumber, userStatus: this.queryinfo.userStatus } })
-      console.log(msg)
       if (msg.status !== 200) {
+        this.resetField()
         return this.$message.error('查询失败！')
       }
       this.tableData = msg.data.data

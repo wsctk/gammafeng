@@ -127,7 +127,7 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('获取用户列表失败！')
       }
-      for (item in msg.data) {
+      for (let item in msg.data) {
         switch (item.statusState) {
           case 0:
             item.userStatus = '未认证'

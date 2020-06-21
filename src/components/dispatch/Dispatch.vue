@@ -118,7 +118,7 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('获取派单列表失败！')
       }
-      for (item in msg.data.data) {
+      for (let item in msg.data.data) {
         switch (item.order_state_name) {
           case 0:
             item.order_state_name = '待付款'
