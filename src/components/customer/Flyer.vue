@@ -12,8 +12,8 @@
         <el-form-item label="用户名：" class="firInput" prop="wechatName">
           <el-input placeholder="请输入" v-model="queryInfo.wechatName"></el-input>
         </el-form-item>
-        <el-form-item label="手机号码：" prop="phoneNummber">
-          <el-input placeholder="请输入" v-model="queryInfo.phoneNummber"></el-input>
+        <el-form-item label="手机号码：" prop="phoneNumber">
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
           <el-button type="primary" @click="queryinfo">查询</el-button>
@@ -55,8 +55,8 @@
       <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="30%">
-      <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right">
+    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="30%" @close="closeeditform">
+      <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" hide-required-asterisk>
         <el-row>
           <el-col :span="17" :offset="3">
             <el-form-item label="商品佣金分成比例：" prop="commissionRate">
@@ -90,80 +90,83 @@
 export default {
   data () {
     return {
-      dialogVisible1: false,
+      tableData: [],
+      total: 400,
+      pageNum: 1,
       currentPage: 1,
       queryInfo: {
         wechatName: '',
         phoneNumber: '',
         userStatus: 1
       },
-      tableData: [],
+      dialogVisible1: false,
       editForm: {},
       editFormRules: {
-        username: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
+        commissionRate: [
+          { required: true, message: '请输入商品佣金分成比例', trigger: 'blur' }
         ],
-        phonenumber: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        jifen: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        fenchengbili: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        surplus: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        inviter: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        registerTime: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
+        distributionRate: [
+          { required: true, message: '请输入派单佣金分成比例：', trigger: 'blur' }
         ]
-      },
-      total: 400,
-      pageNum: 1
+      }
     }
   },
   created () {
     this.getCustomerList()
   },
   methods: {
+    resetQueryForm () {
+      this.$refs.queryInfoRef.resetFields()
+    },
+    //搜索可能失效
+    async queryinfo () {
+        const msg = await this.$http.get('user/userList', { params: this.queryInfo })
+        if (msg.status !== 200) {
+          this.resetQueryForm()
+          return this.$message.error('查询失败！')
+        }
+        this.tableData = msg.data
+    },
+    async getCustomerList () {
+        const msg = await this.$http.get('user/userList', { params: { userStatus: '1' } })
+        console.log(msg.data)
+        if (msg.status !== 200) {
+          return this.$message.error('获取飞手列表失败！')
+        }
+        for (item in msg.data) {
+          switch (item.statusState) {
+            case 0:
+              item.userStatus = '未认证'
+              break
+            case 1:
+              item.userStatus = '已认证'
+              break
+          }
+        }
+        this.tableData = msg.data
+    },
     showDialogForm (user) {
       this.dialogVisible1 = true
       this.editForm = user
     },
-    resetQueryForm () {
-      this.$refs.queryInfoRef.resetFields()
-    },
-    async getCustomerList () {
-      const msg = await this.$http.get('user/userList', { params: { userStatus: '1' } })
-      console.log(msg.data)
-      if (msg.status !== 200) {
-        return this.$message.error('获取飞手列表失败！')
-      }
-      this.tableData = msg.data
-    },
-    async queryinfo () {
-      const msg = await this.$http.get('user/userList?', { params: this.queryInfo })
-      console.log(msg.data)
-      if (msg.status !== 200) {
-        return this.$message.error('查询失败！')
-      }
-      this.tableData = msg.data
-    },
     async editdialog () {
-      const msg = await this.$http.post('user/updateUser', this.$qs.stringify({ commissionRate: this.editForm.commissionRate, parentPhoneNumber: this.editForm.parentPhoneNumber, distributionRate: this.editForm.distributionRate, id: this.editForm.id }))
-      console.log(this.editForm)
-      if (msg.status !== 200) {
-        return this.$message.error('编辑飞手信息失败！')
-      }
-      if (msg.data.code === 9) {
-        return this.$message.error('上级用户不存在！')
-      }
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return
+        const msg = await this.$http.post('user/updateUser', this.$qs.stringify({ commissionRate: this.editForm.commissionRate, parentPhoneNumber: this.editForm.parentPhoneNumber, distributionRate: this.editForm.distributionRate, id: this.editForm.id }))
+        if (msg.status !== 200) {
+          this.dialogVisible1 = false
+          return this.$message.error('编辑飞手信息失败！')
+        }
+        if (msg.data.code === 9) {
+          return this.$message.error('上级用户不存在！')
+        }
+        this.getCustomerList()
+        this.dialogVisible1 = false
+      })
+    },
+    closeeditform () {
+      this.editForm = {}
       this.getCustomerList()
-      this.dialogVisible1 = false
     },
     async removeflyer (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该飞手, 是否继续?', '提示', {
@@ -181,13 +184,6 @@ export default {
       }
       this.$message.success('飞手已删除')
       this.getCustomerList()
-    },
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
-    },
-    handlePictureCardPreview (file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible2 = true
     }
   }
 }
@@ -244,16 +240,6 @@ export default {
 }
 /deep/.el-dialog__header {
   border:1px solid #eee;
-}
-/deep/.el-upload--picture-card {
-  height: 120px;
-  width: 120px;
-}
-/deep/.el-upload-list--picture-card .el-upload-list__item {
-  height: 120px;
-  width: 120px;
-}
-/deep/.el-dialog__header {
   border-radius: 7px;
 }
 /deep/.el-radio {

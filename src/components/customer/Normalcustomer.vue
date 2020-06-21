@@ -2,7 +2,6 @@
   <div>
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
         <el-breadcrumb-item>用户管理</el-breadcrumb-item>
         <el-breadcrumb-item>普通用户</el-breadcrumb-item>
       </el-breadcrumb>
@@ -27,6 +26,9 @@
         <el-table-column align="center" prop="wechatName" label="用户名">
         </el-table-column>
         <el-table-column align="center" prop="wechatAvatar" label="微信头像">
+          <template v-slot="scope">
+            <img :src=scope.row.wechatAvatar style="width:50px;height:50px;" />
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="phoneNumber" label="手机号">
         </el-table-column>
@@ -56,8 +58,8 @@
       <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="30%">
-      <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right">
+    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="30%" @close="closeeditform">
+      <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" hide-required-asterisk>
         <el-row>
           <el-col :span="17" :offset="3">
             <el-form-item label="商品佣金分成比例：" prop="commissionRate">
@@ -91,85 +93,83 @@
 export default {
   data () {
     return {
-      dialogVisible1: false,
+      tableData: [],
       currentPage: 1,
+      total: 400,
+      pageNum: 1,
       queryInfo: {
         wechatName: '',
         phoneNumber: '',
         userStatus: 0
       },
-      dialogImageUrl: '',
-      dialogVisible2: false,
-      dialogVisible3: false,
-      fileList1: [],
-      fileList2: [],
-      tableData: [],
+      dialogVisible1: false,
       editForm: {},
       editFormRules: {
-        username: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
+        commissionRate: [
+          { required: true, message: '请输入商品佣金分成比例', trigger: 'blur' }
         ],
-        phonenumber: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        jifen: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        fenchengbili: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        surplus: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        inviter: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
-        ],
-        registerTime: [
-          { required: true, message: '请输入用户邮箱', trigger: 'blur' }
+        distributionRate: [
+          { required: true, message: '请输入派单佣金分成比例：', trigger: 'blur' }
         ]
-      },
-      total: 400,
-      pageNum: 1
+      }
     }
   },
   created () {
     this.getCustomerList()
   },
   methods: {
+    resetQueryForm () {
+      this.$refs.queryInfoRef.resetFields()
+    },
     async getCustomerList () {
       const msg = await this.$http.get('user/userList', { params: { userStatus: '0' } })
       console.log(msg.data)
       if (msg.status !== 200) {
         return this.$message.error('获取用户列表失败！')
       }
+      for (item in msg.data) {
+        switch (item.statusState) {
+          case 0:
+            item.userStatus = '未认证'
+            break
+          case 1:
+            item.userStatus = '已认证'
+            break
+        }
+      }
       this.tableData = msg.data
     },
     showDialogForm (user) {
-      this.dialogVisible1 = true
-      console.log(user)
       this.editForm = user
+      this.dialogVisible1 = true
     },
-    resetQueryForm () {
-      this.$refs.queryInfoRef.resetFields()
+    closeeditform () {
+      this.editForm = {}
+      this.getCustomerList()
     },
     async queryinfo () {
       const msg = await this.$http.get('user/userList', { params: this.queryInfo })
-      console.log(msg.data)
       if (msg.status !== 200) {
-        return this.$message.erro('查询失败！')
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
       }
       this.tableData = msg.data
     },
     async editdialog () {
-      const msg = await this.$http.post('user/updateUser', this.$qs.stringify(this.editForm))
-      console.log(msg.data)
-      if (msg.status !== 200) {
-        return this.$message.error('编辑失败！')
-      }
-      if (msg.data.code === 9) {
-        return this.$message.error('上级号码不存在！')
-      }
-      this.$message.success('编辑成功!')
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return
+        const msg = await this.$http.post('user/updateUser', this.$qs.stringify({ commissionRate: this.editForm.commissionRate, parentPhoneNumber: this.editForm.parentPhoneNumber, distributionRate: this.editForm.distributionRate, id: this.editForm.id }))
+        console.log(msg.data)
+        if (msg.status !== 200) {
+          this.dialogVisible1 = false
+          return this.$message.error('编辑失败！')
+        }
+        if (msg.data.code === 9) {
+          return this.$message.error('上级号码不存在！')
+        }
+        this.dialogVisible1 = false
+        this.$message.success('编辑成功!')
+      })
     },
     async removeuser (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
@@ -181,19 +181,11 @@ export default {
         return this.$message.info('已取消删除')
       }
       const msg = await this.$http.delete('user/deleteUser', { params: { id: id } })
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('删除用户失败')
       }
       this.$message.success('用户已删除')
       this.getCustomerList()
-    },
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
-    },
-    handlePictureCardPreview (file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible2 = true
     }
   }
 }
@@ -250,17 +242,7 @@ export default {
 }
 /deep/.el-dialog__header {
   border:1px solid #eee;
-}
-/deep/.el-upload--picture-card {
-  height: 120px;
-  width: 120px;
-}
-/deep/.el-upload-list--picture-card .el-upload-list__item {
-  height: 120px;
-  width: 120px;
-}
-/deep/.el-dialog__header {
-  border-radius: 7px;
+    border-radius: 7px;
 }
 /deep/.el-radio {
   margin-right:20px;

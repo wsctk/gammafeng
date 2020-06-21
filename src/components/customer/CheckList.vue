@@ -99,15 +99,30 @@ export default {
     async getAuthList () {
       const msg = await this.$http.get('auth/authList')
       console.log(msg.data.data)
+      if (msg.status !== 200) {
+        return this.$message.error('获取认证列表失败！')
+      }
       this.tableData = msg.data.data
     },
     async queryinfo () {
       console.log(this.queryInfo.wechatName)
-      const msg = await this.$http.get('auth/authList?', { params: this.queryInfo })
+      const msg = await this.$http.get('auth/authList', { params: this.queryInfo })
       console.log(msg.data.data)
+      if (msg.status !== 200) {
+        return this.$message.error("查询失败！")
+      }
       this.tableData = msg.data.data
     },
+    // 修改认证通过前的确认框
     async authsuccess (id) {
+      const confirmResult = await this.$confirm('确定要通过该认证？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'info'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
       const msg = await this.$http.post('auth/authPass', this.$qs.stringify({ id: id }))
       console.log(msg)
       if (msg.status !== 200) {

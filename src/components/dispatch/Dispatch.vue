@@ -4,7 +4,6 @@
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
         <el-breadcrumb-item>派单管理</el-breadcrumb-item>
-        <!-- <el-breadcrumb-item>认证记录</el-breadcrumb-item> -->
       </el-breadcrumb>
       <p class="indexText">派单管理</p>
     </div>
