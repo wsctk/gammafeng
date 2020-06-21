@@ -2,9 +2,7 @@
   <div>
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
         <el-breadcrumb-item>资讯管理</el-breadcrumb-item>
-        <!-- <el-breadcrumb-item>认证记录</el-breadcrumb-item> -->
       </el-breadcrumb>
       <p class="indexText">资讯管理</p>
     </div>
@@ -14,10 +12,8 @@
           <el-input placeholder="请输入" v-model="queryInfo.articleName"></el-input>
         </el-form-item>
         <el-form-item label="发布时间：">
-          <el-select placeholder="请选择" v-model="queryInfo.publishtime">
-            <el-option label="身份一" value="shanghai"></el-option>
-            <el-option label="身份二" value="beijing"></el-option>
-          </el-select>
+          <el-date-picker v-model="queryInfo.createTime" type="date" placeholder="请选择日期" format="yyyy 年 MM 月 dd 日" value-format="timestamp">
+          </el-date-picker>
         </el-form-item>
         <el-form-item class="anniu">
           <el-button type="primary" @click="queryinfo">查询</el-button>
@@ -54,16 +50,15 @@
     <el-pagination
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size= "queryInfo.pagesize"
-      :page-count="11"
-      :current-page= queryInfo.pageNum
+      :page-size="queryInfo.pagesize"
+      :current-page="queryInfo.pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
       <span class="slotText">第{{queryInfo.pageNum}}/{{total/5}}页</span>
     </el-pagination>
     </el-card>
     <el-dialog title="新增资讯" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
-      <el-form label-width="100px" :model="additionalInfo" ref="additionalInfoRef">
+      <el-form label-width="100px" :model="additionalInfo" ref="additionalInfoRef" :rules="addFormRules" hide-required-asterisk>
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="文章标题:" prop="title">
@@ -105,9 +100,9 @@
         </el-row>
         <el-row>
           <el-col :span="15" :offset="4">
-            <el-form-item label="资讯状态:">
-              <el-radio v-model="additionalInfo.state" :label="5">正常</el-radio>
-              <el-radio v-model="additionalInfo.state" :label="6">禁用</el-radio>
+            <el-form-item label="资讯状态:" prop="state">
+              <el-radio v-model="additionalInfo.state" label="5">正常</el-radio>
+              <el-radio v-model="additionalInfo.state" label="6">禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
@@ -118,7 +113,7 @@
       </div>
     </el-dialog>
     <el-dialog title="编辑资讯" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
-      <el-form label-width="100px" :model="editForm">
+      <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" hide-required-asterisk>
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="文章标题:" prop="articleName">
@@ -177,29 +172,39 @@
 export default {
   data () {
     return {
+      tableData: [],
+      total: 400,
       queryInfo: {
         articleName: '',
-        publishtime: ''
+        publishtime: '',
+        pagesize: '',
+        pageNum: ''
       },
-      radio: '2',
       dialogVisible: false,
+      dialogVisible1: false,
+      dialogVisible2: false,
+      dialogVisible3: false,
       additionalInfo: {
         title: '',
         fengmian: '',
         state: '',
         article: ''
       },
+      addFormRules: {
+        title: [
+          { required: true, message: '请输入标题！', trigger: 'blur'}
+        ]
+      },
       editForm: {
         fengmian: ''
       },
-      dialogVisible1: false,
-      dialogVisible2: false,
-      dialogVisible3: false,
+      editFormRules: {
+        title: [
+          { required: true, message: '请输入标题！', trigger: 'blur'}
+        ]
+      },
       dialogImageUrl: '',
-      textarea: '',
-      fileList: [],
-      tableData: [],
-      total: 400
+      fileList: []
     }
   },
   created () {
@@ -210,29 +215,86 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
-      const msg = await this.$http.get('information/selectInformation', { params: { articleName: this.queryInfo.articleName } })
+      const msg = await this.$http.get('information/selectInformation', { params: { articleName: this.queryInfo.articleName, createTime: this.queryInfo.createTime } })
       console.log(msg)
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        this.$message.error('查询失败！')
+      }
       this.tableData = msg.data.data
-    },
-    closeaddform () {
-      this.additionalInfo.articleName = ''
-      this.additionalInfo.article = ''
-      this.$refs.uploadRef.clearFiles()
-      this.additionalInfo.state = ''
-    },
-    closeeditform () {
-      this.editForm = {}
-      this.fileList = []
     },
     async getInformationList () {
       const msg = await this.$http.get('information/getInformationList')
+      if (msg.status !== 200) {
+        return this.$message.error('获取资讯列表失败！')
+      }
       this.tableData = msg.data
-      this.total = msg.data.length + 1
+    },
+    uploadaddFormFile (params) {
+      this.additionalInfo.fengmian = params.file
+    },
+    async submitaddinfo () {
+      this.$refs.additionalInfoRef.validate(async valid => {
+        if (!valid) return
+        const formData = new FormData()
+        formData.append('file', this.additionalInfo.fengmian)
+        formData.append('articleName', this.additionalInfo.title)
+        formData.append('content', this.additionalInfo.article)
+        formData.append('state', this.additionalInfo.state)
+        const msg = await this.$http.post('information/addInformation', formData)
+        if (msg.status !== 200) {
+          return this.$message.error('添加商品信息失败！')
+        }
+        this.$message.success('添加商品成功！')
+        this.getInformationList()
+        this.dialogVisible = false
+      })
+    },
+    closeaddform () {
+      // this.additionalInfo.articleName = ''
+      // this.additionalInfo.article = ''
+      this.$refs.uploadRef.clearFiles()
+      this.$refs.additionalInfoRef.resertFields()
+      // this.additionalInfo.state = ''
     },
     showeditform (user) {
       this.dialogVisible1 = true
       this.editForm = user
       this.fileList.push({ url: user.cover })
+    },
+    uploadeditFormFile (params) {
+      this.editForm.fengmian = params.file
+    },
+    async submiteditinfo () {
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return
+        const formData = new FormData()
+        formData.append('path', this.editForm.cover)
+        formData.append('file', this.editForm.fengmian)
+        formData.append('articleName', this.editForm.articleName)
+        formData.append('content', this.editForm.article)
+        formData.append('state', this.editForm.state)
+        formData.append('id', this.editForm.id)
+        const msg = await this.$http.post('information/editInformation', formData)
+        if (msg.status !== 200) {
+          return this.$message.error('编辑提交失败！')
+        }
+        this.$message.success('编辑成功！')
+        this.getInformationList()
+        this.dialogVisible1 = false
+      })
+    },
+    closeeditform () {
+      this.$refs.editFormRef.resetFields()
+      this.fileList = []
+      this.getInformationList()
+    },
+    handlePictureCardPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible2 = true
+    },
+    handleRemove (file, fileList) {
+      console.log(file, fileList)
     },
     async removeuser (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该条资讯, 是否继续?', '提示', {
@@ -250,52 +312,6 @@ export default {
       }
       this.$message.success('用户已删除')
       this.getCustomerList()
-    },
-    handlePictureCardPreview (file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible2 = true
-    },
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
-    },
-    uploadaddFormFile (params) {
-      this.additionalInfo.fengmian = params.file
-    },
-    uploadeditFormFile (params) {
-      this.editForm.fengmian = params.file
-    },
-    async submitaddinfo () {
-      const formData = new FormData()
-      formData.append('file', this.additionalInfo.fengmian)
-      formData.append('articleName', this.additionalInfo.title)
-      formData.append('content', this.additionalInfo.article)
-      formData.append('state', this.additionalInfo.state)
-      const msg = await this.$http.post('information/addInformation', formData)
-      console.log(typeof (formData.get('state')))
-      if (msg.status !== 200) {
-        return this.$message.error('添加商品信息失败！')
-      }
-      this.$message.success('添加商品成功！')
-      this.getInformationList()
-      this.dialogVisible = false
-    },
-    async submiteditinfo () {
-      const formData = new FormData()
-      formData.append('path', this.editForm.cover)
-      formData.append('file', this.editForm.fengmian)
-      formData.append('articleName', this.editForm.articleName)
-      formData.append('content', this.editForm.article)
-      formData.append('state', this.editForm.state)
-      formData.append('id', this.editForm.id)
-      console.log(typeof (this.editForm.state))
-      const msg = await this.$http.post('information/editInformation', formData)
-      console.log(msg.cover)
-      if (msg.status !== 200) {
-        return this.$message.error('编辑提交失败！')
-      }
-      this.$message.success('编辑成功！')
-      this.getInformationList()
-      this.dialogVisible1 = false
     }
   }
 }
