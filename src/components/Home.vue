@@ -14,7 +14,7 @@
           </div>
         </el-header>
         <el-container>
-          <el-aside :width="isCollapse ? '64px': '14%'">
+          <el-aside width="14%">
             <el-menu background-color="#333744" text-color="#fff" unique-opened router default-active="activepath">
               <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
                 <template slot="title">
@@ -47,7 +47,6 @@
 export default {
   data () {
     return {
-      activepath: '',
       menuList: [
         {
           authName: '用户管理',
@@ -111,8 +110,11 @@ export default {
         5: 'iconfont icon-signboard'
       },
       isCollapse: false,
-      activePath: ''
+      activepath: '/normalcustomer'
     }
+  },
+  created () {
+    this.getNavState()
   },
   methods: {
     async quitlogin () {
@@ -128,6 +130,12 @@ export default {
     saveNavState (activePath) {
       window.sessionStorage.setItem('activePath', activePath)
       this.activepath = activePath
+    },
+    getNavState () {
+      const navpath = window.sessionStorage.getItem('activePath')
+      if (navpath) {
+        return this.activepath = navpath
+      }
     }
   }
 }

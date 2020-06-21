@@ -7,7 +7,7 @@
         <div class="login_box">
           <el-tabs v-model="activeName" stretch>
             <el-tab-pane label="帐号密码登录" name="zhanghaomimadengluTab">
-              <el-form :model="loginMessage" :rules="loginFormRules" ref="loginFormRef1">
+              <el-form :model="loginMessage" :rules="loginFormRules" ref="loginFormRef1" hide-required-asterisk>
                 <el-form-item prop="userName">
                   <el-input clearable v-model="loginMessage.userName" placeholder="账户" prefix-icon="el-icon-user"></el-input>
                 </el-form-item>
@@ -29,7 +29,7 @@
               </el-form>
             </el-tab-pane>
             <el-tab-pane label="手机号登录" name="shoujihaodengluTab">
-              <el-form :model="loginMessage" :rules="loginFormRules" ref="loginFormRef2">
+              <el-form :model="loginMessage" :rules="loginFormRules" ref="loginFormRef2" hide-required-asterisk>
                 <el-form-item prop="phoneNumber">
                   <el-input clearable v-model="loginMessage.phoneNumber" placeholder="手机号" prefix-icon="el-icon-phone"></el-input>
                 </el-form-item>
@@ -122,23 +122,29 @@ export default {
     this.autoLogin()
   },
   methods: {
-    resetLoginForm () {
-      this.$refs.loginFormRef.resetFields()
+    async autoLogin () {
+      const check = localStorage.getItem('checked')
+      if (check === 'true') {
+        this.checked = true
+      }
     },
     async getimgcode () {
       const msg = await this.$http.get('code/getImgCode')
-      console.log(msg)
       this.img = msg.data.data
       this.loginMessage.imgcodekey = msg.data.imgCodeKey
     },
     uploadimgcode () {
       this.getimgcode()
     },
-    async autoLogin () {
-      const check = localStorage.getItem('checked')
-      if (check === 'true') {
-        this.checked = true
+    async getCode () {
+      const msg = await this.$http.post('sendSMS',
+        this.$qs.stringify({
+          phoneNumber: this.loginMessage.phoneNumber
+        }))
+      if (msg !== 'success') {
+        return this.$message.error('获取验证码失败！')
       }
+      this.$message.success('验证码发送成功！')
     },
     async login () {
       if (this.activeName === 'zhanghaomimadengluTab') {
@@ -179,15 +185,6 @@ export default {
             this.$message.error('登录失败')
           }
         })
-      }
-    },
-    async getCode () {
-      const msg = await this.$http.post('sendSMS',
-        this.$qs.stringify({
-          phoneNumber: this.loginMessage.phoneNumber
-        }))
-      if (msg === 'success') {
-        this.$message.success('成功获取验证码！')
       }
     }
   }
