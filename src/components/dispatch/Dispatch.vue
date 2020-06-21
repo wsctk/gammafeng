@@ -2,7 +2,6 @@
   <div>
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
         <el-breadcrumb-item>派单管理</el-breadcrumb-item>
       </el-breadcrumb>
       <p class="indexText">派单管理</p>
@@ -55,6 +54,17 @@
           </template>
         </el-table-column>
     </el-table>
+    <el-pagination
+      background
+      :page-sizes="[1, 5, 10, 20]"
+      :page-size="10"
+      :page-count="11"
+      :current-page="currentPage"
+      layout="total, slot, prev, pager, next, sizes, jumper"
+      :total="total">
+      <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
+    </el-pagination>
+    </el-card>
     <el-dialog title="添加飞手" :visible.sync="dialogVisible" width="30%" @close="closeForm">
       <el-row>
         <el-col :span="20" :offset="3">
@@ -73,23 +83,16 @@
         <el-button type="primary" @click="addfly">确定</el-button>
       </div>
     </el-dialog>
-    <el-pagination
-      background
-      :page-sizes="[1, 5, 10, 20]"
-      :page-size="10"
-      :page-count="11"
-      :current-page="currentPage"
-      layout="total, slot, prev, pager, next, sizes, jumper"
-      :total="total">
-      <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
-    </el-pagination>
-    </el-card>
   </div>
 </template>
 <script>
 export default {
   data () {
     return {
+      tableData: [],
+      currentPage: 1,
+      total: 400,
+      pageNum: 1,
       queryInfo: {
         phone_number: '',
         order_state_name: ''
@@ -98,12 +101,7 @@ export default {
       appointForm: {
         feishou: ''
       },
-      checked: false,
       addtable: [],
-      currentPage: 1,
-      tableData: [],
-      total: 400,
-      pageNum: 1,
       picked: ''
     }
   },
@@ -117,23 +115,46 @@ export default {
     async getInformationList () {
       const msg = await this.$http.get('dispatcher/getDispatcherList')
       console.log(msg.data.data)
+      if (msg.status !== 200) {
+        return this.$message.error('获取派单列表失败！')
+      }
+      for (item in msg.data.data) {
+        switch (item.order_state_name) {
+          case 0:
+            item.order_state_name = '待付款'
+            break
+          case 1:
+            item.order_state_name = '待指派'
+            break
+          case 2:
+            item.order_state_name = '待服务'
+            break
+          case 3:
+            item.order_state_name = '待确认'
+            break
+          case 4:
+            item.order_state_name = '已完成'
+            break
+        }
+      }
       this.tableData = msg.data.data
     },
-    async showAppoint (fly) {
-      // if (!(fly.feishou_name === '未设置')) {
-      //   return this.$message.error('飞手已设置！')
-      // }
+    async showAppoint (order) {
+      if (!(order.feishou_name === '未设置')) {
+        return this.$message.error('飞手已设置！')
+      }
       this.dialogVisible = true
       const msg = await this.$http.get('dispatcher/getFeishou')
-      console.log(msg.data.data)
-      msg.data.data.checkid = fly.id
-      // console.log(msg.data.data.checkid)
+      if (msg.status !== 200) {
+        return this.$message.error('获取飞手列表失败！')
+      }
+      msg.data.data.checkid = order.id
       this.addtable = msg.data.data
     },
     async queryInfomation () {
       const msg = await this.$http.get('dispatcher/getDispatcherList', this.$qs.stringify({ phone_number: this.queryInfo.phone_number }))
-      console.log(msg)
       if (msg.status !== 200) {
+        this.resetQueryForm()
         return this.$message.error('查询失败！')
       }
       this.tableData = msg.data
@@ -145,18 +166,11 @@ export default {
       const msg = await this.$http.post('dispatcher/dispatcher', { userId: this.picked, id: this.addtable.checkid })
       if (msg.status !== 200) {
         this.dialogVisible = false
-        return this.$message.error('派单失败！')
+        return this.$message.error('指派飞手失败！')
       }
-      this.$message.success('派单成功！')
+      this.$message.success('指派飞手成功！')
       this.dialogVisible = false
       this.getInformationList()
-    },
-    handlePictureCardPreview (file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible2 = true
-    },
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
     }
   }
 }
