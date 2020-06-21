@@ -2,9 +2,8 @@
   <div>
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
+        <el-breadcrumb-item>系统管理</el-breadcrumb-item>
         <el-breadcrumb-item>管理员管理</el-breadcrumb-item>
-        <!-- <el-breadcrumb-item>认证记录</el-breadcrumb-item> -->
       </el-breadcrumb>
       <p class="indexText">管理员管理</p>
     </div>
@@ -54,16 +53,16 @@
     <el-pagination
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size= "queryInfo.pagesize"
+      :page-size="queryInfo.pagesize"
       :page-count="11"
-      :current-page= queryInfo.pageNum
+      :current-page="queryInfo.pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
       <span class="slotText">第{{queryInfo.pageNum}}/{{total/5}}页</span>
     </el-pagination>
     </el-card>
     <el-dialog title="新增管理员" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
-      <el-form label-width="100px" :model="addForm" ref="addFormRef">
+      <el-form label-width="100px" :model="addForm" ref="addFormRef" :rules="addFormRules" hide-required-asterisk>
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="管理员姓名:" prop="realName">
@@ -94,9 +93,9 @@
         </el-row>
         <el-row>
           <el-col :span="15" :offset="4">
-            <el-form-item label="管理员状态:">
-              <el-radio v-model="addForm.status" :label=1>正常</el-radio>
-              <el-radio v-model="addForm.status" :label=0>禁用</el-radio>
+            <el-form-item label="管理员状态:" prop="status">
+              <el-radio v-model="addForm.status" label=1>正常</el-radio>
+              <el-radio v-model="addForm.status" label=0>禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
@@ -106,8 +105,8 @@
         <el-button type="primary" @click="addkeeper">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑管理员" :visible.sync="dialogVisible1" width="40%">
-      <el-form label-width="100px" :model="editForm">
+    <el-dialog title="编辑管理员" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
+      <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" hide-required-asterisk>
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="管理员姓名:" prop="realName">
@@ -156,6 +155,8 @@
 export default {
   data () {
     return {
+      tableData: [],
+      total: 400,
       queryInfo: {
         userName: '',
         phoneNumber: '',
@@ -170,9 +171,35 @@ export default {
         phoneNumber: '',
         status: ''
       },
+      addFormRules: {
+        realName: [
+          { required: true, message: '请输入管理员姓名', trigger: 'blur'}
+        ],
+        userName: [
+          { required: true, message: '请输入账号名', trigger: 'blur'}
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur'}
+        ],
+        phoneNumber: [
+          { required: true, message: '请输入电话号码', trigger: 'blur'}
+        ]
+      },
       editForm: {},
-      tableData: [],
-      total: 400
+      editFormRules: {
+        realName: [
+          { required: true, message: '请输入管理员姓名', trigger: 'blur'}
+        ],
+        userName: [
+          { required: true, message: '请输入账号名', trigger: 'blur'}
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur'}
+        ],
+        phoneNumber: [
+          { required: true, message: '请输入电话号码', trigger: 'blur'}
+        ]
+      }
     }
   },
   created () {
@@ -182,41 +209,67 @@ export default {
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
-    async getInformationList () {
-      const msg = await this.$http.get('admin/getAdminList')
-      this.tableData = msg.data.data
-    },
     async querykeeper () {
       const msg = await this.$http.get('admin/getAdminList', { params: this.queryInfo })
       this.tableData = msg.data.data
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+    },
+    async getInformationList () {
+      const msg = await this.$http.get('admin/getAdminList')
+      if (msg.status !==200) {
+        return this.$message.error('获取管理员列表失败！')
+      }
+      for (let item in msg.data.data) {
+        switch (item.status) {
+          case 0:
+            item.status = '禁用'
+            break
+          case 1:
+            item.status = '正常'
+            break
+        }
+      }
+      this.tableData = msg.data.data
     },
     async addkeeper () {
-      const msg = await this.$http.post('admin/addAdmin', this.$qs.stringify(this.addForm))
-      if (msg.status !== 200) {
+      this.$refs.addFormRef.validate(async valid => {
+        if (!valid) return
+        const msg = await this.$http.post('admin/addAdmin', this.$qs.stringify(this.addForm))
+        if (msg.status !== 200) {
+          this.dialogVisible = false
+          return this.$message.error('新增管理员失败！')
+        }
+        this.getInformationList()
+        this.$message.success('新增管理员成功！')
         this.dialogVisible = false
-        return this.$message.error('新增管理员失败！')
-      }
-      this.$message.success('新增管理员成功！')
-      this.dialogVisible = false
-      this.getInformationList()
+      })
+    },
+    closeaddform () {
+      this.$refs.addFormRef.resetFields()
     },
     showeditform (user) {
       this.editForm = user
       this.dialogVisible1 = true
     },
     async editkeeper () {
-      const msg = await this.$http.post('admin/updateAdmin', this.$qs.stringify(this.editForm))
-      console.log(msg)
-      if (msg.status !== 200) {
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return
+        const msg = await this.$http.post('admin/updateAdmin', this.$qs.stringify(this.editForm))
+        if (msg.status !== 200) {
+          this.dialogVisible1 = false
+          return this.$message.error('编辑管理员失败！')
+        }
+        this.getInformationList()
+        this.$message.success('编辑管理员成功！')
         this.dialogVisible1 = false
-        return this.$message.error('编辑管理员失败！')
-      }
-      this.$message.success('编辑管理员成功！')
-      this.dialogVisible1 = false
-      this.getInformationList()
+      })
     },
-    closeaddform () {
-      this.$refs.addFormRef.resetFields()
+    closeeditform () {
+      this.$refs.editFormRef.resetFields()
+      this.getInformationList()
     },
     async removekeeper (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该管理员, 是否继续?', '提示', {
@@ -228,7 +281,6 @@ export default {
         return this.$message.info('已取消删除')
       }
       const msg = await this.$http.post('admin/deleteAdmin', this.$qs.stringify({ id: id }))
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('删除失败！')
       }

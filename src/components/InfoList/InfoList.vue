@@ -117,7 +117,7 @@
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="文章标题:" prop="articleName">
-              <el-input placeholder="请输入" v-model="editForm.articleName"></el-input>
+              <el-input v-model="editForm.articleName"></el-input>
             </el-form-item>
           </el-col>
         </el-row>

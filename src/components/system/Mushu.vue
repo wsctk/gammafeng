@@ -17,13 +17,13 @@
                 <el-input placeholder="亩数范围" v-model="item.end"></el-input>
               </el-col>
               <el-col :span="2" class="middletext">
-                亩的部分每亩为
+                亩的每亩价格为
               </el-col>
               <el-col :span="1">
                 <el-input  placeholder="请输入价格" v-model="item.price"></el-input>
               </el-col>
               <el-col :span="4" class="middletext">
-                元，超出部分进入下一级结算
+                元
               </el-col>
             </template>
         </el-row>
@@ -41,9 +41,7 @@ export default {
         { end: 50, price: 5 },
         { end: 100, price: 4 },
         { end: 200, price: 3 }
-      ],
-      range1: 50,
-      mushu: []
+      ]
     }
   },
   methods: {

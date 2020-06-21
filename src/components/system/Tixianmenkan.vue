@@ -32,6 +32,10 @@ export default {
     async save () {
       const msg = await this.$http.post('system/updateSystemConfig', { minCash: this.tixian })
       console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('提交失败！')
+      }
+      this.$message.success('提交成功！')
     }
   }
 }
