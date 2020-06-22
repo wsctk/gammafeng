@@ -35,6 +35,9 @@
         <el-table-column align="center" prop="demand_mu" label="需求亩数">
         </el-table-column>
         <el-table-column align="center" prop="service_time" label="预约时间">
+          <template v-slot="scope">
+            {{ scope.row.service_time | dateFormat}}
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="order_amount" label="订单金额">
         </el-table-column>
@@ -127,22 +130,22 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('获取派单列表失败！')
       }
-      for (let item in msg.data.data) {
-        switch (item.order_state_name) {
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].order_state_name) {
           case 0:
-            item.order_state_name = '待付款'
+            msg.data.data[i].order_state_name = '待付款'
             break
           case 1:
-            item.order_state_name = '待指派'
+            msg.data.data[i].order_state_name = '待指派'
             break
           case 2:
-            item.order_state_name = '待服务'
+            msg.data.data[i].order_state_name = '待服务'
             break
           case 3:
-            item.order_state_name = '待确认'
+            msg.data.data[i].order_state_name = '待确认'
             break
           case 4:
-            item.order_state_name = '已完成'
+            msg.data.data[i].order_state_name = '已完成'
             break
         }
       }
@@ -180,7 +183,7 @@ export default {
     },
     closeForm () {
       this.$refs.addFormRef.resetFields()
-    },
+    }
   }
 }
 </script>

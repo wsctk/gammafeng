@@ -26,6 +26,9 @@
           <el-table-column align="center" prop="wechatName" label="用户名">
           </el-table-column>
           <el-table-column align="center" prop="wechatAvatar" label="微信头像">
+            <template v-slot="scope">
+              <img :src=scope.row.wechatAvatar style="width:50px;height:50px;" />
+            </template>
           </el-table-column>
           <el-table-column align="center" prop="phoneNumber" label="手机号">
           </el-table-column>
@@ -118,32 +121,42 @@ export default {
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
-    //搜索可能失效
+    // 搜索可能失效
     async queryinfo () {
-        const msg = await this.$http.get('user/userList', { params: this.queryInfo })
-        if (msg.status !== 200) {
-          this.resetQueryForm()
-          return this.$message.error('查询失败！')
+      const msg = await this.$http.get('user/userList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].statusState) {
+          case 0:
+            msg.data.data[i].userStatus = '未认证'
+            break
+          case 1:
+            msg.data.data[i].userStatus = '已认证'
+            break
         }
-        this.tableData = msg.data
+      }
+      this.tableData = msg.data
     },
     async getCustomerList () {
-        const msg = await this.$http.get('user/userList', { params: { userStatus: '1' } })
-        console.log(msg.data)
-        if (msg.status !== 200) {
-          return this.$message.error('获取飞手列表失败！')
+      const msg = await this.$http.get('user/userList', { params: { userStatus: '1' } })
+      console.log(msg.data)
+      if (msg.status !== 200) {
+        return this.$message.error('获取飞手列表失败！')
+      }
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].statusState) {
+          case '0':
+            msg.data.data[i].statusState = '未认证'
+            break
+          case '1':
+            msg.data.data[i].statusState = '已认证'
+            break
         }
-        for (let item in msg.data) {
-          switch (item.statusState) {
-            case 0:
-              item.userStatus = '未认证'
-              break
-            case 1:
-              item.userStatus = '已认证'
-              break
-          }
-        }
-        this.tableData = msg.data
+      }
+      this.tableData = msg.data.data
     },
     showDialogForm (user) {
       this.dialogVisible1 = true

@@ -41,18 +41,18 @@
         </el-table-column>
         <el-table-column align="center" label="项目图册">
           <template v-slot="scope">
-            <el-button type="primary" size="small" @click="showimgs(scope.row)"></el-button>
+            <el-button type="success" size="small" @click="showimgs(scope.row.id)">查看</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="goodsPrice" label="价格(元)">
         </el-table-column>
         <el-table-column align="center" prop="inventory" label="库存">
         </el-table-column>
-        <el-table-column align="center" prop="goodsClassfication" label="商品归属">
+        <el-table-column align="center" prop="goodsClassficationname" label="商品归属">
         </el-table-column>
-        <el-table-column align="center" prop="goodsState" label="状态">
+        <el-table-column align="center" prop="goodsStatename" label="商品状态">
         </el-table-column>
-        <el-table-column align="center" prop="createTime" label="创建时间">
+        <el-table-column align="center" prop="createTime" label="创建时间" v-slot="scope">
           <template>
             {{scope.row.createTime | dateFormat}}
           </template>
@@ -69,7 +69,7 @@
      </el-pagination>
     </el-card>
     <el-dialog title="新增商品" :visible.sync="dialogVisible" width="50%" @close="closeaddform">
-      <el-form label-width="130px" :model="addForm" ref="addFormRef" :rules="addFormRules" label-position="right" hide-required-asterisk>
+      <el-form label-width="130px" :model="addForm" ref="addFormRef" :rules="addFormRules" label-position="right" :hide-required-asterisk='false'>
         <el-row>
           <el-col :span="10">
             <el-form-item label="商品名称：">
@@ -91,12 +91,12 @@
         </el-row>
         <el-row>
           <el-col :span="10">
-            <el-form-item label="商品价格：">
-              <el-input placeholder="请输入" v-model="addForm.goodsName"></el-input>
+            <el-form-item label="商品价格：" prop="goodsPrice">
+              <el-input placeholder="请输入" v-model="addForm.goodsPrice"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
-            <el-form-item label="商品库存：">
+            <el-form-item label="商品库存：" prop="inventory">
               <el-input placeholder="请输入" v-model="addForm.inventory"></el-input>
             </el-form-item>
           </el-col>
@@ -160,17 +160,16 @@
         <el-button type="primary" @click="submitaddform">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑商品" :visible.sync="dialogVisible1" width="50%" @click="closeeditform">
+    <el-dialog title="编辑商品" :visible.sync="dialogVisible1" width="50%" @close="closeeditform">
       <el-form label-width="130px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" hide-required-asterisk>
         <el-row>
           <el-col :span="10">
             <el-form-item label="商品名称：" prop="goodsName">
-              <el-input placeholder="请输入" v-model="editForm.goodname"></el-input>
+              <el-input placeholder="请输入" v-model="editForm.goodsName"></el-input>
             </el-form-item>
           </el-col>
-          // 回显商品分类
           <el-col :span="10" :offset="2">
-            <el-form-item label="商品分类：">
+            <el-form-item label="商品分类：" prop="categoryId">
                <el-select v-model="editForm.categoryId">
                 <el-option
                   v-for="item in category"
@@ -225,26 +224,25 @@
         </el-form-item>
         <el-row>
           <el-col :span="10">
-            <el-form-item label="商品归属：" prop="radio1">
+            <el-form-item label="商品归属：" prop="goodsClassfication">
               <el-radio v-model="editForm.goodsClassfication" label="0">商城商品</el-radio>
               <el-radio v-model="editForm.goodsClassfication" label="1">积分商品</el-radio>
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
-            <el-form-item label="商品状态：" prop="radio2">
-              <el-radio v-model="editForm.goodsState" label="1">正常</el-radio>
-              <el-radio v-model="editForm.goodsState" label="0">下架</el-radio>
+            <el-form-item label="商品状态：" prop="goodsState">
+              <el-radio v-model="editForm.goodsState" :label="1">正常</el-radio>
+              <el-radio v-model="editForm.goodsState" :label="0">下架</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="22">
-            <el-form-item label="商品详情：">
+            <el-form-item label="商品详情：" prop="goodsDescription">
               <el-input
                 type="textarea"
                 :rows="6"
-                placeholder="富文本编辑器"
-                v-model="editForm.textarea">
+                v-model="editForm.goodsDescription">
               </el-input>
             </el-form-item>
           </el-col>
@@ -258,8 +256,8 @@
     <el-dialog title="项目图册" :visible.sync="dialogVisibleimgs" width="40%">
       <el-row v-for="item in showimgslist" :key="item.id">
         <template>
-          <el-col :span="10" :offset="3">
-          <img :src=item style="width:100px;height:100px;" />
+          <el-col :span="14" :offset="8">
+            <img :src=item.thumbnailPicture style="width:200px;height:200px;" />
           </el-col>
         </template>
       </el-row>
@@ -293,13 +291,13 @@ export default {
       dialogVisibleimgs: false,
       addForm: {
         textarea: '',
-        goodsName: '123',
+        goodsName: '',
         categoryId: '',
-        goodsPrice: '123',
-        inventory: '123',
-        goodsClassfication: '0',
-        goodsState: '0',
-        goodsDescription: '123'
+        goodsPrice: '',
+        inventory: '',
+        goodsClassfication: '',
+        goodsState: '',
+        goodsDescription: ''
       },
       addFormRules: {
         goodsName: [
@@ -348,35 +346,60 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async query () {
-      const msg = await this.$http.post('', this.queryInfo)
+      const msg = await this.$http.get('store/goodsList', { params: this.queryInfo })
       console.log(msg)
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
       }
+      let arr = []
+      arr = msg.data.data
+      for (let i = 0; i < arr.length; i++) {
+        switch (arr[i].goodsClassfication) {
+          case '0':
+            arr[i].goodsClassficationname = '用户商城'
+            break
+          case '1':
+            arr[i].goodsClassficationname = '积分商城'
+            break
+          default:
+            console.log(arr[i])
+        }
+        switch (arr[i].goodsState) {
+          case 0:
+            arr[i].goodsStatename = '下架'
+            break
+          case 1:
+            arr[i].goodsStatename = '正常'
+            break
+        }
+      }
       this.tableData = msg.data.data
     },
     async getgoodList () {
       const msg = await this.$http.get('store/goodsList')
-      console.log(msg.data.data)
       if (msg.status !== 200) {
         return this.$message.error('获取商品列表失败')
       }
-      for (let item in msg.data.data) {
-        switch (item.goodsClassfication) {
-          case 1:
-            item.goodsClassfication = '用户商城'
+      let arr = []
+      arr = msg.data.data
+      for (let i = 0; i < arr.length; i++) {
+        switch (arr[i].goodsClassfication) {
+          case '0':
+            arr[i].goodsClassficationname = '用户商城'
             break
-          case 2:
-            item.goodsClassfication = '积分商城'
+          case '1':
+            arr[i].goodsClassficationname = '积分商城'
             break
+          default:
+            console.log(arr[i])
         }
-        switch (item.goodsState) {
+        switch (arr[i].goodsState) {
           case 0:
-            item.goodsState = '下架'
+            arr[i].goodsStatename = '下架'
             break
           case 1:
-            item.goodsState = '正常'
+            arr[i].goodsStatename = '正常'
             break
         }
       }
@@ -384,8 +407,7 @@ export default {
     },
     async getcategory () {
       const cate = await this.$http.get('category/categoryList')
-      console.log(cate.data.data)
-      if (msg.status !== 200) {
+      if (cate.status !== 200) {
         return this.$message.error('获取商品分类失败！')
       }
       this.category = cate.data.data
@@ -410,54 +432,61 @@ export default {
           this.dialogVisible = false
           return this.$message.error('添加商品失败！')
         }
-        this.getInformationList()
+        this.getgoodList()
         this.$message.success('添加商品成功！')
         this.dialogVisible = false
       })
     },
     closeaddform () {
-      this.multipartFileile = '',
+      this.multipartFileile = ''
       this.file = []
       this.$refs.addFormRef.resetFields()
     },
-    showeditForm (user) {
+    async showeditForm (user) {
       this.dialogVisible1 = true
+      const msg = await this.$http.get('picture/pictureList', { params: { goodsId: user.id } })
+      console.log(msg)
+      this.showimgslist = msg.data.data
       this.editForm = user
       this.editimglist.push({ url: user.goodsCover })
-      for (let item in user.goodsimg) {
-        this.editimgslist.push({ url: item})
+      console.log(this.editForm)
+      for (let i = 0; i < this.showimgslist.length; i++) {
+        this.editimgslist.push({ url: this.showimgslist[i].thumbnailPicture })
       }
     },
     uploadeditimg (params) {
       this.editimg = params.file
     },
     uploadeditimgs (params) {
-      this.editimgs = params.file
+      this.editimgs.push(params.file)
     },
     async submiteditform () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
         const formData = new FormData()
         formData.append('multipartFileile', this.editimg)
-        for (var i = 0; i < this.editimgs.length; i++) {
+        for (let i = 0; i < this.editimgs.length; i++) {
           formData.append('file', this.editimgs[i])
         }
-        const msg = await this.$http.post('store/addGoods', formData, { params: this.editForm })
-        console.log(msg)
+        for (let j = 0; j < this.showimgslist.length; j++) {
+          formData.append('imgs', this.showimgslist[j])
+        }
+        const msg = await this.$http.post('store/updateGoods', formData, { params: this.editForm })
         if (msg.status !== 200) {
           this.dialogVisible1 = false
           return this.$message.error('编辑商品信息失败！')
         }
-        this.getInformationList()
+        this.getgoodList()
         this.dialogVisible1 = false
         this.$message.success('编辑商品信息成功！')
       })
     },
     closeeditform () {
       this.editForm = {}
-      this.editimglist = ''
+      this.editimglist = []
       this.editimgslist = []
-      this.getInformationList()
+      this.showimgslist = []
+      this.getgoodList()
     },
     handleRemove (file, fileList) {
       console.log(file, fileList)
@@ -466,9 +495,27 @@ export default {
       this.dialogImageUrl = file.url
       this.dialogVisible2 = true
     },
-    showimgs (user) {
+    async remove (id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该商品, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const msg = await this.$http.delete('store/deleteGoods', { params: { id: id } })
+      if (msg.status !== 200) {
+        return this.$message.error('删除商品失败')
+      }
+      this.$message.success('商品已删除')
+      this.getgoodList()
+    },
+    async showimgs (id) {
       this.dialogVisibleimgs = true
-      this.showimgslist = user.goosimgs
+      const msg = await this.$http.get('picture/pictureList', { params: { goodsId: id } })
+      console.log(msg)
+      this.showimgslist = msg.data.data
     }
   }
 }

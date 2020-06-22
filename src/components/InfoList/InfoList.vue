@@ -174,11 +174,11 @@ export default {
     return {
       tableData: [],
       total: 400,
+      pagesize: '',
+      pageNum: '',
       queryInfo: {
         articleName: '',
-        publishtime: '',
-        pagesize: '',
-        pageNum: ''
+        publishtime: ''
       },
       dialogVisible: false,
       dialogVisible1: false,
@@ -192,7 +192,7 @@ export default {
       },
       addFormRules: {
         title: [
-          { required: true, message: '请输入标题！', trigger: 'blur'}
+          { required: true, message: '请输入标题！', trigger: 'blur' }
         ]
       },
       editForm: {
@@ -200,7 +200,7 @@ export default {
       },
       editFormRules: {
         title: [
-          { required: true, message: '请输入标题！', trigger: 'blur'}
+          { required: true, message: '请输入标题！', trigger: 'blur' }
         ]
       },
       dialogImageUrl: '',

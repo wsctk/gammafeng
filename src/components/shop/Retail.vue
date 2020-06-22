@@ -8,7 +8,7 @@
       <p class="indexText">分销记录</p>
     </div>
     <el-card>
-      <el-form :inline="true" :model="queryInfo" ref="queryInfoRef" :rules="queryInfoRules">
+      <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="商品名：" class="firInput" prop="goodname">
           <el-input placeholder="请输入" v-model="queryInfo.goodname"></el-input>
         </el-form-item>
@@ -38,7 +38,7 @@
         </el-form-item>
       </el-form>
       <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="分销ID">
+        <el-table-column align="center" prop="did" label="分销ID">
         </el-table-column>
         <el-table-column align="center" prop="first_name" label="一级用户">
         </el-table-column>
@@ -96,7 +96,7 @@ export default {
   },
   methods: {
     async getInformationList () {
-      const msg = await this.$http.get('')
+      const msg = await this.$http.get('distribution/getDistribution')
       console.log(msg.data)
       if (msg.status !== 200) {
         this.$message.error('获取分销列表失败！')

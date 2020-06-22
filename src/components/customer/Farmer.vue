@@ -26,6 +26,9 @@
         <el-table-column align="center" prop="wechatName" label="用户名">
         </el-table-column>
         <el-table-column align="center" prop="wechatAvatar" label="微信头像">
+          <template v-slot="scope">
+            <img :src=scope.row.wechatAvatar style="width:50px;height:50px;" />
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="phoneNumber" label="手机号">
         </el-table-column>
@@ -127,17 +130,17 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('获取农资商列表失败！')
       }
-      for (let item in msg.data) {
-        switch (item.statusState) {
-          case 0:
-            item.userStatus = '未认证'
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].statusState) {
+          case '0':
+            msg.data.data[i].statusState = '未认证'
             break
-          case 1:
-            item.userStatus = '已认证'
+          case '1':
+            msg.data.data[i].statusState = '已认证'
             break
         }
       }
-      this.tableData = msg.data
+      this.tableData = msg.data.data
     },
     async queryinfo () {
       const msg = await this.$http.get('user/userList', { params: this.queryInfo })
@@ -161,7 +164,7 @@ export default {
           return this.$message.error('上级用户不存在！')
         }
         this.getCustomerList()
-        this.$message.success("编辑农资商信息成功！")
+        this.$message.success('编辑农资商信息成功！')
         this.dialogVisible1 = false
       })
     },

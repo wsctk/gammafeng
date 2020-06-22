@@ -88,16 +88,16 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('获取提现列表失败！')
       }
-      for (let item in msg.data.data) {
-        switch (item.status) {
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].gmUser.userStatus) {
           case 0:
-            item.status = '普通用户'
+            msg.data.data[i].gmUser.userStatus = '普通用户'
             break
           case 1:
-            item.status = '飞手'
+            msg.data.data[i].gmUser.userStatus = '飞手'
             break
           case 2:
-            item.status = '农资商'
+            msg.data.data[i].gmUser.userStatus = '农资商'
             break
         }
       }
@@ -108,6 +108,19 @@ export default {
       if (msg.status !== 200) {
         this.resetField()
         return this.$message.error('查询失败！')
+      }
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].gmUser.userStatus) {
+          case 0:
+            msg.data.data[i].gmUser.userStatus = '普通用户'
+            break
+          case 1:
+            msg.data.data[i].gmUser.userStatus = '飞手'
+            break
+          case 2:
+            msg.data.data[i].gmUser.userStatus = '农资商'
+            break
+        }
       }
       this.tableData = msg.data.data
     }

@@ -173,31 +173,31 @@ export default {
       },
       addFormRules: {
         realName: [
-          { required: true, message: '请输入管理员姓名', trigger: 'blur'}
+          { required: true, message: '请输入管理员姓名', trigger: 'blur' }
         ],
         userName: [
-          { required: true, message: '请输入账号名', trigger: 'blur'}
+          { required: true, message: '请输入账号名', trigger: 'blur' }
         ],
         password: [
-          { required: true, message: '请输入密码', trigger: 'blur'}
+          { required: true, message: '请输入密码', trigger: 'blur' }
         ],
         phoneNumber: [
-          { required: true, message: '请输入电话号码', trigger: 'blur'}
+          { required: true, message: '请输入电话号码', trigger: 'blur' }
         ]
       },
       editForm: {},
       editFormRules: {
         realName: [
-          { required: true, message: '请输入管理员姓名', trigger: 'blur'}
+          { required: true, message: '请输入管理员姓名', trigger: 'blur' }
         ],
         userName: [
-          { required: true, message: '请输入账号名', trigger: 'blur'}
+          { required: true, message: '请输入账号名', trigger: 'blur' }
         ],
         password: [
-          { required: true, message: '请输入密码', trigger: 'blur'}
+          { required: true, message: '请输入密码', trigger: 'blur' }
         ],
         phoneNumber: [
-          { required: true, message: '请输入电话号码', trigger: 'blur'}
+          { required: true, message: '请输入电话号码', trigger: 'blur' }
         ]
       }
     }
@@ -219,16 +219,16 @@ export default {
     },
     async getInformationList () {
       const msg = await this.$http.get('admin/getAdminList')
-      if (msg.status !==200) {
+      if (msg.status !== 200) {
         return this.$message.error('获取管理员列表失败！')
       }
-      for (let item in msg.data.data) {
-        switch (item.status) {
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].status) {
           case 0:
-            item.status = '禁用'
+            msg.data.data[i].status = '禁用'
             break
           case 1:
-            item.status = '正常'
+            msg.data.data[i].status = '正常'
             break
         }
       }

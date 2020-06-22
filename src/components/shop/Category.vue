@@ -9,7 +9,7 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="分类名称：" class="firInput">
+        <el-form-item label="分类名称：" class="firInput" prop="categoryName">
           <el-input placeholder="请输入" v-model="queryInfo.categoryName"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
@@ -23,16 +23,19 @@
         </el-table-column>
         <el-table-column align="center" prop="categoryName" label="分类名称">
         </el-table-column>
-        <el-table-column align="center" prop="categoryState" label="分类状态">
+        <el-table-column align="center" prop="categoryStateName" label="分类状态">
         </el-table-column>
         <el-table-column align="center" prop="createTime" label="创建时间">
+          <template v-slot="scope">
+            {{scope.row.createTime | dateFormat}}
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
             <template>
               <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
               <el-button size="small" type="danger" @click="removecate(scope.row.id)">删除</el-button>
             </template>
-          </el-table-column>
+        </el-table-column>
     </el-table>
     <el-pagination
       background
@@ -46,7 +49,7 @@
     </el-pagination>
     </el-card>
     <el-dialog title="新增分类" :visible.sync="dialogVisible1" width="40%" @close="closeaddform">
-      <el-form hide-required-asterisk label-width="100px" :model="addForm" ref="addFormRef" rules="addFormRules">
+      <el-form hide-required-asterisk label-width="100px" :model="addForm" ref="addFormRef" :rules="addFormRules">
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="分类名称:" prop="categoryName">
@@ -69,7 +72,7 @@
       </div>
     </el-dialog>
     <el-dialog title="编辑分类" :visible.sync="dialogVisible2" width="40%" @close="closeeditform">
-      <el-form hide-required-asterisk label-width="100px" :model="editForm" ref="editFormRef" rules="editFormRules">
+      <el-form hide-required-asterisk label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules">
         <el-row>
           <el-col :span="11" :offset="4">
             <el-form-item label="分类名称:" prop="categoryName">
@@ -80,8 +83,8 @@
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="分类状态:" prop="categoryState">
-              <el-radio v-model="editForm.categoryState" label="1">正常</el-radio>
-              <el-radio v-model="editForm.categoryState" label="0">禁用</el-radio>
+              <el-radio v-model="editForm.categoryState" :label='1'>正常</el-radio>
+              <el-radio v-model="editForm.categoryState" :label='0'>禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
@@ -120,7 +123,7 @@ export default {
         ]
       },
       dialogVisible1: false,
-      dialogVisible2: false,
+      dialogVisible2: false
     }
   },
   created () {
@@ -140,19 +143,23 @@ export default {
     },
     async getInformationList () {
       const msg = await this.$http.get('category/categoryList')
+      console.log(msg.data.data)
       if (msg.status !== 200) {
         return this.$message.error('获取分类列表失败！')
       }
-      for (let item in msg.data.data) {
-        switch (item.categoryState) {
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].categoryState) {
           case 0:
-            item.categoryState = '禁用'
+            msg.data.data[i].categoryStateName = '禁用'
             break
           case 1:
-            item.categoryState = '正常'
+            msg.data.data[i].categoryStateName = '正常'
             break
+          default:
+            console.log('123')
         }
       }
+      console.log(msg.data.data)
       this.tableData = msg.data.data
     },
     async addcate () {

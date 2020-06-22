@@ -32,6 +32,9 @@
         <el-table-column align="center" prop="wechatName" label="用户名">
         </el-table-column>
         <el-table-column align="center" prop="wechatAvatar" label="微信头像">
+          <template v-slot="scope">
+            <img :src=scope.row.wechatAvatar style="width:50px;height:50px;" />
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="phoneNumber" label="手机号">
         </el-table-column>
@@ -105,6 +108,27 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('获取认证列表失败！')
       }
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].status) {
+          case '1':
+            msg.data.data[i].status = '飞手'
+            break
+          case '2':
+            msg.data.data[i].status = '农资商'
+            break
+        }
+        switch (msg.data.data[i].authenticationState) {
+          case '2':
+            msg.data.data[i].authenticationState = '已驳回'
+            break
+          case '1':
+            msg.data.data[i].authenticationState = '已通过'
+            break
+          case '0':
+            msg.data.data[i].authenticationState = '未认证'
+            break
+        }
+      }
       this.tableData = msg.data.data
     },
     async queryinfo () {
@@ -112,16 +136,15 @@ export default {
       const msg = await this.$http.get('auth/authList', { params: this.queryInfo })
       console.log(msg.data.data)
       if (msg.status !== 200) {
-        return this.$message.error("查询失败！")
+        return this.$message.error('查询失败！')
       }
       this.tableData = msg.data.data
     },
-    // 修改认证通过前的确认框
     async authsuccess (id) {
       const confirmResult = await this.$confirm('确定要通过该认证？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'info'
+        type: 'success'
       }).catch(err => err)
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')

@@ -10,10 +10,10 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="用户名：" class="firInput" prop="wechatName">
-          <el-input placeholder="请输入" v-model="queryInfo.wechatName"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.wechatName" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="手机号码：" prop="phoneNumber">
-          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
           <el-button type="primary" @click="queryinfo">查询</el-button>
@@ -127,7 +127,17 @@ export default {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
       }
-      this.tableData = msg.data
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].statusState) {
+          case 0:
+            msg.data.data[i].userStatus = '未认证'
+            break
+          case 1:
+            msg.data.data[i].userStatus = '已认证'
+            break
+        }
+      }
+      this.tableData = msg.data.data
     },
     async getCustomerList () {
       const msg = await this.$http.get('user/userList', { params: { userStatus: '0' } })
@@ -135,17 +145,17 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('获取用户列表失败！')
       }
-      for (let item in msg.data) {
-        switch (item.statusState) {
-          case 0:
-            item.userStatus = '未认证'
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].statusState) {
+          case '0':
+            msg.data.data[i].statusState = '未认证'
             break
-          case 1:
-            item.userStatus = '已认证'
+          case '1':
+            msg.data.data[i].statusState = '已认证'
             break
         }
       }
-      this.tableData = msg.data
+      this.tableData = msg.data.data
     },
     showDialogForm (user) {
       this.editForm = user

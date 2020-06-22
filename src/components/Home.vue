@@ -15,7 +15,7 @@
         </el-header>
         <el-container>
           <el-aside width="14%">
-            <el-menu background-color="#333744" text-color="#fff" unique-opened router default-active="activepath">
+            <el-menu background-color="#333744" text-color="#fff" unique-opened router :default-active="activepath">
               <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
                 <template slot="title">
                   <i :class=iconObj[item.id]></i>
@@ -134,7 +134,7 @@ export default {
     getNavState () {
       const navpath = window.sessionStorage.getItem('activePath')
       if (navpath) {
-        return this.activepath = navpath
+        this.activepath = navpath
       }
     }
   }

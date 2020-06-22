@@ -39,7 +39,7 @@
                       <el-input clearable v-model="loginMessage.code" placeholder="验证码" prefix-icon="el-icon-message"></el-input>
                     </el-col>
                     <el-col :span="7">
-                      <el-button size="large" @click="getCode">获取验证码</el-button>
+                      <el-button size="large" @click="getCode" :disabled="btnavalible">获取验证码</el-button>
                     </el-col>
                   </el-row>
                 </el-form-item>
@@ -54,7 +54,7 @@
               <div class="zhanwei">123</div>
             </el-col>
             <el-col :span="5">
-              <el-link type="primary" :underline="false">忘记密码</el-link>
+              <el-link type="primary" :underline="false" @click="forgetpassword">忘记密码</el-link>
             </el-col>
           </el-row>
           <el-button type="primary" size="small" class="dlbtn" @click="login">登录</el-button>
@@ -81,6 +81,7 @@ export default {
       cb(new Error('请输入合法的手机号码'))
     }
     return {
+      btnavalible: false,
       img: '',
       activeName: 'zhanghaomimadengluTab',
       loginMessage: {
@@ -141,9 +142,11 @@ export default {
         this.$qs.stringify({
           phoneNumber: this.loginMessage.phoneNumber
         }))
-      if (msg !== 'success') {
+      if (msg.data !== 'success') {
+        console.log(msg)
         return this.$message.error('获取验证码失败！')
       }
+      this.btnavalible = true
       this.$message.success('验证码发送成功！')
     },
     async login () {
@@ -158,6 +161,7 @@ export default {
               code: this.loginMessage.imgCode,
               rememberMe: this.checked
             }))
+          this.loginMessage.imgCode = ''
           if (msg.data.message === 'success') {
             localStorage.setItem('checked', this.checked)
             window.sessionStorage.setItem('login', 1)
@@ -176,7 +180,7 @@ export default {
               phoneNumber: this.loginMessage.phoneNumber,
               code: this.loginMessage.code
             }))
-          console.log(msg)
+          this.btnavalible = false
           if (msg.status === 200) {
             window.sessionStorage.setItem('login', 1)
             this.$message.success('登录成功')
@@ -185,6 +189,13 @@ export default {
             this.$message.error('登录失败')
           }
         })
+      }
+    },
+    forgetpassword () {
+      if (this.activeName === 'zhanghaomimadengluTab') {
+        this.activeName = 'shoujihaodengluTab'
+      } else {
+        this.$message.warning('请使用手机号登录并联系超级管理员修改密码！')
       }
     }
   }

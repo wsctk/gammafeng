@@ -9,11 +9,8 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryinfoRef">
-        <el-form-item label="优惠券类型：" prop="useCondition">
-          <el-select placeholder="请选择" v-model="queryInfo.useCondition">
-            <el-option label="直减" value="1"></el-option>
-            <el-option label="满减" value="2"></el-option>
-          </el-select>
+        <el-form-item label="优惠券使用方式：" prop="useCondition" class="firInput">
+          <el-input v-model="queryInfo.useCondition" placeholder="请输入条件金额"></el-input>
         </el-form-item>
         <el-form-item label="优惠券状态：" prop="state">
           <el-select placeholder="请选择" v-model="queryInfo.state">
@@ -26,8 +23,8 @@
           <el-button type="primary" @click="queryinfo">查询</el-button>
           <el-button plain @click="resetquery">重置</el-button>
         </el-form-item>
-        <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       </el-form>
+      <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       <el-table :data="tableData" style="width: 100%" border>
         <el-table-column align="center" prop="id" label="优惠券ID">
         </el-table-column>
@@ -35,14 +32,14 @@
         </el-table-column>
         <el-table-column align="center" prop="value" label="优惠券面额">
         </el-table-column>
-        <el-table-column align="center" prop="useCondition" label="优惠券类型">
+        <el-table-column align="center" prop="useCondition" label="优惠券使用方式">
         </el-table-column>
         <el-table-column align="center" prop="expirationDate" label="优惠券有效期">
           <template v-slot="scope">
             {{ scope.row.expirationDate | dateFormat}}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="state" label="优惠券状态">
+        <el-table-column align="center" prop="statename" label="优惠券状态">
         </el-table-column>
         <el-table-column align="center" prop="createTime" label="创建时间">
           <template v-slot="scope">
@@ -73,7 +70,7 @@
     </el-pagination>
     </el-card>
     <el-dialog title="新增优惠券" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
-      <el-form label-width="100px" :model="addForm" ref="addFormRef" rules="addFormRules" hide-required-asterisk>
+      <el-form label-width="120px" :model="addForm" ref="addFormRef" :rules="addFormRules" hide-required-asterisk>
         <el-row>
           <el-col :span="11" :offset="6">
             <el-form-item label="优惠券面额:" prop="value">
@@ -103,9 +100,8 @@
         </el-row>
         <el-row>
           <el-col :span="11" :offset="6">
-            <el-form-item label="优惠券类型:" prop="useCondition">
-              <el-radio v-model="addForm.useCondition" label="1">直减</el-radio>
-              <el-radio v-model="addForm.useCondition" label="2">满减</el-radio>
+            <el-form-item label="优惠券使用方式:" prop="useCondition">
+              <el-input v-model="addForm.useCondition" placeholder="请输入条件金额"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -116,6 +112,7 @@
                 <el-radio :label="0">未使用</el-radio>
                 <el-radio :label="1">已使用</el-radio>
                 <el-radio :label="2">已失效</el-radio>
+               </el-radio-group>
             </el-form-item>
           </el-col>
         </el-row>
@@ -126,7 +123,7 @@
       </div>
     </el-dialog>
     <el-dialog title="编辑优惠券" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
-      <el-form label-width="100px" :model="editForm" ref="editFormRef" rules="editFormRules" hide-required-asterisk>
+      <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" hide-required-asterisk>
         <el-row>
           <el-col :span="11" :offset="6">
             <el-form-item label="优惠券面额:" prop="value">
@@ -157,8 +154,7 @@
         <el-row>
           <el-col :span="11" :offset="6">
             <el-form-item label="优惠券类型:" prop="useCondition">
-              <el-radio v-model="editForm.useCondition" label="1">直减</el-radio>
-              <el-radio v-model="editForm.useCondition" label="2">满减</el-radio>
+              <el-input v-model="editForm.useCondition"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -166,9 +162,10 @@
           <el-col :span="15" :offset="6">
             <el-form-item label="优惠券状态:" prop="state">
                <el-radio-group v-model="editForm.state">
-                <el-radio :label="0">未使用</el-radio>
-                <el-radio :label="1">已使用</el-radio>
-                <el-radio :label="2">已失效</el-radio>
+                <el-radio label="0">未使用</el-radio>
+                <el-radio label="1">已使用</el-radio>
+                <el-radio label="2">已失效</el-radio>
+               </el-radio-group>
             </el-form-item>
           </el-col>
         </el-row>
@@ -199,7 +196,7 @@ export default {
         expirationDate: '',
         phoneNumber: '',
         state: '',
-        useCondition: '',
+        useCondition: ''
       },
       addFormRules: {
         value: [
@@ -230,6 +227,21 @@ export default {
         this.resetquery()
         return this.$message.error('查询失败！')
       }
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].state) {
+          case '0':
+            msg.data.data[i].statename = '未使用'
+            break
+          case '1':
+            msg.data.data[i].statename = '已使用'
+            break
+          case '2':
+            msg.data.data[i].statename = '已失效'
+            break
+          default:
+            console.log(msg.data.data)
+        }
+      }
       this.tableData = msg.data.data
     },
     resetquery () {
@@ -241,25 +253,19 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('获取优惠券列表失败！')
       }
-      for (let item in msg.data.data) {
-        switch (item.useCondition) {
-          case 1:
-            item.useCondition = '直减'
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].state) {
+          case '0':
+            msg.data.data[i].statename = '未使用'
             break
-          case 2:
-            item.useCondition = '满减'
+          case '1':
+            msg.data.data[i].statename = '已使用'
             break
-        }
-        switch (item.state) {
-          case 0:
-            item.state = '未使用'
+          case '2':
+            msg.data.data[i].statename = '已失效'
             break
-          case 1:
-            item.state = '已使用'
-            break
-          case 2:
-            item.state = '已失效'
-            break
+          default:
+            console.log(msg.data.data)
         }
       }
       this.tableData = msg.data.data
@@ -267,7 +273,7 @@ export default {
     async addcoupon () {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
-        const msg = await this.$http.post('', this.$qs.stringify(this.addForm))
+        const msg = await this.$http.post('coupons/addCoupons', this.$qs.stringify(this.addForm))
         if (msg.status !== 200) {
           this.dialogVisible = false
           this.$message.error('添加优惠券失败！')
@@ -287,7 +293,7 @@ export default {
     async editcoupon () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
-        const msg = await this.$http.post('', this.editForm)
+        const msg = await this.$http.post('coupons/updateCoupons', this.$qs.stringify(this.editForm))
         if (msg.status !== 200) {
           this.dialogVisible1 = false
           return this.$message.error('编辑失败！')
@@ -310,17 +316,21 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      const msg = await this.$http.post('', this.$qs.stringify({ id: id }))
+      const msg = await this.$http.post('coupons/deleteCoupons', this.$qs.stringify({ id: id }))
       if (msg.status !== 200) {
         return this.$message.error('删除优惠券失败！')
       }
-      this.$$message.success('删除成功！')
+      this.$message.success('删除成功！')
       this.getcouponlist()
     }
   }
 }
 </script>
 <style lang="less" scoped>
+.addbtn {
+    margin-left:27px;
+    margin-bottom: 10px;
+}
 .el-card {
   margin: 35px 25px;
 }
