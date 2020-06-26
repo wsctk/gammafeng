@@ -39,14 +39,15 @@
         </el-table-column>
     </el-table>
     <el-pagination
+       @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size="10"
+      :page-size="pageSize"
       :page-count="11"
-      :current-page="currentPage"
+      :current-page="pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
-      <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
+      <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
   </div>
@@ -58,9 +59,12 @@ export default {
       tableData: [],
       total: 400,
       pageNum: 1,
-      currentPage: 1,
+      pageSize: 1,
+      maxPage: '',
       queryInfo: {
-        goodsName: ''
+        goodsName: '',
+        pageNum: '',
+        pageSize: ''
       },
       addForm: {
         imgid: '',
@@ -77,20 +81,26 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('picture/pictureList', { params: this.queryInfo })
       if (msg.status !== 200) {
         this.resetQueryForm()
         this.$message.error('查询失败！')
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     async getInformationList () {
-      const msg = await this.$http.get('picture/pictureList')
+      const msg = await this.$http.get('picture/pictureList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('获取商品图片失败！')
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     async removeimg (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该商品图片, 是否继续?', '提示', {
@@ -106,6 +116,14 @@ export default {
         return this.$message.error('删除失败！')
       }
       this.$message.success('删除成功！')
+      this.getInformationList()
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getInformationList()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
       this.getInformationList()
     }
   }

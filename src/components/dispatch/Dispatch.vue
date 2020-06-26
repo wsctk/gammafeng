@@ -8,11 +8,11 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="用户手机号" class="firInput" prop="phone_number">
-          <el-input placeholder="请输入" v-model="queryInfo.phone_number"></el-input>
+        <el-form-item label="用户手机号" class="firInput" prop="phoneNumber">
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber"></el-input>
         </el-form-item>
-        <el-form-item label="订单状态">
-          <el-select placeholder="请选择" v-model="queryInfo.order_state_name">
+        <el-form-item label="订单状态" prop="orderState">
+          <el-select placeholder="请选择" v-model="queryInfo.orderState">
             <el-option label="待付款" value="0"></el-option>
             <el-option label="待指派" value="1"></el-option>
             <el-option label="待服务" value="2"></el-option>
@@ -34,33 +34,35 @@
         </el-table-column>
         <el-table-column align="center" prop="demand_mu" label="需求亩数">
         </el-table-column>
-        <el-table-column align="center" prop="service_time" label="预约时间">
+        <el-table-column align="center" prop="service_time" label="预约时间" width="150px">
           <template v-slot="scope">
             {{ scope.row.service_time | dateFormat}}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="order_amount" label="订单金额">
+        <el-table-column align="center" prop="order_amount" label="订单金额(元)">
         </el-table-column>
-        <el-table-column align="center" prop="pay_time" label="付款时间">
+        <el-table-column align="center" prop="pay_time" label="付款时间" width="150px">
           <template v-slot="scope">
-            {{ scope.row.pay_time | dateFormat}}
+            <p v-if="scope.row.pay_time">{{ scope.row.pay_time | dateFormat}}</p>
+            <p v-else></p>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="feishou_name" label="服务飞手">
         </el-table-column>
         <el-table-column align="center" prop="order_state_name" label="订单状态">
         </el-table-column>
-        <el-table-column align="center" prop="create_time" label="创建时间">
+        <el-table-column align="center" prop="create_time" label="创建时间" width="150px">
           <template v-slot="scope">
             {{ scope.row.create_time | dateFormat}}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="process_time" label="处理时间">
-          <template v-slot="scope">
-            {{ scope.row.process_time | dateFormat}}
+        <el-table-column align="center" prop="process_time" label="处理时间" width="150px" v-slot="scope">
+          <template>
+            <p v-if="scope.row.process_time">{{ scope.row.process_time | dateFormat}}</p>
+            <p v-else></p>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
+        <el-table-column align="center" prop="" label="操作" width="120px" v-slot="scope">
           <template>
             <el-button size="small" type="primary" @click="showAppoint(scope.row)">添加飞手</el-button>
           </template>
@@ -69,15 +71,15 @@
     <el-pagination
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size="10"
+      :page-size="pageSize"
       :page-count="11"
-      :current-page="currentPage"
+      :current-page="pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
-      <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
+      <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="添加飞手" :visible.sync="dialogVisible" width="30%" @close="closeForm">
+    <el-dialog title="添加飞手" :visible.sync="dialogVisible" width="30%" @close="picked=''">
       <el-row>
         <el-col :span="20" :offset="3">
           <el-select v-model="picked" filterable placeholder="请选择">
@@ -102,12 +104,15 @@ export default {
   data () {
     return {
       tableData: [],
-      currentPage: 1,
+      pageSize: 1,
       total: 400,
       pageNum: 1,
+      maxPage: '',
       queryInfo: {
-        phone_number: '',
-        order_state_name: ''
+        phoneNumber: '',
+        orderStateName: '',
+        pageSize: '',
+        pageNum: ''
       },
       dialogVisible: false,
       appointForm: {
@@ -148,20 +153,49 @@ export default {
             msg.data.data[i].order_state_name = '已完成'
             break
         }
+        msg.data.data[i].order_amount /= 100
+        msg.data.data[i].order_amount = msg.data.data[i].order_amount.toFixed(2)
       }
       this.tableData = msg.data.data
     },
     async queryInfomation () {
-      const msg = await this.$http.get('dispatcher/getDispatcherList', this.$qs.stringify({ phone_number: this.queryInfo.phone_number }))
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
+      const msg = await this.$http.get('dispatcher/getDispatcherList', { params: this.queryInfo })
+      console.log(msg)
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
       }
-      this.tableData = msg.data
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].order_state_name) {
+          case 0:
+            msg.data.data[i].order_state_name = '待付款'
+            break
+          case 1:
+            msg.data.data[i].order_state_name = '待指派'
+            break
+          case 2:
+            msg.data.data[i].order_state_name = '待服务'
+            break
+          case 3:
+            msg.data.data[i].order_state_name = '待确认'
+            break
+          case 4:
+            msg.data.data[i].order_state_name = '已完成'
+            break
+        }
+        msg.data.data[i].order_amount /= 100
+        msg.data.data[i].order_amount = msg.data.data[i].order_amount.toFixed(2)
+      }
+      this.tableData = msg.data.data
+      this.total = msg.data.data.total
+      this.maxPage = msg.data.data.maxPage
     },
     async showAppoint (order) {
-      if (!(order.feishou_name === '未设置')) {
-        return this.$message.error('飞手已设置！')
+      console.log(order)
+      if (!(order.feishou_name === '未指派')) {
+        return this.$message.error('飞手已指派！')
       }
       this.dialogVisible = true
       const msg = await this.$http.get('dispatcher/getFeishou')
@@ -181,8 +215,13 @@ export default {
       this.dialogVisible = false
       this.getInformationList()
     },
-    closeForm () {
-      this.$refs.addFormRef.resetFields()
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getCustomerList()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
+      this.getCustomerList()
     }
   }
 }

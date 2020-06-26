@@ -8,10 +8,10 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="文章名称" class="firInput">
+        <el-form-item label="文章名称" class="firInput" prop="articleName">
           <el-input placeholder="请输入" v-model="queryInfo.articleName"></el-input>
         </el-form-item>
-        <el-form-item label="发布时间：">
+        <el-form-item label="发布时间：" prop="createTime">
           <el-date-picker v-model="queryInfo.createTime" type="date" placeholder="请选择日期" format="yyyy 年 MM 月 dd 日" value-format="timestamp">
           </el-date-picker>
         </el-form-item>
@@ -31,7 +31,7 @@
             <img :src=scope.row.cover style="width: 50px; height: 50px" />
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="createTime" label="发布时间">
+        <el-table-column align="center" prop="createTime" label="发布时间" width="150px">
           <template v-slot="scope">
             {{ scope.row.createTime | dateFormat}}
           </template>
@@ -48,17 +48,18 @@
         </el-table-column>
     </el-table>
     <el-pagination
+      @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size="queryInfo.pagesize"
-      :current-page="queryInfo.pageNum"
+      :page-size="pageSize"
+      :current-page="pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
-      <span class="slotText">第{{queryInfo.pageNum}}/{{total/5}}页</span>
+      <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
     <el-dialog title="新增资讯" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
-      <el-form label-width="100px" :model="additionalInfo" ref="additionalInfoRef" :rules="addFormRules" hide-required-asterisk>
+      <el-form label-width="100px" :model="additionalInfo" ref="additionalInfoRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="文章标题:" prop="title">
@@ -101,8 +102,8 @@
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="资讯状态:" prop="state">
-              <el-radio v-model="additionalInfo.state" label="5">正常</el-radio>
-              <el-radio v-model="additionalInfo.state" label="6">禁用</el-radio>
+              <el-radio v-model="additionalInfo.state" label="6">正常</el-radio>
+              <el-radio v-model="additionalInfo.state" label="5">禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
@@ -113,7 +114,7 @@
       </div>
     </el-dialog>
     <el-dialog title="编辑资讯" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
-      <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" hide-required-asterisk>
+      <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="文章标题:" prop="articleName">
@@ -155,8 +156,8 @@
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="资讯状态:" prop="state">
-              <el-radio v-model="editForm.state" :label=5>正常</el-radio>
-              <el-radio v-model="editForm.state" :label=6>禁用</el-radio>
+              <el-radio v-model="editForm.state" :label=6>正常</el-radio>
+              <el-radio v-model="editForm.state" :label=5>禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
@@ -174,11 +175,14 @@ export default {
     return {
       tableData: [],
       total: 400,
-      pagesize: '',
+      pageSize: '',
       pageNum: '',
+      maxPage: '',
       queryInfo: {
         articleName: '',
-        publishtime: ''
+        createTime: '',
+        pageSize: '',
+        pageNum: ''
       },
       dialogVisible: false,
       dialogVisible1: false,
@@ -199,7 +203,7 @@ export default {
         fengmian: ''
       },
       editFormRules: {
-        title: [
+        articleName: [
           { required: true, message: '请输入标题！', trigger: 'blur' }
         ]
       },
@@ -215,20 +219,27 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
-      const msg = await this.$http.get('information/selectInformation', { params: { articleName: this.queryInfo.articleName, createTime: this.queryInfo.createTime } })
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
+      const msg = await this.$http.get('information/selectInformation', { params: this.queryinfo })
       console.log(msg)
       if (msg.status !== 200) {
         this.resetQueryForm()
         this.$message.error('查询失败！')
       }
       this.tableData = msg.data.data
+      this.total = msg.data.data.total
+      this.maxPage = msg.data.data.maxPage
     },
     async getInformationList () {
       const msg = await this.$http.get('information/getInformationList')
+      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('获取资讯列表失败！')
       }
       this.tableData = msg.data
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     uploadaddFormFile (params) {
       this.additionalInfo.fengmian = params.file
@@ -251,11 +262,10 @@ export default {
       })
     },
     closeaddform () {
-      // this.additionalInfo.articleName = ''
-      // this.additionalInfo.article = ''
+      this.additionalInfo.title = ''
+      this.additionalInfo.article = ''
       this.$refs.uploadRef.clearFiles()
-      this.$refs.additionalInfoRef.resertFields()
-      // this.additionalInfo.state = ''
+      this.additionalInfo.state = ''
     },
     showeditform (user) {
       this.dialogVisible1 = true
@@ -311,6 +321,14 @@ export default {
         return this.$message.error('删除用户失败')
       }
       this.$message.success('用户已删除')
+      this.getCustomerList()
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getCustomerList()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
       this.getCustomerList()
     }
   }

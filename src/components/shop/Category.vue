@@ -38,14 +38,15 @@
         </el-table-column>
     </el-table>
     <el-pagination
+      @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size="10"
+      :page-size="pageSize"
       :page-count="11"
-      :current-page="currentPage"
+      :current-page="pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
-      <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
+      <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
     <el-dialog title="新增分类" :visible.sync="dialogVisible1" width="40%" @close="closeaddform">
@@ -103,9 +104,12 @@ export default {
       tableData: [],
       total: 400,
       pageNum: 1,
-      currentPage: 1,
+      pageSize: 1,
+      maxPage: '',
       queryInfo: {
-        categoryName: ''
+        categoryName: '',
+        pageNum: '',
+        pageSize: ''
       },
       addForm: {
         categoryName: '',
@@ -134,33 +138,36 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async querycate () {
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('category/categoryList', { params: { categoryName: this.queryInfo.categoryName } })
       console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('查询失败！')
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     async getInformationList () {
-      const msg = await this.$http.get('category/categoryList')
+      const msg = await this.$http.get('category/categoryList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       console.log(msg.data.data)
       if (msg.status !== 200) {
         return this.$message.error('获取分类列表失败！')
       }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].categoryState) {
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].categoryState) {
           case 0:
-            msg.data.data[i].categoryStateName = '禁用'
+            msg.data.rows[i].categoryStateName = '禁用'
             break
           case 1:
-            msg.data.data[i].categoryStateName = '正常'
+            msg.data.rows[i].categoryStateName = '正常'
             break
-          default:
-            console.log('123')
         }
       }
-      console.log(msg.data.data)
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     async addcate () {
       this.$refs.addFormRef.validate(async valid => {
@@ -214,6 +221,14 @@ export default {
       }
       this.getInformationList()
       this.$message.success('删除分类成功！')
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getInformationList()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
+      this.getInformationList()
     }
   }
 }

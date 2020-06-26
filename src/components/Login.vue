@@ -48,7 +48,7 @@
           </el-tabs>
           <el-row class="xuanxiangrow">
             <el-col :span="5">
-              <el-checkbox v-model="rememberphonenumber">自动登录</el-checkbox>
+              <el-checkbox v-model="checked">自动登录</el-checkbox>
             </el-col>
             <el-col :span="14">
               <div class="zhanwei">123</div>
@@ -164,8 +164,10 @@ export default {
           this.loginMessage.imgCode = ''
           if (msg.data.message === 'success') {
             localStorage.setItem('checked', this.checked)
+            console.log(this.checked)
             window.sessionStorage.setItem('login', 1)
             this.$message.success('登录成功')
+            window.sessionStorage.setItem('jurisdict', msg.data.data.jurisdict)
             this.$router.push('/home')
           } else {
             this.$message.error('登录失败')
@@ -181,7 +183,8 @@ export default {
               code: this.loginMessage.code
             }))
           this.btnavalible = false
-          if (msg.status === 200) {
+          console.log(msg)
+          if (msg.data.message === 200) {
             window.sessionStorage.setItem('login', 1)
             this.$message.success('登录成功')
             this.$router.push('/home')

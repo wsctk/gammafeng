@@ -34,19 +34,19 @@
         </el-table-column>
         <el-table-column align="center" prop="useCondition" label="优惠券使用方式">
         </el-table-column>
-        <el-table-column align="center" prop="expirationDate" label="优惠券有效期">
+        <el-table-column align="center" prop="expirationDate" label="优惠券有效期" width="150px">
           <template v-slot="scope">
             {{ scope.row.expirationDate | dateFormat}}
           </template>
         </el-table-column>
         <el-table-column align="center" prop="statename" label="优惠券状态">
         </el-table-column>
-        <el-table-column align="center" prop="createTime" label="创建时间">
+        <el-table-column align="center" prop="createTime" label="创建时间" width="150px">
           <template v-slot="scope">
             {{ scope.row.createTime | dateFormat}}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="useTime" label="使用时间">
+        <el-table-column align="center" prop="useTime" label="使用时间" width="150px">
           <template v-slot="scope">
             {{ scope.row.useTime | dateFormat}}
           </template>
@@ -59,14 +59,15 @@
         </el-table-column>
     </el-table>
     <el-pagination
+      @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size="10"
+      :page-size="pageSize"
       :page-count="11"
-      :current-page="currentPage"
+      :current-page="pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
-      <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
+      <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
     <el-dialog title="新增优惠券" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
@@ -184,10 +185,13 @@ export default {
       tableData: [],
       total: 400,
       pageNum: 1,
-      currentPage: 1,
+      pageSize: 1,
+      maxPage: '',
       queryInfo: {
         useCondition: '',
-        state: ''
+        state: '',
+        pageNum: '',
+        pageSize: ''
       },
       dialogVisible: false,
       dialogVisible1: false,
@@ -222,53 +226,55 @@ export default {
   },
   methods: {
     async queryinfo () {
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('coupons/couponsList', { params: this.queryInfo })
       if (msg.status !== 200) {
         this.resetquery()
         return this.$message.error('查询失败！')
       }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].state) {
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].state) {
           case '0':
-            msg.data.data[i].statename = '未使用'
+            msg.data.rows[i].statename = '未使用'
             break
           case '1':
-            msg.data.data[i].statename = '已使用'
+            msg.data.rows[i].statename = '已使用'
             break
           case '2':
-            msg.data.data[i].statename = '已失效'
+            msg.data.rows[i].statename = '已失效'
             break
-          default:
-            console.log(msg.data.data)
         }
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     resetquery () {
       this.$refs.queryinfoRef.resetFields()
     },
     async getcouponlist () {
-      const msg = await this.$http.get('coupons/couponsList')
+      const msg = await this.$http.get('coupons/couponsList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('获取优惠券列表失败！')
       }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].state) {
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].state) {
           case '0':
-            msg.data.data[i].statename = '未使用'
+            msg.data.rows[i].statename = '未使用'
             break
           case '1':
-            msg.data.data[i].statename = '已使用'
+            msg.data.rows[i].statename = '已使用'
             break
           case '2':
-            msg.data.data[i].statename = '已失效'
+            msg.data.rows[i].statename = '已失效'
             break
-          default:
-            console.log(msg.data.data)
         }
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     async addcoupon () {
       this.$refs.addFormRef.validate(async valid => {
@@ -321,6 +327,14 @@ export default {
         return this.$message.error('删除优惠券失败！')
       }
       this.$message.success('删除成功！')
+      this.getcouponlist()
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getcouponlist()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
       this.getcouponlist()
     }
   }

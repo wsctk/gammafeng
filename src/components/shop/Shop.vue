@@ -52,7 +52,7 @@
         </el-table-column>
         <el-table-column align="center" prop="goodsStatename" label="商品状态">
         </el-table-column>
-        <el-table-column align="center" prop="createTime" label="创建时间" v-slot="scope">
+        <el-table-column align="center" prop="createTime" label="创建时间" v-slot="scope" width="150px">
           <template>
             {{scope.row.createTime | dateFormat}}
           </template>
@@ -64,20 +64,20 @@
           </template>
         </el-table-column>
      </el-table>
-     <el-pagination background :page-sizes="[1, 5, 10, 20]" :page-size="10" :page-count="11" :current-page="currentPage" layout="total, slot, prev, pager, next, sizes, jumper" :total="total">
-       <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
+     <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" background :page-sizes="[1, 5, 10, 20]" :page-size="pageSize" :page-count="11" :current-page="pageNum" layout="total, slot, prev, pager, next, sizes, jumper" :total="total">
+       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
      </el-pagination>
     </el-card>
     <el-dialog title="新增商品" :visible.sync="dialogVisible" width="50%" @close="closeaddform">
       <el-form label-width="130px" :model="addForm" ref="addFormRef" :rules="addFormRules" label-position="right" :hide-required-asterisk='false'>
         <el-row>
           <el-col :span="10">
-            <el-form-item label="商品名称：">
+            <el-form-item label="商品名称：" prop="goodsName">
               <el-input placeholder="请输入" v-model="addForm.goodsName"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
-            <el-form-item label="商品分类：">
+            <el-form-item label="商品分类：" prop="categoryId">
                <el-select v-model="addForm.categoryId" placeholder="请选择">
                 <el-option
                   v-for="item in category"
@@ -161,7 +161,7 @@
       </div>
     </el-dialog>
     <el-dialog title="编辑商品" :visible.sync="dialogVisible1" width="50%" @close="closeeditform">
-      <el-form label-width="130px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" hide-required-asterisk>
+      <el-form label-width="130px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk='false'>
         <el-row>
           <el-col :span="10">
             <el-form-item label="商品名称：" prop="goodsName">
@@ -169,7 +169,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
-            <el-form-item label="商品分类：" prop="categoryId">
+            <el-form-item label="商品分类：" prop="categoryName">
                <el-select v-model="editForm.categoryId">
                 <el-option
                   v-for="item in category"
@@ -274,11 +274,14 @@ export default {
       tableData: [],
       total: 400,
       pageNum: 1,
-      currentPage: 1,
+      pageSize: 1,
+      maxPage: '',
       queryInfo: {
         goodsName: '',
         cateGoryName: '',
-        goodsClassfication: ''
+        goodsClassfication: '',
+        pageNum: '',
+        pageSize: ''
       },
       category: [],
       dialogImageUrl: '',
@@ -346,6 +349,8 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async query () {
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('store/goodsList', { params: this.queryInfo })
       console.log(msg)
       if (msg.status !== 200) {
@@ -353,60 +358,65 @@ export default {
         return this.$message.error('查询失败！')
       }
       let arr = []
-      arr = msg.data.data
-      for (let i = 0; i < arr.length; i++) {
-        switch (arr[i].goodsClassfication) {
+      arr = msg
+      for (let i = 0; i < arr.data.rows.length; i++) {
+        switch (arr.data.rows[i].goodsClassfication) {
           case '0':
-            arr[i].goodsClassficationname = '用户商城'
+            arr.data.rows[i].goodsClassficationname = '用户商城'
             break
           case '1':
-            arr[i].goodsClassficationname = '积分商城'
+            arr.data.rows[i].goodsClassficationname = '积分商城'
             break
-          default:
-            console.log(arr[i])
         }
-        switch (arr[i].goodsState) {
+        switch (arr.data.rows[i].goodsState) {
           case 0:
-            arr[i].goodsStatename = '下架'
+            arr.data.rows[i].goodsStatename = '下架'
             break
           case 1:
-            arr[i].goodsStatename = '正常'
+            arr.data.rows[i].goodsStatename = '正常'
             break
         }
+        arr.data.rows[i].goodsPrice /= 100
+        arr.data.rows[i].goodsPrice = arr.data.rows[i].goodsPrice.toFixed(2)
       }
-      this.tableData = msg.data.data
+      this.tableData = arr.data.rows
+      this.total = arr.data.total
+      this.maxPage = arr.data.maxPage
     },
     async getgoodList () {
-      const msg = await this.$http.get('store/goodsList')
+      const msg = await this.$http.get('store/goodsList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
         return this.$message.error('获取商品列表失败')
       }
       let arr = []
-      arr = msg.data.data
-      for (let i = 0; i < arr.length; i++) {
-        switch (arr[i].goodsClassfication) {
+      arr = msg
+      for (let i = 0; i < arr.data.rows.length; i++) {
+        switch (arr.data.rows[i].goodsClassfication) {
           case '0':
-            arr[i].goodsClassficationname = '用户商城'
+            arr.data.rows[i].goodsClassficationname = '用户商城'
             break
           case '1':
-            arr[i].goodsClassficationname = '积分商城'
+            arr.data.rows[i].goodsClassficationname = '积分商城'
             break
-          default:
-            console.log(arr[i])
         }
-        switch (arr[i].goodsState) {
+        switch (arr.data.rows[i].goodsState) {
           case 0:
-            arr[i].goodsStatename = '下架'
+            arr.data.rows[i].goodsStatename = '下架'
             break
           case 1:
-            arr[i].goodsStatename = '正常'
+            arr.data.rows[i].goodsStatename = '正常'
             break
         }
+        arr.data.rows[i].goodsPrice /= 100
+        arr.data.rows[i].goodsPrice = arr.data.rows[i].goodsPrice.toFixed(2)
       }
-      this.tableData = msg.data.data
+      this.tableData = arr.data.rows
+      this.total = arr.data.total
+      this.maxPage = arr.data.maxPage
     },
     async getcategory () {
-      const cate = await this.$http.get('category/categoryList')
+      const cate = await this.$http.get('category/categoryListNotPage')
+      console.log(cate)
       if (cate.status !== 200) {
         return this.$message.error('获取商品分类失败！')
       }
@@ -444,7 +454,7 @@ export default {
     },
     async showeditForm (user) {
       this.dialogVisible1 = true
-      const msg = await this.$http.get('picture/pictureList', { params: { goodsId: user.id } })
+      const msg = await this.$http.get('picture/pictureListNotPage', { params: { goodsId: user.id } })
       console.log(msg)
       this.showimgslist = msg.data.data
       this.editForm = user
@@ -513,9 +523,17 @@ export default {
     },
     async showimgs (id) {
       this.dialogVisibleimgs = true
-      const msg = await this.$http.get('picture/pictureList', { params: { goodsId: id } })
+      const msg = await this.$http.get('picture/pictureListNotPage', { params: { goodsId: id } })
       console.log(msg)
       this.showimgslist = msg.data.data
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getgoodList()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
+      this.getgoodList()
     }
   }
 }
@@ -570,7 +588,7 @@ export default {
   border-radius: 8px;
 }
 /deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
+  margin-left:725px;
 }
 .slotText {
   color: #606266;

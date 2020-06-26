@@ -54,7 +54,7 @@
         </el-table-column>
         <el-table-column align="center" prop="authenticationState" label="认证状态">
         </el-table-column>
-        <el-table-column align="center" prop="createTime" label="提交时间">
+        <el-table-column align="center" prop="createTime" label="提交时间" width="150px">
           <template v-slot="scope">
             {{ scope.row.createTime | dateFormat}}
           </template>
@@ -68,14 +68,15 @@
         </el-table-column>
     </el-table>
     <el-pagination
+      @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size="10"
+      :page-size="pageSize"
       :page-count="11"
-      :current-page="currentPage"
+      :current-page="pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
-      <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
+      <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
   </div>
@@ -87,12 +88,15 @@ export default {
       queryInfo: {
         wechatName: '',
         phoneNumber: '',
-        status: ''
+        status: '',
+        pageSize: '',
+        pageNum: ''
       },
-      currentPage: 1,
+      pageSize: 1,
       tableData: [],
       total: 400,
-      pageNum: 1
+      pageNum: 1,
+      maxPage: ''
     }
   },
   created () {
@@ -103,42 +107,72 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async getAuthList () {
-      const msg = await this.$http.get('auth/authList')
-      console.log(msg.data.data)
+      const msg = await this.$http.get('auth/authList', { params: { pageSize: this.pageSize, pageNum: this.pageNum } })
+      console.log(msg.data)
       if (msg.status !== 200) {
         return this.$message.error('获取认证列表失败！')
       }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].status) {
+      let arr = []
+      arr = msg
+      for (let i = 0; i < arr.data.rows.length; i++) {
+        switch (arr.data.rows[i].status) {
           case '1':
-            msg.data.data[i].status = '飞手'
+            arr.data.rows[i].status = '飞手'
             break
           case '2':
-            msg.data.data[i].status = '农资商'
+            arr.data.rows[i].status = '农资商'
             break
         }
-        switch (msg.data.data[i].authenticationState) {
+        switch (arr.data.rows[i].authenticationState) {
           case '2':
-            msg.data.data[i].authenticationState = '已驳回'
+            arr.data.rows[i].authenticationState = '已驳回'
             break
           case '1':
-            msg.data.data[i].authenticationState = '已通过'
+            arr.data.rows[i].authenticationState = '已通过'
             break
           case '0':
-            msg.data.data[i].authenticationState = '未认证'
+            arr.data.rows[i].authenticationState = '未认证'
             break
         }
       }
-      this.tableData = msg.data.data
+      this.tableData = arr.data.rows
+      this.total = arr.data.total
+      this.maxPage = arr.data.maxPage
     },
     async queryinfo () {
-      console.log(this.queryInfo.wechatName)
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('auth/authList', { params: this.queryInfo })
       console.log(msg.data.data)
       if (msg.status !== 200) {
         return this.$message.error('查询失败！')
       }
-      this.tableData = msg.data.data
+      let arr = []
+      arr = msg
+      for (let i = 0; i < arr.data.rows.length; i++) {
+        switch (arr.data.rows[i].status) {
+          case '1':
+            arr.data.rows[i].status = '飞手'
+            break
+          case '2':
+            arr.data.rows[i].status = '农资商'
+            break
+        }
+        switch (arr.data.rows[i].authenticationState) {
+          case '2':
+            arr.data.rows[i].authenticationState = '已驳回'
+            break
+          case '1':
+            arr.data.rows[i].authenticationState = '已通过'
+            break
+          case '0':
+            arr.data.rows[i].authenticationState = '未认证'
+            break
+        }
+      }
+      this.tableData = arr.data.rows
+      this.total = arr.data.total
+      this.maxPage = arr.data.maxPage
     },
     async authsuccess (id) {
       const confirmResult = await this.$confirm('确定要通过该认证？', '提示', {
@@ -184,6 +218,14 @@ export default {
         return this.$message.error('删除失败！')
       }
       this.$message.success('删除成功！')
+      this.getAuthList()
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getAuthList()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
       this.getAuthList()
     }
   }

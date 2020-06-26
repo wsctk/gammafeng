@@ -9,7 +9,7 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="账户号：" class="firInput" prop="userName">
+        <el-form-item label="账号：" class="firInput" prop="userName">
           <el-input placeholder="请输入" v-model="queryInfo.userName"></el-input>
         </el-form-item>
         <el-form-item label="手机号码：" class="firInput" prop="phoneNumber">
@@ -26,7 +26,7 @@
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
+      <el-button class="addbtn" type="primary" size="large" @click="showaddform">+ 新建</el-button>
       <el-table max-height=400 :data="tableData" style="width: 100%" border>
         <el-table-column align="center" prop="id" label="用户ID">
         </el-table-column>
@@ -38,7 +38,7 @@
         </el-table-column>
         <el-table-column align="center" prop="status" label="管理员状态">
         </el-table-column>
-        <el-table-column align="center" prop="createTime" label="创建时间">
+        <el-table-column align="center" prop="createTime" label="创建时间" width="150px">
           <template v-slot="scope">
             {{ scope.row.createTime | dateFormat}}
           </template>
@@ -51,18 +51,19 @@
         </el-table-column>
     </el-table>
     <el-pagination
+      @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size="queryInfo.pagesize"
+      :page-size="pageSize"
       :page-count="11"
-      :current-page="queryInfo.pageNum"
+      :current-page="pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
-      <span class="slotText">第{{queryInfo.pageNum}}/{{total/5}}页</span>
+      <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
     <el-dialog title="新增管理员" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
-      <el-form label-width="100px" :model="addForm" ref="addFormRef" :rules="addFormRules" hide-required-asterisk>
+      <el-form label-width="100px" :model="addForm" ref="addFormRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="管理员姓名:" prop="realName">
@@ -106,7 +107,7 @@
       </div>
     </el-dialog>
     <el-dialog title="编辑管理员" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
-      <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" hide-required-asterisk>
+      <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="管理员姓名:" prop="realName">
@@ -157,10 +158,15 @@ export default {
     return {
       tableData: [],
       total: 400,
+      pageSize: 10,
+      pageNum: 1,
+      maxPage: '',
       queryInfo: {
         userName: '',
         phoneNumber: '',
-        status: ''
+        status: '',
+        pageNum: '',
+        pageSize: ''
       },
       dialogVisible: false,
       dialogVisible1: false,
@@ -210,29 +216,53 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async querykeeper () {
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('admin/getAdminList', { params: this.queryInfo })
-      this.tableData = msg.data.data
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
       }
-    },
-    async getInformationList () {
-      const msg = await this.$http.get('admin/getAdminList')
-      if (msg.status !== 200) {
-        return this.$message.error('获取管理员列表失败！')
-      }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].status) {
-          case 0:
-            msg.data.data[i].status = '禁用'
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].status) {
+          case '0':
+            msg.data.rows[i].status = '禁用'
             break
-          case 1:
-            msg.data.data[i].status = '正常'
+          case '1':
+            msg.data.rows[i].status = '正常'
             break
         }
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    async getInformationList () {
+      const msg = await this.$http.get('admin/getAdminList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
+      console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('获取管理员列表失败！')
+      }
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].status) {
+          case '0':
+            msg.data.rows[i].status = '禁用'
+            break
+          case '1':
+            msg.data.rows[i].status = '正常'
+            break
+        }
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    showaddform () {
+      const Super = window.sessionStorage.getItem('jurisdict')
+      if (!(Super > 0)) {
+        return this.$message.error('您没有权限！')
+      }
+      this.dialogVisible = true
     },
     async addkeeper () {
       this.$refs.addFormRef.validate(async valid => {
@@ -251,6 +281,10 @@ export default {
       this.$refs.addFormRef.resetFields()
     },
     showeditform (user) {
+      const Super = window.sessionStorage.getItem('jurisdict')
+      if (!(Super > 0)) {
+        return this.$message.error('您没有权限！')
+      }
       this.editForm = user
       this.dialogVisible1 = true
     },
@@ -272,6 +306,10 @@ export default {
       this.getInformationList()
     },
     async removekeeper (id) {
+      const Super = window.sessionStorage.getItem('jurisdict')
+      if (!(Super > 0)) {
+        return this.$message.error('您没有权限！')
+      }
       const confirmResult = await this.$confirm('此操作将永久删除该管理员, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -285,6 +323,14 @@ export default {
         return this.$message.error('删除失败！')
       }
       this.$message.success('删除成功！')
+      this.getInformationList()
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getInformationList()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
       this.getInformationList()
     }
   }

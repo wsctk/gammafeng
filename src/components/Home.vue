@@ -9,8 +9,8 @@
             <span><i class="el-icon-s-fold"></i></span>
             <span><i class="el-icon-search"></i></span>
             <span><i class="el-icon-bell"></i></span>
-            <el-avatar size="small" fit="fill" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
-            <el-button size='small' class="quit" @click="quitlogin">退出登录</el-button>
+            <el-avatar size="small" fit="fill" :src='"https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"'></el-avatar>
+            <el-button size='small' class="quit" @click="quitlogin" type="danger" round>退出登录</el-button>
           </div>
         </el-header>
         <el-container>
@@ -33,9 +33,9 @@
             <router-view></router-view>
             <el-footer height="80px">
               <div class="foot">
-                <el-link type="info">帮助</el-link>
-                <el-link type="info">隐私</el-link>
-                <el-link type="info">条款</el-link>
+                <el-link type="info" href="http://www.it-10.com/">帮助</el-link>
+                <el-link type="info" href="http://www.it-10.com/">隐私</el-link>
+                <el-link type="info" href="http://www.it-10.com/">条款</el-link>
               </div>
               <p class="pText">copyright&copy;2020 壹零(天津)信息技术有限公司</p>
             </el-footer>
@@ -171,7 +171,7 @@ export default {
   }
 }
 .quit {
-  margin-left: 20px;
+  margin-left: 10px;
 }
 .el-icon-s-fold:before {
   font-size:28px !important;
@@ -180,7 +180,7 @@ export default {
 }
 .el-icon-search:before {
   font-size:28px !important;
-  margin-left:1300px;
+  margin-left:1370px;
 }
 .el-icon-bell:before {
   font-size:28px !important;

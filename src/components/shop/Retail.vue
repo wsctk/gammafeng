@@ -9,26 +9,26 @@
     </div>
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="商品名：" class="firInput" prop="goodname">
-          <el-input placeholder="请输入" v-model="queryInfo.goodname"></el-input>
+        <el-form-item label="商品名：" class="firInput" prop="goodsName">
+          <el-input placeholder="请输入" v-model="queryInfo.goodsName"></el-input>
         </el-form-item>
-        <el-form-item label="一级用户：" prop="nativeuser">
-          <el-select placeholder="请选择" v-model="queryInfo.nativeuser">
+        <el-form-item label="一级用户：" prop="firstUser">
+          <el-select placeholder="请选择" v-model="queryInfo.firstUser">
             <el-option
-              v-for="item in father"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              v-for="item in tableData"
+              :key="item.first_id"
+              :label="item.first_name"
+              :value="item.first_id">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="二级用户：" prop="senioruser">
-          <el-select placeholder="请选择" v-model="queryInfo.senioruser">
+        <el-form-item label="二级用户：" prop="secondUser">
+          <el-select placeholder="请选择" v-model="queryInfo.secondUser">
             <el-option
               v-for="item in son"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              :key="item.second_id"
+              :label="item.seconde_name"
+              :value="item.second_id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -55,21 +55,22 @@
         </el-table-column>
         <el-table-column align="center" prop="profit" label="分销收益">
         </el-table-column>
-        <el-table-column align="center" prop="create_time" label="成单时间">
+        <el-table-column align="center" prop="create_time" label="成单时间" width="150px">
           <template v-slot="scope">
             {{ scope.row.create_time | dateFormat}}
           </template>
         </el-table-column>
     </el-table>
     <el-pagination
+      @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size="10"
+      :page-size="pageSize"
       :page-count="11"
-      :current-page="currentPage"
+      :current-page="pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
-      <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
+      <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
   </div>
@@ -78,17 +79,18 @@
 export default {
   data () {
     return {
-      currentPage: 1,
+      pageSize: 1,
       tableData: [],
       total: 400,
       pageNum: 1,
+      maxPage: '',
       queryInfo: {
-        goodname: '',
-        nativeuser: '',
-        senioruser: ''
-      },
-      father: {},
-      son: {}
+        goodsName: '',
+        firstUser: '',
+        secondUser: '',
+        pageNum: '',
+        pageSize: ''
+      }
     }
   },
   created  () {
@@ -102,19 +104,32 @@ export default {
         this.$message.error('获取分销列表失败！')
       }
       this.tableData = msg.data
-      this.father = msg.data
-      this.son = msg.data
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     resetQueryForm () {
-      this.$refs.queryInfoRef.resetFileds()
+      this.$refs.queryInfoRef.resetFields()
     },
     async queryretail () {
-      const msg = this.$http.get('', { params: this.queryInfo })
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
+      const msg = await this.$http.get('distribution/getDistribution', { params: this.queryInfo })
+      console.log(msg.data)
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getInformationList()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
+      this.getInformationList()
     }
   }
 }

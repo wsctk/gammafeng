@@ -63,11 +63,16 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   if (to.path === '/login') {
     const checked = localStorage.getItem('checked')
-    if (checked === true) return next('/home')
-    next()
+    if (checked === 'true') {
+      next()
+      return next('/home')
+    }
+    const login = window.sessionStorage.getItem('login')
+    if (!login) {
+      next()
+      return next('/login')
+    }
   }
-  const login = window.sessionStorage.getItem('login')
-  if (!login) return next('/login')
   next()
 })
 export default router

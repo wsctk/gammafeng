@@ -39,9 +39,10 @@
         </el-table-column>
         <el-table-column align="center" prop="paidAmout" label="实付金额">
         </el-table-column>
-        <el-table-column align="center" prop="paidTime" label="付款时间">
+        <el-table-column align="center" prop="paidTime" label="付款时间" width="150px">
           <template v-slot="scope">
-            {{ scope.row.paidTime | dateFormat}}
+            <p v-if="scope.row.paidTime">{{ scope.row.paidTime | dateFormat}}</p>
+            <p v-else></p>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="orderState" label="订单状态">
@@ -54,21 +55,22 @@
         </el-table-column>
         <el-table-column align="center" prop="shipmentNumber" label="物流单号">
         </el-table-column>
-        <el-table-column align="center" prop="createTime" label="创建时间">
+        <el-table-column align="center" prop="createTime" label="创建时间" width="150px">
           <template v-slot="scope">
             {{ scope.row.createTime | dateFormat}}
           </template>
         </el-table-column>
     </el-table>
     <el-pagination
+      @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
-      :page-size="10"
+      :page-size="pageSize"
       :page-count="11"
-      :current-page="currentPage"
+      :current-page="pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
       :total="total">
-      <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
+      <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
   </div>
@@ -80,12 +82,15 @@ export default {
       tableData: [],
       total: 400,
       pageNum: 1,
-      currentPage: 1,
+      maxPage: '',
+      pageSize: 1,
       queryInfo: {
         orderNumber: '',
         goodsName: '',
         phoneNumber: '',
-        orderState: ''
+        orderState: '',
+        pageNum: '',
+        pageSize: ''
       }
     }
   },
@@ -97,59 +102,77 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('order/orderList', { params: this.queryInfo })
       console.log(msg)
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询订单失败！')
       }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].orderState) {
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].orderState) {
           case '0':
-            msg.data.data[i].orderState = '等待付款'
+            msg.data.rows[i].orderState = '等待付款'
             break
           case '1':
-            msg.data.data[i].orderState = '等待发货'
+            msg.data.rows[i].orderState = '等待发货'
             break
           case '2':
-            msg.data.data[i].orderState = '已发货'
+            msg.data.rows[i].orderState = '已发货'
             break
           case '3':
-            msg.data.data[i].orderState = '已取消'
+            msg.data.rows[i].orderState = '已取消'
             break
           case '4':
-            msg.data.data[i].orderState = '已退货'
+            msg.data.rows[i].orderState = '已退货'
             break
         }
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     async getorderlist () {
-      const msg = await this.$http.get('order/orderList')
+      const msg = await this.$http.get('order/orderList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       console.log(msg)
       if (msg.status !== 200) {
         this.$message.error('获取订单列表失败！')
       }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].orderState) {
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].orderState) {
           case '0':
-            msg.data.data[i].orderState = '等待付款'
+            msg.data.rows[i].orderState = '等待付款'
             break
           case '1':
-            msg.data.data[i].orderState = '等待发货'
+            msg.data.rows[i].orderState = '等待发货'
             break
           case '2':
-            msg.data.data[i].orderState = '已发货'
+            msg.data.rows[i].orderState = '已发货'
             break
           case '3':
-            msg.data.data[i].orderState = '已取消'
+            msg.data.rows[i].orderState = '已取消'
             break
           case '4':
-            msg.data.data[i].orderState = '已退货'
+            msg.data.rows[i].orderState = '已退货'
             break
         }
+        msg.data.rows[i].orderAmout /= 100
+        msg.data.rows[i].paidAmout /= 100
+        msg.data.rows[i].orderAmout = msg.data.rows[i].orderAmout.toFixed(2)
+        msg.data.rows[i].paidAmout = msg.data.rows[i].paidAmout.toFixed(2)
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getorderlist()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
+      this.getorderlist()
     }
   }
 }

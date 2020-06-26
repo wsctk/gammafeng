@@ -36,13 +36,15 @@
         </el-table-column>
         <el-table-column align="center" prop="points" label="用户积分">
         </el-table-column>
-        <el-table-column align="center" prop="commissionRate" label="佣金分成比例">
+        <el-table-column align="center" prop="commissionRate" label="商品佣金分成比例">
+        </el-table-column>
+        <el-table-column align="center" prop="distributionRate" label="派单佣金分成比例">
         </el-table-column>
         <el-table-column align="center" prop="balance" label="钱包余额">
         </el-table-column>
         <el-table-column align="center" prop="parentPhoneNumber" label="邀请人">
         </el-table-column>
-        <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope">
+        <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope" width="150px">
           <template>
             {{scope.row.registerTime | dateFormat}}
           </template>
@@ -54,12 +56,12 @@
           </template>
         </el-table-column>
     </el-table>
-    <el-pagination background :page-sizes="[1, 5, 10, 20]" :page-size="10" :page-count="11" :current-page="currentPage" layout="total, slot, prev, pager, next, sizes, jumper" :total="total">
-      <span class="slotText">第{{pageNum}}/{{total/5}}页</span>
+    <el-pagination  background @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-count="11" :page-sizes="[1, 5, 10, 20]" :page-size="pageSize" :current-page="pageNum" layout="total, slot, prev, pager, next, sizes, jumper" :total="total">
+      <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
     <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="30%" @close="closeeditform">
-      <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" hide-required-asterisk>
+      <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="17" :offset="3">
             <el-form-item label="商品佣金分成比例：" prop="commissionRate">
@@ -94,13 +96,16 @@ export default {
   data () {
     return {
       tableData: [],
-      currentPage: 1,
-      total: 400,
+      maxPage: '',
+      total: 1,
       pageNum: 1,
+      pageSize: 10,
       queryInfo: {
         wechatName: '',
         phoneNumber: '',
-        userStatus: 0
+        userStatus: 0,
+        pageNum: '',
+        pageSize: ''
       },
       dialogVisible1: false,
       editForm: {},
@@ -122,40 +127,55 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('user/userList', { params: this.queryInfo })
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
       }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].statusState) {
-          case 0:
-            msg.data.data[i].userStatus = '未认证'
-            break
-          case 1:
-            msg.data.data[i].userStatus = '已认证'
-            break
-        }
-      }
-      this.tableData = msg.data.data
-    },
-    async getCustomerList () {
-      const msg = await this.$http.get('user/userList', { params: { userStatus: '0' } })
-      console.log(msg.data)
-      if (msg.status !== 200) {
-        return this.$message.error('获取用户列表失败！')
-      }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].statusState) {
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].statusState) {
           case '0':
-            msg.data.data[i].statusState = '未认证'
+            msg.data.rows[i].statusState = '未认证'
             break
           case '1':
-            msg.data.data[i].statusState = '已认证'
+            msg.data.rows[i].statusState = '已认证'
             break
         }
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+    },
+    async getCustomerList () {
+      const msg = await this.$http.get('user/userList', { params: { userStatus: '0', pageNum: this.pageNum, pageSize: this.pageSize } })
+      console.log(msg.data)
+      let arr = {}
+      arr = msg
+      if (arr.status !== 200) {
+        return this.$message.error('获取用户列表失败！')
+      }
+      for (let i = 0; i < arr.data.rows.length; i++) {
+        switch (arr.data.rows[i].statusState) {
+          case '0':
+            arr.data.rows[i].statusState = '未认证'
+            break
+          case '1':
+            arr.data.rows[i].statusState = '已认证'
+            break
+        }
+      }
+      this.tableData = arr.data.rows
+      this.total = arr.data.total
+      this.maxPage = arr.data.maxPage
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      this.getCustomerList()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
+      this.getCustomerList()
     },
     showDialogForm (user) {
       this.editForm = user
@@ -253,7 +273,7 @@ export default {
 }
 /deep/.el-dialog__header {
   border:1px solid #eee;
-    border-radius: 7px;
+  border-radius: 7px;
 }
 /deep/.el-radio {
   margin-right:20px;
