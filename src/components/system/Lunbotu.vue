@@ -9,9 +9,9 @@
     </div>
     <el-row>
       <el-col :span="3" v-for="img in imgslist" :key="img.id" >
-          <el-card >
+          <el-card>
             <img :src=img.route style="width:115px;height:115px;">
-            <el-button type="primary" @click="deleteimg">删除</el-button>
+            <el-button type="primary" @click="deleteimg($event)" :data-id="img.id">删除</el-button>
           </el-card>
       </el-col>
     </el-row>
@@ -92,8 +92,22 @@ export default {
     closeaddform () {
       this.$refs.addimgRef.clearFiles()
     },
-    deleteimg () {
-      console.log(this.$event.target.value)
+    async deleteimg (e) {
+      const confirmResult = await this.$confirm('此操作将永久删除该图片, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      console.log(e.path[1].attributes[3].nodeValue)
+      const msg = await this.$http.get('', this.$qs.stringify({ id: e.path[1].attributes[3].nodeValue }))
+      if (msg.status !== 200) {
+        return this.$message.error('删除图片失败')
+      }
+      this.$message.success('删除图片成功！')
+      this.getlunboimgsList()
     },
     handleRemove (file, fileList) {
       console.log(file, fileList)
