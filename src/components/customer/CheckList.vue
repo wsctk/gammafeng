@@ -10,13 +10,13 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="用户名：" class="firInput" prop="wechatName">
-          <el-input placeholder="请输入" v-model="queryInfo.wechatName"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.wechatName" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="手机号码：" prop="phoneNumber">
-          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="用户身份：" prop="status">
-          <el-select placeholder="请选择" v-model="queryInfo.status">
+          <el-select placeholder="请选择" v-model="queryInfo.status" @keydown.enter.native="queryinfo">
             <el-option label="飞手" value="1"></el-option>
             <el-option label="农资商" value="2"></el-option>
           </el-select>
@@ -92,11 +92,11 @@ export default {
         pageSize: '',
         pageNum: ''
       },
-      pageSize: 1,
+      pageSize: 10,
       tableData: [],
       total: 400,
       pageNum: 1,
-      maxPage: ''
+      maxPage: 40
     }
   },
   created () {
@@ -222,11 +222,17 @@ export default {
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getAuthList()
+      if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
+        return this.getAuthList()
+      }
+      this.queryinfo()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getAuthList()
+      if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
+        return this.getAuthList()
+      }
+      this.queryinfo()
     }
   }
 }

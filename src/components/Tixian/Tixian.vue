@@ -10,10 +10,10 @@
     <el-card>
       <el-form :inline="true" :model="queryinfo" ref="queryInfoRef">
         <el-form-item label="用户手机号：" class="firInput" prop="phoneNumber">
-          <el-input placeholder="请输入" v-model="queryinfo.phoneNumber"></el-input>
+          <el-input placeholder="请输入" v-model="queryinfo.phoneNumber" @keydown.enter.native="querylist"></el-input>
         </el-form-item>
         <el-form-item label="用户身份：" prop="userStatus">
-          <el-select placeholder="请选择" v-model="queryinfo.userStatus">
+          <el-select placeholder="请选择" v-model="queryinfo.userStatus" @keydown.enter.native="querylist">
             <el-option label="普通用户" value="0"></el-option>
             <el-option label="飞手" value="1"></el-option>
             <el-option label="农资商" value="2"></el-option>
@@ -80,10 +80,10 @@ export default {
   data () {
     return {
       tableData: [],
-      pageSize: 1,
+      pageSize: 10,
       total: 400,
       pageNum: 1,
-      maxPage: '',
+      maxPage: 1,
       queryinfo: {
         userStatus: '',
         phoneNumber: '',
@@ -188,11 +188,17 @@ export default {
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getCustomerList()
+      if (!this.queryInfo.userStatus && !this.queryInfo.phoneNumber) {
+        return this.getCustomerList()
+      }
+      this.querylist()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getCustomerList()
+      if (!this.queryInfo.userStatus && !this.queryInfo.phoneNumber) {
+        return this.getCustomerList()
+      }
+      this.querylist()
     }
   }
 }

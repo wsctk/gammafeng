@@ -24,7 +24,7 @@ axios.interceptors.response.use(config => {
 })
 axios.defaults.withCredentials = true
 var instance = axios.create({
-  baseURL: 'http://192.168.18.4:8181/',
+  baseURL: 'http://192.168.18.6:8181/',
   header: {
     'content-type': 'application/x-www-form-urlencode, multipart/form-data;charset=utf-8'
   }

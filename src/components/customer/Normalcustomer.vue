@@ -96,7 +96,7 @@ export default {
   data () {
     return {
       tableData: [],
-      maxPage: '',
+      maxPage: 1,
       total: 1,
       pageNum: 1,
       pageSize: 10,
@@ -171,11 +171,17 @@ export default {
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getCustomerList()
+      if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
+        return this.getCustomerList()
+      }
+      this.queryinfo()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getCustomerList()
+      if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
+        return this.getCustomerList()
+      }
+      this.queryinfo()
     },
     showDialogForm (user) {
       this.editForm = user

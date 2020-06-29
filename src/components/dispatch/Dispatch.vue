@@ -9,10 +9,10 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="用户手机号" class="firInput" prop="phoneNumber">
-          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber" @keydown.enter.native="queryInfomation"></el-input>
         </el-form-item>
         <el-form-item label="订单状态" prop="orderState">
-          <el-select placeholder="请选择" v-model="queryInfo.orderState">
+          <el-select placeholder="请选择" v-model="queryInfo.orderState" @keydown.enter.native="queryInfomation">
             <el-option label="待付款" value="0"></el-option>
             <el-option label="待指派" value="1"></el-option>
             <el-option label="待服务" value="2"></el-option>
@@ -62,13 +62,15 @@
             <p v-else></p>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="120px" v-slot="scope">
+        <el-table-column align="center" prop="" label="操作" width="220px" v-slot="scope">
           <template>
             <el-button size="small" type="primary" @click="showAppoint(scope.row)">添加飞手</el-button>
+            <el-button size="small" type="primary" @click="showorderconfirm(scope.row.id)">订单确认</el-button>
           </template>
         </el-table-column>
     </el-table>
     <el-pagination
+      @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
       :page-size="pageSize"
@@ -97,6 +99,19 @@
         <el-button type="primary" @click="addfly">确定</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="订单确认" :visible.sync="dialogVisible1" width="40%">
+      <el-row v-for="item in confirmimgs" :key="item.id">
+        <template>
+          <el-col :span="14" :offset="8">
+            <img :src=item.pic1 style="width:200px;height:200px;" />
+          </el-col>
+        </template>
+      </el-row>
+      <div slot="footer">
+        <el-button @click="confirmorder">确认</el-button>
+        <el-button @click="dialogVisible1=false">关闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -104,22 +119,25 @@ export default {
   data () {
     return {
       tableData: [],
-      pageSize: 1,
+      pageSize: 10,
       total: 400,
       pageNum: 1,
-      maxPage: '',
+      maxPage: 40,
       queryInfo: {
         phoneNumber: '',
-        orderStateName: '',
+        orderState: '',
         pageSize: '',
         pageNum: ''
       },
       dialogVisible: false,
+      dialogVisible1: false,
       appointForm: {
         feishou: ''
       },
       addtable: [],
-      picked: ''
+      picked: '',
+      confirmimgs: [],
+      id: ''
     }
   },
   created () {
@@ -130,33 +148,34 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async getInformationList () {
-      const msg = await this.$http.get('dispatcher/getDispatcherList')
-      console.log(msg.data.data)
+      const msg = await this.$http.get('dispatcher/getDispatcherList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
         return this.$message.error('获取派单列表失败！')
       }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].order_state_name) {
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].order_state_name) {
           case 0:
-            msg.data.data[i].order_state_name = '待付款'
+            msg.data.rows[i].order_state_name = '待付款'
             break
           case 1:
-            msg.data.data[i].order_state_name = '待指派'
+            msg.data.rows[i].order_state_name = '待指派'
             break
           case 2:
-            msg.data.data[i].order_state_name = '待服务'
+            msg.data.rows[i].order_state_name = '待服务'
             break
           case 3:
-            msg.data.data[i].order_state_name = '待确认'
+            msg.data.rows[i].order_state_name = '待确认'
             break
           case 4:
-            msg.data.data[i].order_state_name = '已完成'
+            msg.data.rows[i].order_state_name = '已完成'
             break
         }
-        msg.data.data[i].order_amount /= 100
-        msg.data.data[i].order_amount = msg.data.data[i].order_amount.toFixed(2)
+        msg.data.rows[i].order_amount /= 100
+        msg.data.rows[i].order_amount = msg.data.rows[i].order_amount.toFixed(2)
       }
-      this.tableData = msg.data.data
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     async queryInfomation () {
       this.queryInfo.pageSize = this.pageSize
@@ -167,30 +186,30 @@ export default {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
       }
-      for (let i = 0; i < msg.data.data.length; i++) {
-        switch (msg.data.data[i].order_state_name) {
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].order_state_name) {
           case 0:
-            msg.data.data[i].order_state_name = '待付款'
+            msg.data.rows[i].order_state_name = '待付款'
             break
           case 1:
-            msg.data.data[i].order_state_name = '待指派'
+            msg.data.rows[i].order_state_name = '待指派'
             break
           case 2:
-            msg.data.data[i].order_state_name = '待服务'
+            msg.data.rows[i].order_state_name = '待服务'
             break
           case 3:
-            msg.data.data[i].order_state_name = '待确认'
+            msg.data.rows[i].order_state_name = '待确认'
             break
           case 4:
-            msg.data.data[i].order_state_name = '已完成'
+            msg.data.rows[i].order_state_name = '已完成'
             break
         }
-        msg.data.data[i].order_amount /= 100
-        msg.data.data[i].order_amount = msg.data.data[i].order_amount.toFixed(2)
+        msg.data.rows[i].order_amount /= 100
+        msg.data.rows[i].order_amount = msg.data.rows[i].order_amount.toFixed(2)
       }
-      this.tableData = msg.data.data
-      this.total = msg.data.data.total
-      this.maxPage = msg.data.data.maxPage
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     async showAppoint (order) {
       console.log(order)
@@ -215,13 +234,46 @@ export default {
       this.dialogVisible = false
       this.getInformationList()
     },
+    async showorderconfirm (id) {
+      const msg = await this.$http.get('gmTask/getTask', { params: { orderId: id } })
+      console.log(msg)
+      this.id = id
+      if (msg.status !== 200) {
+        return this.$message.error('订单未确认或请求确认订单失败！')
+      }
+      this.dialogVisible1 = true
+      this.confirmimgs = msg.data
+    },
+    async confirmorder () {
+      const confirmResult = await this.$confirm('此操作将确认订单已完成, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const msg = await this.$http.get('', { params: { orderId: this.id } })
+      console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('订单确认失败！')
+      }
+      this.$message.success('订单确认成功！')
+      this.dialogVisible1 = false
+    },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getCustomerList()
+      if (!this.queryInfo.phoneNumber && !this.queryInfo.orderState) {
+        return this.getInformationList()
+      }
+      this.queryInfomation()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getCustomerList()
+      if (!this.queryInfo.phoneNumber && !this.queryInfo.orderState) {
+        return this.getInformationList()
+      }
+      this.queryInfomation()
     }
   }
 }
@@ -269,7 +321,7 @@ export default {
   border-radius: 8px;
 }
 /deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
+  margin-left:725px;
 }
 .slotText {
   color: #606266;

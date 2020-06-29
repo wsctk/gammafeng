@@ -10,10 +10,10 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="商品名：" class="firInput" prop="goodsName">
-          <el-input placeholder="请输入" v-model="queryInfo.goodsName"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="queryretail"></el-input>
         </el-form-item>
         <el-form-item label="一级用户：" prop="firstUser">
-          <el-select placeholder="请选择" v-model="queryInfo.firstUser">
+          <el-select placeholder="请选择" v-model="queryInfo.firstUser" @keydown.enter.native="queryretail">
             <el-option
               v-for="item in tableData"
               :key="item.first_id"
@@ -23,9 +23,9 @@
           </el-select>
         </el-form-item>
         <el-form-item label="二级用户：" prop="secondUser">
-          <el-select placeholder="请选择" v-model="queryInfo.secondUser">
+          <el-select placeholder="请选择" v-model="queryInfo.secondUser" @keydown.enter.native="queryretail">
             <el-option
-              v-for="item in son"
+              v-for="item in tableData"
               :key="item.second_id"
               :label="item.seconde_name"
               :value="item.second_id">
@@ -62,7 +62,8 @@
         </el-table-column>
     </el-table>
     <el-pagination
-      @size-change="handleSizeChange" @current-change="handleCurrentChange"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
       :page-size="pageSize"
@@ -79,11 +80,11 @@
 export default {
   data () {
     return {
-      pageSize: 1,
+      pageSize: 10,
       tableData: [],
       total: 400,
       pageNum: 1,
-      maxPage: '',
+      maxPage: 1,
       queryInfo: {
         goodsName: '',
         firstUser: '',
@@ -98,12 +99,12 @@ export default {
   },
   methods: {
     async getInformationList () {
-      const msg = await this.$http.get('distribution/getDistribution')
+      const msg = await this.$http.get('distribution/getDistribution', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       console.log(msg.data)
       if (msg.status !== 200) {
         this.$message.error('获取分销列表失败！')
       }
-      this.tableData = msg.data
+      this.tableData = msg.data.rows
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
@@ -119,17 +120,23 @@ export default {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
       }
-      this.tableData = msg.data
+      this.tableData = msg.data.rows
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getInformationList()
+      if (!this.queryInfo.goodsName && !this.queryInfo.firstUser && !this.queryInfo.secondUser) {
+        this.getInformationList()
+      }
+      this.queryretail()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getInformationList()
+      if (!this.queryInfo.goodsName && !this.queryInfo.firstUser && !this.queryInfo.secondUser) {
+        this.getInformationList()
+      }
+      this.queryretail()
     }
   }
 }

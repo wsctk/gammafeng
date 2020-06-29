@@ -10,7 +10,7 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="分类名称：" class="firInput" prop="categoryName">
-          <el-input placeholder="请输入" v-model="queryInfo.categoryName"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.categoryName" @keydown.enter.native="querycate"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
           <el-button type="primary" @click="querycate">查询</el-button>
@@ -104,8 +104,8 @@ export default {
       tableData: [],
       total: 400,
       pageNum: 1,
-      pageSize: 1,
-      maxPage: '',
+      pageSize: 10,
+      maxPage: 40,
       queryInfo: {
         categoryName: '',
         pageNum: '',
@@ -224,11 +224,17 @@ export default {
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getInformationList()
+      if (!this.queryInfo.categoryName) {
+        return this.getInformationList()
+      }
+      this.querycate()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getInformationList()
+      if (!this.queryInfo.categoryName) {
+        return this.getInformationList()
+      }
+      this.querycate()
     }
   }
 }

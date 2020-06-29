@@ -160,7 +160,7 @@ export default {
       total: 400,
       pageSize: 10,
       pageNum: 1,
-      maxPage: '',
+      maxPage: 1,
       queryInfo: {
         userName: '',
         phoneNumber: '',
@@ -327,11 +327,17 @@ export default {
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getInformationList()
+      if (!this.queryInfo.userName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
+        return this.getInformationList()
+      }
+      this.querykeeper()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getInformationList()
+      if (!this.queryInfo.userName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
+        return this.getInformationList()
+      }
+      this.querykeeper()
     }
   }
 }

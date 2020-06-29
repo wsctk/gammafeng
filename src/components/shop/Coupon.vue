@@ -10,10 +10,10 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryinfoRef">
         <el-form-item label="优惠券使用方式：" prop="useCondition" class="firInput">
-          <el-input v-model="queryInfo.useCondition" placeholder="请输入条件金额"></el-input>
+          <el-input v-model="queryInfo.useCondition" placeholder="请输入条件金额" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="优惠券状态：" prop="state">
-          <el-select placeholder="请选择" v-model="queryInfo.state">
+          <el-select placeholder="请选择" v-model="queryInfo.state" @keydown.enter.native="queryinfo">
             <el-option label="未使用" value="0"></el-option>
             <el-option label="已使用" value="1"></el-option>
             <el-option label="已失效" value="2"></el-option>
@@ -32,7 +32,7 @@
         </el-table-column>
         <el-table-column align="center" prop="value" label="优惠券面额">
         </el-table-column>
-        <el-table-column align="center" prop="useCondition" label="优惠券使用方式">
+        <el-table-column align="center" prop="useCondition" label="优惠券使用条件">
         </el-table-column>
         <el-table-column align="center" prop="expirationDate" label="优惠券有效期" width="150px">
           <template v-slot="scope">
@@ -185,8 +185,8 @@ export default {
       tableData: [],
       total: 400,
       pageNum: 1,
-      pageSize: 1,
-      maxPage: '',
+      pageSize: 10,
+      maxPage: 1,
       queryInfo: {
         useCondition: '',
         state: '',
@@ -331,11 +331,17 @@ export default {
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getcouponlist()
+      if (!this.queryInfo.useCondition && !this.queryInfo.state) {
+        return this.getcouponlist()
+      }
+      this.queryinfo()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getcouponlist()
+      if (!this.queryInfo.useCondition && !this.queryInfo.state) {
+        return this.getcouponlist()
+      }
+      this.queryinfo()
     }
   }
 }

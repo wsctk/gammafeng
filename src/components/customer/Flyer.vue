@@ -10,10 +10,10 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="用户名：" class="firInput" prop="wechatName">
-          <el-input placeholder="请输入" v-model="queryInfo.wechatName"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.wechatName" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="手机号码：" prop="phoneNumber">
-          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
           <el-button type="primary" @click="queryinfo">查询</el-button>
@@ -99,7 +99,7 @@ export default {
       total: 1,
       pageNum: 1,
       pageSize: 10,
-      maxPage: '',
+      maxPage: 1,
       queryInfo: {
         wechatName: '',
         phoneNumber: '',
@@ -171,7 +171,10 @@ export default {
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getCustomerList()
+      if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
+        return this.getCustomerList()
+      }
+      this.queryinfo()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
@@ -179,7 +182,10 @@ export default {
     },
     showDialogForm (user) {
       this.dialogVisible1 = true
-      this.editForm = user
+      if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
+        return this.getCustomerList()
+      }
+      this.queryinfo()
     },
     async editdialog () {
       this.$refs.editFormRef.validate(async valid => {

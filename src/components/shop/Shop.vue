@@ -10,15 +10,15 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="商品名：" class="firInput" prop="goodsName">
-          <el-input placeholder="请输入" v-model="queryInfo.goodsName"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="query"></el-input>
         </el-form-item>
         <el-form-item label="商品分类：" prop="cateGoryName">
-          <el-input placeholder="请输入" v-model="queryInfo.cateGoryName"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.cateGoryName" @keydown.enter.native="query"></el-input>
         </el-form-item>
         <el-form-item label="商品归属：" prop="goodsClassfication">
-          <el-select placeholder="请选择" v-model="queryInfo.goodsClassfication">
-            <el-option label="用户商城" value="0"></el-option>
-            <el-option label="积分商城" value="1"></el-option>
+          <el-select placeholder="请选择" v-model="queryInfo.goodsClassfication" @keydown.enter.native="query">
+            <el-option label="用户商城" value="1"></el-option>
+            <el-option label="积分商城" value="0"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
@@ -103,36 +103,38 @@
         </el-row>
         <el-form-item label="商品封面" class="uploadimg">
           <el-upload
+            ref="addimgRef"
             :limit=1
             :http-request="uploadaddimg"
             action=#
             list-type="picture-card"
-            :on-preview="handlePictureCardPreview"
+            :on-preview="addimgPreview"
             :on-remove="handleRemove">
             <i class="el-icon-plus"></i>
           </el-upload>
-          <el-dialog :visible.sync="dialogVisible2">
+          <el-dialog :visible.sync="dialogVisible2" append-to-body>
             <img width="100%" :src="dialogImageUrl">
           </el-dialog>
         </el-form-item>
         <el-form-item label="商品图册" class="uploadimg">
           <el-upload
+            ref="addimgsRef"
             :http-request="uploadaddimgs"
             action=#
             list-type="picture-card"
-            :on-preview="handlePictureCardPreview"
+            :on-preview="addimgsPreview"
             :on-remove="handleRemove">
             <i class="el-icon-plus"></i>
           </el-upload>
-          <el-dialog :visible.sync="dialogVisible3">
+          <el-dialog :visible.sync="dialogVisible3" append-to-body>
             <img width="100%" :src="dialogImageUrl">
           </el-dialog>
         </el-form-item>
         <el-row>
           <el-col :span="10">
             <el-form-item label="商品归属：" prop="goodsClassfication">
-              <el-radio v-model="addForm.goodsClassfication" label="0">商城商品</el-radio>
-              <el-radio v-model="addForm.goodsClassfication" label="1">积分商品</el-radio>
+              <el-radio v-model="addForm.goodsClassfication" label="1">商城商品</el-radio>
+              <el-radio v-model="addForm.goodsClassfication" label="0">积分商品</el-radio>
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
@@ -144,7 +146,7 @@
         </el-row>
         <el-row>
           <el-col :span="22">
-            <el-form-item label="商品详情：">
+            <el-form-item label="商品详情：" prop="textarea">
               <el-input
                 type="textarea"
                 :rows="6"
@@ -157,7 +159,7 @@
       </el-form>
       <div slot="footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="submitaddform">确定</el-button>
+        <el-button type="primary" @click="submitaddform" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑商品" :visible.sync="dialogVisible1" width="50%" @close="closeeditform">
@@ -195,30 +197,32 @@
         </el-row>
         <el-form-item label="商品封面" class="uploadimg">
           <el-upload
+            ref="editimgRef"
             :file-list="editimglist"
             :limit=1
             :http-request="uploadeditimg"
             action=#
             list-type="picture-card"
-            :on-preview="handlePictureCardPreview"
+            :on-preview="editimgPreview"
             :on-remove="handleRemove">
             <i class="el-icon-plus"></i>
           </el-upload>
-          <el-dialog :visible.sync="dialogVisible4">
+          <el-dialog :visible.sync="dialogVisible4" append-to-body>
             <img width="100%" :src="dialogImageUrl" alt="">
           </el-dialog>
         </el-form-item>
         <el-form-item label="商品图册" class="uploadimg">
           <el-upload
-            :file-list="editimgslist"
             :http-request="uploadeditimgs"
+            ref="editimgsRef"
+            :file-list="editimgslist"
             action=#
             list-type="picture-card"
-            :on-preview="handlePictureCardPreview"
+            :on-preview="editimgsPreview"
             :on-remove="handleRemove">
             <i class="el-icon-plus"></i>
           </el-upload>
-          <el-dialog :visible.sync="dialogVisible5">
+          <el-dialog :visible.sync="dialogVisible5" append-to-body>
             <img width="100%" :src="dialogImageUrl" alt="">
           </el-dialog>
         </el-form-item>
@@ -271,11 +275,12 @@
 export default {
   data () {
     return {
+      zhinenganyici: false,
       tableData: [],
       total: 400,
       pageNum: 1,
-      pageSize: 1,
-      maxPage: '',
+      pageSize: 10,
+      maxPage: 1,
       queryInfo: {
         goodsName: '',
         cateGoryName: '',
@@ -316,8 +321,6 @@ export default {
           { required: true, message: '请输入商品库存', trigger: 'blur' }
         ]
       },
-      addimg: '',
-      addimgs: [],
       editForm: {},
       editFormRules: {
         goodsName: [
@@ -333,8 +336,6 @@ export default {
           { required: true, message: '请输入商品库存', trigger: 'blur' }
         ]
       },
-      editimg: '',
-      editimgs: [],
       editimglist: [],
       editimgslist: [],
       showimgslist: []
@@ -361,10 +362,10 @@ export default {
       arr = msg
       for (let i = 0; i < arr.data.rows.length; i++) {
         switch (arr.data.rows[i].goodsClassfication) {
-          case '0':
+          case '1':
             arr.data.rows[i].goodsClassficationname = '用户商城'
             break
-          case '1':
+          case '0':
             arr.data.rows[i].goodsClassficationname = '积分商城'
             break
         }
@@ -376,8 +377,10 @@ export default {
             arr.data.rows[i].goodsStatename = '正常'
             break
         }
-        arr.data.rows[i].goodsPrice /= 100
-        arr.data.rows[i].goodsPrice = arr.data.rows[i].goodsPrice.toFixed(2)
+        if (arr.data.rows[i].goodsClassfication === '1') {
+          arr.data.rows[i].goodsPrice /= 100
+          arr.data.rows[i].goodsPrice = arr.data.rows[i].goodsPrice.toFixed(2)
+        }
       }
       this.tableData = arr.data.rows
       this.total = arr.data.total
@@ -392,10 +395,10 @@ export default {
       arr = msg
       for (let i = 0; i < arr.data.rows.length; i++) {
         switch (arr.data.rows[i].goodsClassfication) {
-          case '0':
+          case '1':
             arr.data.rows[i].goodsClassficationname = '用户商城'
             break
-          case '1':
+          case '0':
             arr.data.rows[i].goodsClassficationname = '积分商城'
             break
         }
@@ -407,8 +410,10 @@ export default {
             arr.data.rows[i].goodsStatename = '正常'
             break
         }
-        arr.data.rows[i].goodsPrice /= 100
-        arr.data.rows[i].goodsPrice = arr.data.rows[i].goodsPrice.toFixed(2)
+        if (arr.data.rows[i].goodsClassfication === '1') {
+          arr.data.rows[i].goodsPrice /= 100
+          arr.data.rows[i].goodsPrice = arr.data.rows[i].goodsPrice.toFixed(2)
+        }
       }
       this.tableData = arr.data.rows
       this.total = arr.data.total
@@ -423,20 +428,25 @@ export default {
       this.category = cate.data.data
     },
     uploadaddimg (params) {
-      this.addimg = params.file
+      console.log('上传了一张封面图片')
     },
     uploadaddimgs (params) {
-      this.addimgs.push(params.file)
-      console.log(this.file)
+      console.log('向图册上传了一张图片')
     },
     async submitaddform () {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
         const formData = new FormData()
-        formData.append('multipartFileile', this.addimg)
-        for (var i = 0; i < this.addimgs.length; i++) {
-          formData.append('file', this.addimgs[i])
+        if (!this.$refs.addimgRef.uploadFiles[0]) {
+          this.dialogVisible = false
         }
+        var addimg = this.$refs.addimgRef.uploadFiles[0].raw
+        console.log(this.$refs.addimgRef.uploadFiles)
+        formData.append('multipartFileile', addimg)
+        for (var i = 0; i < this.$refs.addimgsRef.uploadFiles.length; i++) {
+          formData.append('file', this.$refs.addimgsRef.uploadFiles[i].raw)
+        }
+        this.zhinenganyici = true
         const msg = await this.$http.post('store/addGoods', formData, { params: this.addForm })
         if (msg.status !== 200) {
           this.dialogVisible = false
@@ -448,38 +458,53 @@ export default {
       })
     },
     closeaddform () {
-      this.multipartFileile = ''
-      this.file = []
+      this.zhinenganyici = false
       this.$refs.addFormRef.resetFields()
+      this.$refs.addimgRef.clearFiles()
+      this.$refs.addimgsRef.clearFiles()
     },
     async showeditForm (user) {
       this.dialogVisible1 = true
+      if (user.goodsClassfication === '1') {
+        console.log(user)
+        user.goodsPrice = (user.goodsPrice * 100).toFixed(0)
+      }
       const msg = await this.$http.get('picture/pictureListNotPage', { params: { goodsId: user.id } })
-      console.log(msg)
+      console.log(msg.data.data)
+      if (msg.status !== 200) {
+        this.$message.error('获取图册失败！')
+      }
       this.showimgslist = msg.data.data
       this.editForm = user
       this.editimglist.push({ url: user.goodsCover })
-      console.log(this.editForm)
       for (let i = 0; i < this.showimgslist.length; i++) {
         this.editimgslist.push({ url: this.showimgslist[i].thumbnailPicture })
       }
     },
     uploadeditimg (params) {
-      this.editimg = params.file
+      console.log('上传了一张封面')
     },
     uploadeditimgs (params) {
-      this.editimgs.push(params.file)
+      console.log('向图册上传了一张图片')
     },
     async submiteditform () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
         const formData = new FormData()
-        formData.append('multipartFileile', this.editimg)
-        for (let i = 0; i < this.editimgs.length; i++) {
-          formData.append('file', this.editimgs[i])
+        var editimg = ''
+        console.log()
+        if (!this.$refs.editimgRef.uploadFiles[0].raw) {
+          editimg = this.$refs.editimgRef.uploadFiles[0].url
+        } else {
+          editimg = this.$refs.editimgRef.uploadFiles[0].raw
         }
-        for (let j = 0; j < this.showimgslist.length; j++) {
-          formData.append('imgs', this.showimgslist[j])
+        formData.append('multipartFileile', editimg)
+        for (let j = 0; j < this.$refs.editimgsRef.uploadFiles.length; j++) {
+          if (!this.$refs.editimgsRef.uploadFiles[j].raw) {
+            formData.append('imgs', this.$refs.editimgsRef.uploadFiles[j].url)
+          } else {
+            formData.append('file', this.$refs.editimgsRef.uploadFiles[j].raw)
+          }
         }
         const msg = await this.$http.post('store/updateGoods', formData, { params: this.editForm })
         if (msg.status !== 200) {
@@ -496,14 +521,28 @@ export default {
       this.editimglist = []
       this.editimgslist = []
       this.showimgslist = []
+      this.$refs.editimgRef.clearFiles()
+      this.$refs.editimgsRef.clearFiles()
       this.getgoodList()
     },
     handleRemove (file, fileList) {
       console.log(file, fileList)
     },
-    handlePictureCardPreview (file) {
+    addimgPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible2 = true
+    },
+    addimgsPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible3 = true
+    },
+    editimgPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible4 = true
+    },
+    editimgsPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible5 = true
     },
     async remove (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该商品, 是否继续?', '提示', {
@@ -514,7 +553,7 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      const msg = await this.$http.delete('store/deleteGoods', { params: { id: id } })
+      const msg = await this.$http.post('store/deleteGoods', this.$qs.stringify({ id: id }))
       if (msg.status !== 200) {
         return this.$message.error('删除商品失败')
       }
@@ -525,15 +564,24 @@ export default {
       this.dialogVisibleimgs = true
       const msg = await this.$http.get('picture/pictureListNotPage', { params: { goodsId: id } })
       console.log(msg)
+      if (msg.status !== 200) {
+        return this.$message.error('获取图册失败！')
+      }
       this.showimgslist = msg.data.data
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getgoodList()
+      if (!this.queryInfo.goodsName && !this.queryInfo.cateGoryName && !this.queryInfo.goodsClassfication) {
+        return this.getgoodList()
+      }
+      this.query()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getgoodList()
+      if (!this.queryInfo.goodsName && !this.queryInfo.cateGoryName && !this.queryInfo.goodsClassfication) {
+        return this.getgoodList()
+      }
+      this.query()
     }
   }
 }

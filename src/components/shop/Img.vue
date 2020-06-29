@@ -10,7 +10,7 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="商品名：" class="firInput" prop="goodsName">
-          <el-input placeholder="请输入" v-model="queryInfo.goodsName"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
           <el-button type="primary" @click="queryinfo">查询</el-button>
@@ -57,10 +57,10 @@ export default {
   data () {
     return {
       tableData: [],
-      total: 400,
+      total: 1,
       pageNum: 1,
-      pageSize: 1,
-      maxPage: '',
+      pageSize: 10,
+      maxPage: 1,
       queryInfo: {
         goodsName: '',
         pageNum: '',
@@ -120,11 +120,17 @@ export default {
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getInformationList()
+      if (!this.queryInfo.goodsName) {
+        return this.getInformationList()
+      }
+      this.queryinfo()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getInformationList()
+      if (!this.queryInfo.goodsName) {
+        return this.getInformationList()
+      }
+      this.queryinfo()
     }
   }
 }

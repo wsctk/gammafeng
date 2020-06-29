@@ -10,16 +10,16 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="订单ID：" class="firInput" prop="orderNumber">
-          <el-input placeholder="请输入" v-model="queryInfo.orderNumber"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.orderNumber" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="商品名：" prop="goodsName">
-          <el-input placeholder="请输入" v-model="queryInfo.goodsName"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="手机号：" prop="phoneNumber">
-          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.phoneNumber" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="订单状态：" prop="orderState">
-          <el-select placeholder="请选择" v-model="queryInfo.orderState">
+          <el-select placeholder="请选择" v-model="queryInfo.orderState" @keydown.enter.native="queryinfo">
             <el-option label="等待付款" value="0"></el-option>
             <el-option label="等待发货" value="1"></el-option>
             <el-option label="已发货" value="2"></el-option>
@@ -51,10 +51,10 @@
         </el-table-column>
         <el-table-column align="center" prop="phoneNumber" label="手机号码">
         </el-table-column>
-        <el-table-column align="center" prop="logisticsCompany" label="物流公司">
+        <!-- <el-table-column align="center" prop="logisticsCompany" label="物流公司">
         </el-table-column>
         <el-table-column align="center" prop="shipmentNumber" label="物流单号">
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column align="center" prop="createTime" label="创建时间" width="150px">
           <template v-slot="scope">
             {{ scope.row.createTime | dateFormat}}
@@ -62,7 +62,8 @@
         </el-table-column>
     </el-table>
     <el-pagination
-      @size-change="handleSizeChange" @current-change="handleCurrentChange"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
       :page-size="pageSize"
@@ -82,8 +83,8 @@ export default {
       tableData: [],
       total: 400,
       pageNum: 1,
-      maxPage: '',
-      pageSize: 1,
+      maxPage: 1,
+      pageSize: 10,
       queryInfo: {
         orderNumber: '',
         goodsName: '',
@@ -168,11 +169,17 @@ export default {
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getorderlist()
+      if (!this.queryInfo.orderNumber && !this.queryInfo.goodsName && !this.queryInfo.phoneNumber && !this.queryInfo.orderState) {
+        return this.getorderlist()
+      }
+      this.queryinfo()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getorderlist()
+      if (!this.queryInfo.orderNumber && !this.queryInfo.goodsName && !this.queryInfo.phoneNumber && !this.queryInfo.orderState) {
+        return this.getorderlist()
+      }
+      this.queryinfo()
     }
   }
 }

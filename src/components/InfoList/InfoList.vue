@@ -9,10 +9,10 @@
     <el-card>
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="文章名称" class="firInput" prop="articleName">
-          <el-input placeholder="请输入" v-model="queryInfo.articleName"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.articleName" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="发布时间：" prop="createTime">
-          <el-date-picker v-model="queryInfo.createTime" type="date" placeholder="请选择日期" format="yyyy 年 MM 月 dd 日" value-format="timestamp">
+          <el-date-picker v-model="queryInfo.createTime" type="date" placeholder="请选择日期" format="yyyy 年 MM 月 dd 日" value-format="timestamp" @keydown.enter.native="queryinfo">
           </el-date-picker>
         </el-form-item>
         <el-form-item class="anniu">
@@ -50,6 +50,7 @@
     <el-pagination
       @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
+      :page-count="11"
       :page-sizes="[1, 5, 10, 20]"
       :page-size="pageSize"
       :current-page="pageNum"
@@ -71,16 +72,16 @@
           <el-col :span="15" :offset="4">
             <el-form-item label="商品封面:">
               <el-upload
-                ref="uploadRef"
+                ref="addimgRef"
                 :limit=1
                 :http-request="uploadaddFormFile"
                 action="#"
                 list-type="picture-card"
-                :on-preview="handlePictureCardPreview"
+                :on-preview="addimgPreview"
                 :on-remove="handleRemove">
                 <i class="el-icon-plus"></i>
               </el-upload>
-              <el-dialog :visible.sync="dialogVisible2">
+              <el-dialog :visible.sync="dialogVisible2" append-to-body>
                 <img width="100%" :src="dialogImageUrl" alt="">
               </el-dialog>
             </el-form-item>
@@ -126,16 +127,17 @@
           <el-col :span="15" :offset="4">
             <el-form-item label="商品封面:">
               <el-upload
+                ref="editimgRef"
                 :limit=1
                 :http-request="uploadeditFormFile"
                 action="#"
                 list-type="picture-card"
                 :file-list="fileList"
-                :on-preview="handlePictureCardPreview"
+                :on-preview="editimgPreview"
                 :on-remove="handleRemove">
                 <i class="el-icon-plus"></i>
               </el-upload>
-              <el-dialog :visible.sync="dialogVisible3">
+              <el-dialog :visible.sync="dialogVisible3" append-to-body>
                 <img width="100%" :src="dialogImageUrl" alt="">
               </el-dialog>
             </el-form-item>
@@ -175,9 +177,9 @@ export default {
     return {
       tableData: [],
       total: 400,
-      pageSize: '',
-      pageNum: '',
-      maxPage: '',
+      pageSize: 10,
+      pageNum: 1,
+      maxPage: 40,
       queryInfo: {
         articleName: '',
         createTime: '',
@@ -190,7 +192,6 @@ export default {
       dialogVisible3: false,
       additionalInfo: {
         title: '',
-        fengmian: '',
         state: '',
         article: ''
       },
@@ -199,9 +200,7 @@ export default {
           { required: true, message: '请输入标题！', trigger: 'blur' }
         ]
       },
-      editForm: {
-        fengmian: ''
-      },
+      editForm: {},
       editFormRules: {
         articleName: [
           { required: true, message: '请输入标题！', trigger: 'blur' }
@@ -213,6 +212,7 @@ export default {
   },
   created () {
     this.getInformationList()
+    this.getinfopage()
   },
   methods: {
     resetQueryForm () {
@@ -221,15 +221,15 @@ export default {
     async queryinfo () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
-      const msg = await this.$http.get('information/selectInformation', { params: this.queryinfo })
+      const msg = await this.$http.get('information/selectInformation', { params: this.queryInfo })
       console.log(msg)
       if (msg.status !== 200) {
         this.resetQueryForm()
         this.$message.error('查询失败！')
       }
-      this.tableData = msg.data.data
-      this.total = msg.data.data.total
-      this.maxPage = msg.data.data.maxPage
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     async getInformationList () {
       const msg = await this.$http.get('information/getInformationList')
@@ -242,13 +242,13 @@ export default {
       this.maxPage = msg.data.maxPage
     },
     uploadaddFormFile (params) {
-      this.additionalInfo.fengmian = params.file
+      console.log('上传了一张封面图片')
     },
     async submitaddinfo () {
       this.$refs.additionalInfoRef.validate(async valid => {
         if (!valid) return
         const formData = new FormData()
-        formData.append('file', this.additionalInfo.fengmian)
+        formData.append('file', this.$refs.addimgRef.uploadFiles[0].raws)
         formData.append('articleName', this.additionalInfo.title)
         formData.append('content', this.additionalInfo.article)
         formData.append('state', this.additionalInfo.state)
@@ -262,10 +262,8 @@ export default {
       })
     },
     closeaddform () {
-      this.additionalInfo.title = ''
-      this.additionalInfo.article = ''
-      this.$refs.uploadRef.clearFiles()
-      this.additionalInfo.state = ''
+      this.$refs.addimgRef.clearFiles()
+      this.$refs.additionalInfoRef.resetFields()
     },
     showeditform (user) {
       this.dialogVisible1 = true
@@ -273,14 +271,17 @@ export default {
       this.fileList.push({ url: user.cover })
     },
     uploadeditFormFile (params) {
-      this.editForm.fengmian = params.file
+      console.log('上传了一张封面图片')
     },
     async submiteditinfo () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
         const formData = new FormData()
-        formData.append('path', this.editForm.cover)
-        formData.append('file', this.editForm.fengmian)
+        if (!this.$refs.editimgRef.uploadFiles[0].raws) {
+          formData.append('path', this.$refs.editimgRef.uploadFiles[0].url)
+        } else {
+          formData.append('file', this.$refs.editimgRef.uploadFiles[0].raws)
+        }
         formData.append('articleName', this.editForm.articleName)
         formData.append('content', this.editForm.article)
         formData.append('state', this.editForm.state)
@@ -297,11 +298,16 @@ export default {
     closeeditform () {
       this.$refs.editFormRef.resetFields()
       this.fileList = []
+      this.$refs.editimgRef.clearFiles()
       this.getInformationList()
     },
-    handlePictureCardPreview (file) {
+    addimgPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible2 = true
+    },
+    editimgPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible3 = true
     },
     handleRemove (file, fileList) {
       console.log(file, fileList)
@@ -325,11 +331,26 @@ export default {
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
-      this.getCustomerList()
+      if (!this.queryInfo.articleName && !this.queryInfo.createTime) {
+        return this.getinfopage()
+      }
+      this.queryinfo()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getCustomerList()
+      if (!this.queryInfo.articleName && !this.queryInfo.createTime) {
+        return this.getinfopage()
+      }
+      this.queryinfo()
+    },
+    async getinfopage () {
+      const msg = await this.$http.get('information/getInformationByPage', { params: { page: this.pageNum, size: this.pageSize } })
+      if (msg.status !== 200) {
+        return this.$message.error('获取分页失败')
+      }
+      this.total = msg.data.total
+      this.maxPage = Math.ceil((msg.data.total / this.pageSize))
+      this.tableData = msg.data.data
     }
   }
 }
