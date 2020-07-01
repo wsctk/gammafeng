@@ -7,7 +7,7 @@
       </el-breadcrumb>
       <p class="indexText">图片管理</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="商品名：" class="firInput" prop="goodsName">
           <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="queryinfo"></el-input>
@@ -24,7 +24,11 @@
         </el-table-column>
         <el-table-column align="center" prop="thumbnailPicture" label="商品图片">
           <template v-slot="scope">
-            <img :src=scope.row.thumbnailPicture style="width:50px;height:50px" />
+            <el-image
+              style="width: 50px; height: 50px"
+              :src="scope.row.thumbnailPicture"
+              :preview-src-list="[scope.row.thumbnailPicture]">
+            </el-image>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="createTime" label="创建时间">
@@ -94,7 +98,6 @@ export default {
     },
     async getInformationList () {
       const msg = await this.$http.get('picture/pictureList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('获取商品图片失败！')
       }
@@ -136,6 +139,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.main {
+  height:630px;
+  overflow: auto;
+}
 .el-card {
   margin: 35px 25px;
 }

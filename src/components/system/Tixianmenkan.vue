@@ -7,7 +7,7 @@
         </el-breadcrumb>
         <p class="indexText">通用配置</p>
       </div>
-      <el-card>
+      <el-card class="main">
         <el-row>
           <el-col :span="6">
             <el-form label-width="140px">
@@ -31,7 +31,6 @@ export default {
   methods: {
     async save () {
       const msg = await this.$http.post('system/updateSystemConfig', { minCash: this.tixian })
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('提交失败！')
       }
@@ -41,6 +40,13 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.el-card {
+  margin: 35px 25px;
+}
+.main {
+  height:630px;
+  overflow: auto;
+}
 .head {
   background-color: #fff;
   height: 88px;

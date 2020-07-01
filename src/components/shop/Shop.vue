@@ -7,7 +7,7 @@
       </el-breadcrumb>
       <p class="indexText">商品管理</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="商品名：" class="firInput" prop="goodsName">
           <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="query"></el-input>
@@ -36,7 +36,11 @@
         </el-table-column>
         <el-table-column align="center" prop="goodsCover" label="封面图片" v-slot="scope">
           <template>
-            <img :src="scope.row.goodsCover" style="width: 50px; height: 50px" />
+            <el-image
+              style="width: 50px; height: 50px"
+              :src="scope.row.goodsCover"
+              :preview-src-list="[scope.row.goodsCover]">
+            </el-image>
           </template>
         </el-table-column>
         <el-table-column align="center" label="项目图册">
@@ -258,12 +262,16 @@
       </div>
     </el-dialog>
     <el-dialog title="项目图册" :visible.sync="dialogVisibleimgs" width="40%">
-      <el-row v-for="item in showimgslist" :key="item.id">
-        <template>
-          <el-col :span="14" :offset="8">
-            <img :src=item.thumbnailPicture style="width:200px;height:200px;" />
-          </el-col>
-        </template>
+      <el-row>
+        <el-col :span="7" v-for="item in showimgslist" :key="item.id">
+            <el-card>
+              <el-image
+                style="width: 115px; height: 115px"
+                :src="item.thumbnailPicture"
+                :preview-src-list="[item.thumbnailPicture]">
+              </el-image>
+            </el-card>
+        </el-col>
       </el-row>
       <div slot="footer">
         <el-button @click="dialogVisibleimgs=false">关闭</el-button>
@@ -353,7 +361,6 @@ export default {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('store/goodsList', { params: this.queryInfo })
-      console.log(msg)
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
@@ -421,31 +428,28 @@ export default {
     },
     async getcategory () {
       const cate = await this.$http.get('category/categoryListNotPage')
-      console.log(cate)
       if (cate.status !== 200) {
         return this.$message.error('获取商品分类失败！')
       }
       this.category = cate.data.data
     },
     uploadaddimg (params) {
-      console.log('上传了一张封面图片')
     },
     uploadaddimgs (params) {
-      console.log('向图册上传了一张图片')
     },
     async submitaddform () {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
         const formData = new FormData()
-        if (!this.$refs.addimgRef.uploadFiles[0]) {
-          this.dialogVisible = false
+        if (!this.$refs.addimgRef.uploadFiles[0] || !this.$refs.addimgsRef.uploadFiles[0]) {
+          return this.$message.error('请添加图片之后再提交！')
         }
         var addimg = this.$refs.addimgRef.uploadFiles[0].raw
-        console.log(this.$refs.addimgRef.uploadFiles)
         formData.append('multipartFileile', addimg)
         for (var i = 0; i < this.$refs.addimgsRef.uploadFiles.length; i++) {
           formData.append('file', this.$refs.addimgsRef.uploadFiles[i].raw)
         }
+        this.addForm.goodsPrice *= 100
         this.zhinenganyici = true
         const msg = await this.$http.post('store/addGoods', formData, { params: this.addForm })
         if (msg.status !== 200) {
@@ -466,11 +470,9 @@ export default {
     async showeditForm (user) {
       this.dialogVisible1 = true
       if (user.goodsClassfication === '1') {
-        console.log(user)
         user.goodsPrice = (user.goodsPrice * 100).toFixed(0)
       }
       const msg = await this.$http.get('picture/pictureListNotPage', { params: { goodsId: user.id } })
-      console.log(msg.data.data)
       if (msg.status !== 200) {
         this.$message.error('获取图册失败！')
       }
@@ -482,17 +484,14 @@ export default {
       }
     },
     uploadeditimg (params) {
-      console.log('上传了一张封面')
     },
     uploadeditimgs (params) {
-      console.log('向图册上传了一张图片')
     },
     async submiteditform () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
         const formData = new FormData()
         var editimg = ''
-        console.log()
         if (!this.$refs.editimgRef.uploadFiles[0].raw) {
           editimg = this.$refs.editimgRef.uploadFiles[0].url
         } else {
@@ -512,8 +511,8 @@ export default {
           return this.$message.error('编辑商品信息失败！')
         }
         this.getgoodList()
-        this.dialogVisible1 = false
         this.$message.success('编辑商品信息成功！')
+        this.dialogVisible1 = false
       })
     },
     closeeditform () {
@@ -526,7 +525,6 @@ export default {
       this.getgoodList()
     },
     handleRemove (file, fileList) {
-      console.log(file, fileList)
     },
     addimgPreview (file) {
       this.dialogImageUrl = file.url
@@ -563,7 +561,6 @@ export default {
     async showimgs (id) {
       this.dialogVisibleimgs = true
       const msg = await this.$http.get('picture/pictureListNotPage', { params: { goodsId: id } })
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('获取图册失败！')
       }
@@ -587,6 +584,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.main {
+  height:630px;
+  overflow: auto;
+}
 .uploadimg {
   margin-bottom: 10px;
 }

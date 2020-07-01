@@ -2,15 +2,17 @@
     <el-container class="home_container">
         <el-header>
           <div class="headL">
-            <img class="tbimg" src='../assets/tx.jpg' alt='图标' style="width:40px;height:40px;">
+            <img class="tbimg" src='../assets/logo.png' alt='图标' style="width:40px;height:40px;">
             <span>伽马蜂管理后台</span>
           </div>
           <div class="headR">
-            <span><i class="el-icon-s-fold"></i></span>
-            <span><i class="el-icon-search"></i></span>
-            <span><i class="el-icon-bell"></i></span>
-            <el-avatar size="small" fit="fill" :src='"https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"'></el-avatar>
-            <el-button size='small' class="quit" @click="quitlogin" type="danger" round>退出登录</el-button>
+            <div class="left"><i class="el-icon-s-fold"></i></div>
+            <div class="right">
+              <span><i class="el-icon-search"></i></span>
+              <span><i class="el-icon-bell"></i></span>
+              <el-avatar size="small" fit="fill" :src='"https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"'></el-avatar>
+              <el-button size='small' class="quit" @click="quitlogin" type="danger" round>退出登录</el-button>
+            </div>
           </div>
         </el-header>
         <el-container>
@@ -29,13 +31,11 @@
               </el-submenu>
             </el-menu>
           </el-aside>
-          <el-main>
+          <el-main width="86%">
             <router-view></router-view>
             <el-footer height="80px">
               <div class="foot">
-                <el-link type="info" href="http://www.it-10.com/">帮助</el-link>
-                <el-link type="info" href="http://www.it-10.com/">隐私</el-link>
-                <el-link type="info" href="http://www.it-10.com/">条款</el-link>
+                <el-link type="info" href="http://www.it-10.com/">壹零(天津)信息技术有限公司</el-link>
               </div>
               <p class="pText">copyright&copy;2020 壹零(天津)信息技术有限公司</p>
             </el-footer>
@@ -144,6 +144,7 @@ export default {
 <style lang="less" scoped>
 .tbimg {
   margin-left:20px;
+  background-color:#eee;
 }
 .el-header {
   display:flex;
@@ -163,13 +164,22 @@ export default {
       margin-left: 15px
     }
   }
-  > .headR{
+  > .headR {
     display:flex;
     align-items: center;
-    height:58px;
+    height:100%;
     border-bottom: 2px solid #eee;
     width:86%;
   }
+}
+.left {
+  width: 20%;
+}
+.right {
+  display:flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 80%;
 }
 .quit {
   margin-left: 10px;
@@ -181,7 +191,6 @@ export default {
 }
 .el-icon-search:before {
   font-size:28px !important;
-  margin-left:1370px;
 }
 .el-icon-bell:before {
   font-size:28px !important;
@@ -227,7 +236,6 @@ export default {
 .foot {
   display:flex;
   justify-content: space-between;
-  width:160px;
   margin-bottom:10px;
 }
 .pText {

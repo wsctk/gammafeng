@@ -7,19 +7,28 @@
       </el-breadcrumb>
       <p class="indexText">轮播图管理</p>
     </div>
-    <el-row>
-      <el-col :span="3" v-for="img in imgslist" :key="img.id" >
-          <el-card>
-            <img :src=img.route style="width:115px;height:115px;">
-            <el-button type="primary" @click="deleteimg($event)" :data-id="img.id">删除</el-button>
-          </el-card>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="2" :offset="1">
-        <el-button type="primary" @click="dialogVisible=true">新增轮播图片</el-button>
-      </el-col>
-    </el-row>
+    <el-card class="main">
+      <el-row>
+        <el-col :span="3" v-for="img in imgslist" :key="img.id" >
+            <el-card>
+              <el-image
+                style="width: 105px; height: 105px"
+                :src="img.route"
+                :preview-src-list="[img.route]">
+              </el-image>
+              <el-link class="lunbobtn" icon="el-icon-close" @click="deleteimg($event)" :data-id="img.id"></el-link>
+            </el-card>
+        </el-col>
+      </el-row>
+      <div v-if="morenimg">
+        <img  style="width:200px;height:200px;" src="../../assets/nocan.jpg" />
+      </div>
+      <el-row>
+        <el-col :span="2" class="addbtn">
+          <el-button type="primary" @click="dialogVisible=true">新增轮播图片</el-button>
+        </el-col>
+      </el-row>
+    </el-card>
     <el-dialog title="新增轮播图片" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
         <el-row>
             <el-col :span="15" :offset="4">
@@ -39,7 +48,7 @@
         </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="addlunboimgs">确定</el-button>
+        <el-button type="primary" @click="addlunboimgs" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -48,6 +57,8 @@
 export default {
   data () {
     return {
+      morenimg: false,
+      zhinenganyici: false,
       total: 200,
       maxPage: '',
       pageNum: '',
@@ -64,25 +75,34 @@ export default {
   methods: {
     async getlunboimgsList () {
       const msg = await this.$http.get('rotation/rotationList')
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('获取轮播图片失败！')
       }
       this.imgslist = msg.data.data
+      if (this.imgslist.length === 0) {
+        this.morenimg = true
+        return
+      }
+      this.morenimg = false
     },
     uploadaddFormFile () {
-      console.log('上传了一张轮播图片')
     },
     async addlunboimgs () {
       const formData = new FormData()
       for (let i = 0; i < this.$refs.addimgRef.uploadFiles.length; i++) {
         formData.append('files', this.$refs.addimgRef.uploadFiles[i].raw)
       }
+      if (!this.$refs.addimgRef.uploadFiles) {
+        return this.$message.error('没有图片可以提交！')
+      }
+      this.zhinenganyici = true
       const msg = await this.$http.post('rotation/insertRotation', formData)
       if (msg.status !== 200) {
+        this.dialogVisible = false
         return this.$message.error('新增轮播图片失败！')
       }
       this.$message.success('新增轮播图片成功！')
+      this.dialogVisible = false
       this.getlunboimgsList()
     },
     addimgPreview (file) {
@@ -90,6 +110,7 @@ export default {
       this.dialogVisible2 = true
     },
     closeaddform () {
+      this.zhinenganyici = false
       this.$refs.addimgRef.clearFiles()
     },
     async deleteimg (e) {
@@ -101,8 +122,7 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      console.log(e.path[1].attributes[3].nodeValue)
-      const msg = await this.$http.get('', this.$qs.stringify({ id: e.path[1].attributes[3].nodeValue }))
+      const msg = await this.$http.post('rotation/deleteRotation', this.$qs.stringify({ id: e.path[1].attributes[1].nodeValue }))
       if (msg.status !== 200) {
         return this.$message.error('删除图片失败')
       }
@@ -110,16 +130,11 @@ export default {
       this.getlunboimgsList()
     },
     handleRemove (file, fileList) {
-      console.log(file, fileList)
     }
   }
 }
 </script>
 <style lang="less" scoped>
-.addbtn {
-    margin-left:27px;
-    margin-bottom: 10px;
-}
 .el-card {
   margin: 35px 25px;
 }
@@ -131,42 +146,22 @@ export default {
   margin-right:30px;
   margin-bottom: 25px;
 }
-.firInput {
-  margin-left: 30px
+.main {
+  height:630px;
+  overflow: auto;
 }
-.anniu {
-  margin-left: 25px;
+.addbtn {
+  margin-left:24px;
 }
-/deep/.el-pagination__jump {
-  margin-left: -8px;
+/deep/.el-card__body {
+  padding-left:20px;
+  padding-right:20px;
+  padding-top:20px;
+  padding-bottom:0px;
 }
-/deep/.el-pagination.is-background .btn-prev{
-  border:1px solid #eee;
-  background: #fff;
-  border-radius: 8px;
-}
-/deep/.el-pagination.is-background .btn-next{
-  border:1px solid #eee;
-  background: #fff;
-  border-radius: 8px;
-}
-/deep/.el-pagination.is-background .el-pager li{
-  border:1px solid #eee;
-  background: #fff;
-  border-radius: 8px;
-}
-/deep/.el-pagination .el-select .el-input .el-input__inner {
-  border-radius: 8px;
-}
-/deep/.el-input__inner {
-  border-radius: 8px;
-}
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
-}
-.slotText {
-  color: #606266;
-  font-weight: 400;
-  font-size: 13px;
+.lunbobtn {
+  position: relative;
+  left:105px;
+  top:-130px;
 }
 </style>

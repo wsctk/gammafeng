@@ -7,7 +7,7 @@
       </el-breadcrumb>
       <p class="indexText">优惠券管理</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryinfoRef">
         <el-form-item label="优惠券使用方式：" prop="useCondition" class="firInput">
           <el-input v-model="queryInfo.useCondition" placeholder="请输入条件金额" @keydown.enter.native="queryinfo"></el-input>
@@ -71,7 +71,7 @@
     </el-pagination>
     </el-card>
     <el-dialog title="新增优惠券" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
-      <el-form label-width="120px" :model="addForm" ref="addFormRef" :rules="addFormRules" hide-required-asterisk>
+      <el-form label-width="120px" :model="addForm" ref="addFormRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="11" :offset="6">
             <el-form-item label="优惠券面额:" prop="value">
@@ -120,7 +120,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="addcoupon">确定</el-button>
+        <el-button type="primary" @click="addcoupon" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑优惠券" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
@@ -182,6 +182,7 @@
 export default {
   data () {
     return {
+      zhinenganyici: false,
       tableData: [],
       total: 400,
       pageNum: 1,
@@ -255,7 +256,6 @@ export default {
     },
     async getcouponlist () {
       const msg = await this.$http.get('coupons/couponsList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('获取优惠券列表失败！')
       }
@@ -279,6 +279,7 @@ export default {
     async addcoupon () {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
+        this.zhinenganyici = true
         const msg = await this.$http.post('coupons/addCoupons', this.$qs.stringify(this.addForm))
         if (msg.status !== 200) {
           this.dialogVisible = false
@@ -290,6 +291,7 @@ export default {
       })
     },
     closeaddform () {
+      this.zhinenganyici = false
       this.$refs.addFormRef.resetFields()
     },
     showEditForm (user) {
@@ -347,6 +349,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.main {
+  overflow:auto;
+  height:630px;
+}
 .addbtn {
     margin-left:27px;
     margin-bottom: 10px;

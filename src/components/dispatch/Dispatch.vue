@@ -6,7 +6,7 @@
       </el-breadcrumb>
       <p class="indexText">派单管理</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="用户手机号" class="firInput" prop="phoneNumber">
           <el-input placeholder="请输入" v-model="queryInfo.phoneNumber" @keydown.enter.native="queryInfomation"></el-input>
@@ -65,12 +65,13 @@
         <el-table-column align="center" prop="" label="操作" width="220px" v-slot="scope">
           <template>
             <el-button size="small" type="primary" @click="showAppoint(scope.row)">添加飞手</el-button>
-            <el-button size="small" type="primary" @click="showorderconfirm(scope.row.id)">订单确认</el-button>
+            <el-button size="small" type="primary" @click="showorderconfirm(scope.row)">订单确认</el-button>
           </template>
         </el-table-column>
     </el-table>
     <el-pagination
-      @size-change="handleSizeChange" @current-change="handleCurrentChange"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
       :page-size="pageSize"
@@ -100,16 +101,20 @@
       </div>
     </el-dialog>
     <el-dialog title="订单确认" :visible.sync="dialogVisible1" width="40%">
-      <el-row v-for="item in confirmimgs" :key="item.id">
-        <template>
-          <el-col :span="14" :offset="8">
-            <img :src=item.pic1 style="width:200px;height:200px;" />
-          </el-col>
-        </template>
+      <el-row>
+        <el-col :span="5" v-for="item in confirmimgs" :key="item.id">
+          <el-card>
+            <el-image
+              style="width: 65px; height: 65px"
+              :src="item.pic1"
+              :preview-src-list="[item.pic1]">
+            </el-image>
+          </el-card>
+        </el-col>
       </el-row>
       <div slot="footer">
+        <el-button @click="dialogVisible1=false">取消</el-button>
         <el-button @click="confirmorder">确认</el-button>
-        <el-button @click="dialogVisible1=false">关闭</el-button>
       </div>
     </el-dialog>
   </div>
@@ -181,7 +186,6 @@ export default {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('dispatcher/getDispatcherList', { params: this.queryInfo })
-      console.log(msg)
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
@@ -212,7 +216,6 @@ export default {
       this.maxPage = msg.data.maxPage
     },
     async showAppoint (order) {
-      console.log(order)
       if (!(order.feishou_name === '未指派')) {
         return this.$message.error('飞手已指派！')
       }
@@ -231,13 +234,15 @@ export default {
         return this.$message.error('指派飞手失败！')
       }
       this.$message.success('指派飞手成功！')
-      this.dialogVisible = false
       this.getInformationList()
+      this.dialogVisible = false
     },
-    async showorderconfirm (id) {
-      const msg = await this.$http.get('gmTask/getTask', { params: { orderId: id } })
-      console.log(msg)
-      this.id = id
+    async showorderconfirm (user) {
+      if (user.order_state_name !== '待确认') {
+        return this.$message.error('该订单尚未完成')
+      }
+      const msg = await this.$http.get('gmTask/getTask', { params: { orderId: user.id } })
+      this.id = user.id
       if (msg.status !== 200) {
         return this.$message.error('订单未确认或请求确认订单失败！')
       }
@@ -251,14 +256,14 @@ export default {
         type: 'success'
       }).catch(err => err)
       if (confirmResult !== 'confirm') {
-        return this.$message.info('已取消删除')
+        return this.$message.info('已取消')
       }
-      const msg = await this.$http.get('', { params: { orderId: this.id } })
-      console.log(msg)
+      const msg = await this.$http.post('gmTask/confirmTask', this.$qs.stringify({ orderId: this.id }))
       if (msg.status !== 200) {
         return this.$message.error('订单确认失败！')
       }
       this.$message.success('订单确认成功！')
+      this.getInformationList()
       this.dialogVisible1 = false
     },
     handleSizeChange (newSize) {
@@ -282,6 +287,14 @@ export default {
 .el-card {
   margin: 35px 25px;
 }
+.el-table {
+  @media only screen and (min-height: 200px) and (max-height: 468px) {
+    max-height:400px;
+  }
+  @media only screen and (min-height: 468px) and (max-height: 768px) {
+    max-height:300px;
+  }
+}
 .head {
   background-color: #fff;
   height: 88px;
@@ -295,6 +308,9 @@ export default {
 }
 .anniu {
   margin-left: 25px;
+}
+/deep/.el-pagination {
+  text-align: center;
 }
 /deep/.el-pagination__jump {
   margin-left: -8px;
@@ -320,12 +336,12 @@ export default {
 /deep/.el-input__inner {
   border-radius: 8px;
 }
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:725px;
-}
 .slotText {
   color: #606266;
   font-weight: 400;
   font-size: 13px;
+}
+.main {
+  height:630px;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
     <div class="login_container" min-height="1000px">
         <div class="login_head">
-          <img src="../assets/tx.jpg" />
+          <img src="../assets/logo.png" />
         </div>
         <p class="headText">伽玛蜂小程序管理后台</p>
         <div class="login_box">
@@ -35,11 +35,14 @@
                 </el-form-item>
                 <el-form-item prop="code" class="lastFormItem">
                   <el-row>
-                    <el-col :span="15">
-                      <el-input clearable v-model="loginMessage.code" placeholder="验证码" prefix-icon="el-icon-message"></el-input>
+                    <el-col :span="13">
+                      <el-input clearable v-model="loginMessage.code" placeholder="验证码" prefix-icon="el-icon-message" @keydown.enter.native="login"></el-input>
                     </el-col>
-                    <el-col :span="7">
-                      <el-button size="large" @click="getCode" :disabled="btnavalible">获取验证码</el-button>
+                    <el-col :span="9">
+                      <el-button size="large" @click="getCode" :disabled="btnavalible">
+                        <span v-if="cangetcode">免费获取验证码</span>
+                        <span v-else>{{count}}秒后可发送</span>
+                      </el-button>
                     </el-col>
                   </el-row>
                 </el-form-item>
@@ -53,16 +56,11 @@
             <el-col :span="14">
               <div class="zhanwei">123</div>
             </el-col>
-            <el-col :span="5">
-              <el-link type="primary" :underline="false" @click="forgetpassword">忘记密码</el-link>
-            </el-col>
           </el-row>
           <el-button type="primary" size="small" class="dlbtn" @click="login">登录</el-button>
           <el-footer height="80px">
           <div class="foot">
-            <el-link type="info">帮助</el-link>
-            <el-link type="info">隐私</el-link>
-            <el-link type="info">条款</el-link>
+            <el-link type="info" href="http://www.it-10.com/">壹零(天津)信息技术有限公司</el-link>
           </div>
           <p class="pText">copyright&copy;2020 壹零(天津)信息技术有限公司</p>
          </el-footer>
@@ -81,6 +79,9 @@ export default {
       cb(new Error('请输入合法的手机号码'))
     }
     return {
+      timer: null,
+      cangetcode: true,
+      count: 60,
       btnavalible: false,
       img: '',
       activeName: 'zhanghaomimadengluTab',
@@ -138,16 +139,37 @@ export default {
       this.getimgcode()
     },
     async getCode () {
-      const msg = await this.$http.post('sendSMS',
-        this.$qs.stringify({
-          phoneNumber: this.loginMessage.phoneNumber
-        }))
-      if (msg.data !== 'success') {
-        console.log(msg)
-        return this.$message.error('获取验证码失败！')
+      this.$refs.loginFormRef2.validateField('phoneNumber', async valid => {
+        if (valid) return
+        const msg = await this.$http.post('sendSMS',
+          this.$qs.stringify({
+            phoneNumber: this.loginMessage.phoneNumber
+          }))
+        if (msg.data !== 'success') {
+          return this.$message.error('获取验证码失败！')
+        }
+        this.btnavalible = true
+        this.cangetcode = false
+        this.daojishi()
+        this.$message.success('验证码发送成功！')
+      })
+    },
+    daojishi () {
+      const timeCount = 60
+      if (!this.timer) {
+        this.count = timeCount
+        this.cangetcode = false
+        this.timer = setInterval(() => {
+          if (this.count > 0) {
+            this.count--
+          } else {
+            this.cangetcode = true
+            this.btnavalible = false
+            clearInterval(this.timer)
+            this.timer = null
+          }
+        }, 1000)
       }
-      this.btnavalible = true
-      this.$message.success('验证码发送成功！')
     },
     async login () {
       if (this.activeName === 'zhanghaomimadengluTab') {
@@ -164,7 +186,6 @@ export default {
           this.loginMessage.imgCode = ''
           if (msg.data.message === 'success') {
             localStorage.setItem('checked', this.checked)
-            console.log(this.checked)
             window.sessionStorage.setItem('login', 1)
             this.$message.success('登录成功')
             window.sessionStorage.setItem('jurisdict', msg.data.data.jurisdict)
@@ -183,8 +204,7 @@ export default {
               code: this.loginMessage.code
             }))
           this.btnavalible = false
-          console.log(msg)
-          if (msg.data.message === 200) {
+          if (msg.data.message === 'success') {
             window.sessionStorage.setItem('login', 1)
             this.$message.success('登录成功')
             this.$router.push('/home')
@@ -192,13 +212,6 @@ export default {
             this.$message.error('登录失败')
           }
         })
-      }
-    },
-    forgetpassword () {
-      if (this.activeName === 'zhanghaomimadengluTab') {
-        this.activeName = 'shoujihaodengluTab'
-      } else {
-        this.$message.warning('请使用手机号登录并联系超级管理员修改密码！')
       }
     }
   }
@@ -212,7 +225,6 @@ export default {
   height:100%;
 }
 .login_head{
-    background-color:#fff;
     width:117px;
     height:116px;
     border-radius:3px;
@@ -224,7 +236,6 @@ export default {
 img{
     width:117px;
     height:116px;
-    background-color:#fff;
 }
 .headText{
   position:absolute;
@@ -307,7 +318,6 @@ img{
 .foot {
   display:flex;
   justify-content: space-between;
-  width:160px;
   margin-bottom:10px;
 }
 .pText {

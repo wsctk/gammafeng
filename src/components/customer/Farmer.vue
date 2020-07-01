@@ -7,7 +7,7 @@
       </el-breadcrumb>
       <p class="indexText">农资商</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="用户名：" class="firInput" prop="wechatName">
           <el-input placeholder="请输入" v-model="queryInfo.wechatName" @keydown.enter.native="queryinfo"></el-input>
@@ -21,35 +21,42 @@
         </el-form-item>
       </el-form>
       <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="用户ID">
+        <el-table-column align="center" prop="id" label="用户ID" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="wechatName" label="用户名">
+        <el-table-column align="center" prop="wechatName" label="用户名" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="wechatAvatar" label="微信头像">
-          <template v-slot="scope">
+        <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
+          <!-- <template v-slot="scope">
             <img :src=scope.row.wechatAvatar style="width:50px;height:50px;" />
+          </template> -->
+          <template v-slot="scope">
+            <el-image
+              style="width: 50px; height: 50px"
+              :src="scope.row.wechatAvatar"
+              :preview-src-list="[scope.row.wechatAvatar]">
+            </el-image>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="phoneNumber" label="手机号">
+        <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="70px">
         </el-table-column>
-        <el-table-column align="center" prop="statusState" label="身份状态">
+        <el-table-column align="center" prop="statusState" label="身份状态" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="points" label="用户积分">
+        <el-table-column align="center" prop="points" label="用户积分" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="commissionRate" label="商品佣金分成比例">
+        <el-table-column align="center" prop="commissionRate" label="商品佣金比例" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="distributionRate" label="派单佣金分成比例">
+        <el-table-column align="center" prop="distributionRate" label="派单佣金比例" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="balance" label="钱包余额">
+        <el-table-column align="center" prop="balance" label="钱包余额" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="parentPhoneNumber" label="邀请人">
+        <el-table-column align="center" prop="parentPhoneNumber" label="邀请人" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope" width="150px">
+        <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope" min-width="100px">
           <template>
             {{scope.row.registerTime | dateFormat}}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
+        <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
           <template>
             <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
             <el-button size="small" type="danger" @click="removefarmer(scope.row.id)">删除</el-button>
@@ -64,14 +71,14 @@
       <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="17" :offset="3">
-            <el-form-item label="商品佣金分成比例：" prop="commissionRate">
+            <el-form-item label="商品佣金比例：" prop="commissionRate">
               <el-input v-model="editForm.commissionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="17" :offset="3">
-            <el-form-item label="派单佣金分成比例：" prop="distributionRate">
+            <el-form-item label="派单佣金比例：" prop="distributionRate">
               <el-input v-model="editForm.distributionRate"></el-input>
             </el-form-item>
           </el-col>
@@ -132,7 +139,6 @@ export default {
     },
     async getCustomerList () {
       const msg = await this.$http.get('user/userList', { params: { userStatus: 2, pageSize: this.pageSize, pageNum: this.pageNum } })
-      console.log(msg.data.maxPage)
       if (msg.status !== 200) {
         return this.$message.error('获取农资商列表失败！')
       }
@@ -154,7 +160,6 @@ export default {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('user/userList', { params: this.queryInfo })
-      console.log(msg)
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
@@ -177,7 +182,6 @@ export default {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
         const msg = await this.$http.post('user/updateUser', this.$qs.stringify({ commissionRate: this.editForm.commissionRate, parentPhoneNumber: this.editForm.parentPhoneNumber, distributionRate: this.editForm.distributionRate, id: this.editForm.id }))
-        console.log(this.editForm)
         if (msg.status !== 200) {
           this.dialogVisible1 = false
           return this.$message.error('编辑农资商信息失败！')
@@ -204,7 +208,6 @@ export default {
         return this.$message.info('已取消删除')
       }
       const msg = await this.$http.delete('user/deleteUser', { params: { id: id } })
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('删除飞手失败')
       }
@@ -229,6 +232,9 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.main {
+  height:630px;
+}
 .el-card {
   margin: 35px 25px;
 }
@@ -245,6 +251,9 @@ export default {
 }
 .anniu {
   margin-left: 25px;
+}
+/deep/.el-pagination {
+  text-align: center;
 }
 /deep/.el-pagination__jump {
   margin-left: -8px;
@@ -270,9 +279,9 @@ export default {
 /deep/.el-input__inner {
   border-radius: 8px;
 }
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
-}
+// /deep/.el-pagination.is-background .btn-prev {
+//   margin-left:825px;
+// }
 .slotText {
   color: #606266;
   font-weight: 400;

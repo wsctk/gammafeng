@@ -7,7 +7,7 @@
       </el-breadcrumb>
       <p class="indexText">分销记录</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="商品名：" class="firInput" prop="goodsName">
           <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="queryretail"></el-input>
@@ -100,7 +100,6 @@ export default {
   methods: {
     async getInformationList () {
       const msg = await this.$http.get('distribution/getDistribution', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
-      console.log(msg.data)
       if (msg.status !== 200) {
         this.$message.error('获取分销列表失败！')
       }
@@ -115,7 +114,6 @@ export default {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('distribution/getDistribution', { params: this.queryInfo })
-      console.log(msg.data)
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询失败！')
@@ -142,6 +140,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.main {
+  height:630px;
+  overflow: auto;
+}
 .el-card {
   margin: 35px 25px;
 }

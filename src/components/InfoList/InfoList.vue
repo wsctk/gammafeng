@@ -6,7 +6,7 @@
       </el-breadcrumb>
       <p class="indexText">资讯管理</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="文章名称" class="firInput" prop="articleName">
           <el-input placeholder="请输入" v-model="queryInfo.articleName" @keydown.enter.native="queryinfo"></el-input>
@@ -21,32 +21,38 @@
         </el-form-item>
       </el-form>
       <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
-      <el-table max-height=400 :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="图文ID">
+      <div class="tablediv">
+      <el-table :data="tableData" style="width: 100%" border class="table-fixed" height="100%">
+        <el-table-column align="center" prop="id" label="图文ID" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="articleName" label="文章名称">
+        <el-table-column align="center" prop="articleName" label="文章名称" min-width="150px">
         </el-table-column>
-        <el-table-column align="center" label="封面图片">
+        <el-table-column align="center" label="封面图片" min-width="70px">
           <template v-slot="scope">
-            <img :src=scope.row.cover style="width: 50px; height: 50px" />
+            <el-image
+              style="width: 40px; height: 40px"
+              :src="scope.row.cover"
+              :preview-src-list="[scope.row.cover]">
+            </el-image>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="createTime" label="发布时间" width="150px">
+        <el-table-column align="center" prop="createTime" label="发布时间" min-width="200px">
           <template v-slot="scope">
             {{ scope.row.createTime | dateFormat}}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="readNumber" label="查看人数">
+        <el-table-column align="center" prop="readNumber" label="查看人数" min-width="80px">
         </el-table-column>
-        <el-table-column align="center" prop="orderStateName" label="状态">
+        <el-table-column align="center" prop="orderStateName" label="状态" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
+        <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
           <template>
             <el-button size="small" type="primary" @click="showeditform(scope.row)">编辑</el-button>
             <el-button size="small" type="danger" @click="removeuser(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
-    </el-table>
+      </el-table>
+      </div>
     <el-pagination
       @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
@@ -111,7 +117,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="submitaddinfo">确定</el-button>
+        <el-button type="primary" @click="submitaddinfo" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑资讯" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
@@ -175,6 +181,7 @@
 export default {
   data () {
     return {
+      zhinenganyici: false,
       tableData: [],
       total: 400,
       pageSize: 10,
@@ -212,7 +219,6 @@ export default {
   },
   created () {
     this.getInformationList()
-    this.getinfopage()
   },
   methods: {
     resetQueryForm () {
@@ -222,7 +228,6 @@ export default {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('information/selectInformation', { params: this.queryInfo })
-      console.log(msg)
       if (msg.status !== 200) {
         this.resetQueryForm()
         this.$message.error('查询失败！')
@@ -232,36 +237,39 @@ export default {
       this.maxPage = msg.data.maxPage
     },
     async getInformationList () {
-      const msg = await this.$http.get('information/getInformationList')
-      console.log(msg)
+      const msg = await this.$http.get('information/selectInformation', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
         return this.$message.error('获取资讯列表失败！')
       }
-      this.tableData = msg.data
+      this.tableData = msg.data.rows
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
     uploadaddFormFile (params) {
-      console.log('上传了一张封面图片')
     },
     async submitaddinfo () {
       this.$refs.additionalInfoRef.validate(async valid => {
         if (!valid) return
+        if (!this.$refs.addimgRef) {
+          return this.$message.error('请添加图片之后再提交！')
+        }
         const formData = new FormData()
-        formData.append('file', this.$refs.addimgRef.uploadFiles[0].raws)
+        formData.append('file', this.$refs.addimgRef.uploadFiles[0].raw)
         formData.append('articleName', this.additionalInfo.title)
         formData.append('content', this.additionalInfo.article)
         formData.append('state', this.additionalInfo.state)
+        this.zhinenganyici = true
         const msg = await this.$http.post('information/addInformation', formData)
         if (msg.status !== 200) {
-          return this.$message.error('添加商品信息失败！')
+          return this.$message.error('添加文章资讯失败！')
         }
-        this.$message.success('添加商品成功！')
+        this.$message.success('添加文章资讯成功！')
         this.getInformationList()
         this.dialogVisible = false
       })
     },
     closeaddform () {
+      this.zhinenganyici = false
       this.$refs.addimgRef.clearFiles()
       this.$refs.additionalInfoRef.resetFields()
     },
@@ -271,7 +279,6 @@ export default {
       this.fileList.push({ url: user.cover })
     },
     uploadeditFormFile (params) {
-      console.log('上传了一张封面图片')
     },
     async submiteditinfo () {
       this.$refs.editFormRef.validate(async valid => {
@@ -280,7 +287,7 @@ export default {
         if (!this.$refs.editimgRef.uploadFiles[0].raws) {
           formData.append('path', this.$refs.editimgRef.uploadFiles[0].url)
         } else {
-          formData.append('file', this.$refs.editimgRef.uploadFiles[0].raws)
+          formData.append('file', this.$refs.editimgRef.uploadFiles[0].raw)
         }
         formData.append('articleName', this.editForm.articleName)
         formData.append('content', this.editForm.article)
@@ -310,7 +317,6 @@ export default {
       this.dialogVisible3 = true
     },
     handleRemove (file, fileList) {
-      console.log(file, fileList)
     },
     async removeuser (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该条资讯, 是否继续?', '提示', {
@@ -321,41 +327,53 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      const msg = await this.$http.post('user/deleteUser', this.$qs.stringify({ id: id }))
-      console.log(msg)
+      const msg = await this.$http.post('information/deleteInformationList', this.$qs.stringify({ id: id }))
       if (msg.status !== 200) {
         return this.$message.error('删除用户失败')
       }
       this.$message.success('用户已删除')
-      this.getCustomerList()
+      this.getInformationList()
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.articleName && !this.queryInfo.createTime) {
-        return this.getinfopage()
+        return this.getInformationList()
       }
       this.queryinfo()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.articleName && !this.queryInfo.createTime) {
-        return this.getinfopage()
+        return this.getInformationList()
       }
       this.queryinfo()
-    },
-    async getinfopage () {
-      const msg = await this.$http.get('information/getInformationByPage', { params: { page: this.pageNum, size: this.pageSize } })
-      if (msg.status !== 200) {
-        return this.$message.error('获取分页失败')
-      }
-      this.total = msg.data.total
-      this.maxPage = Math.ceil((msg.data.total / this.pageSize))
-      this.tableData = msg.data.data
     }
   }
 }
 </script>
 <style lang="less" scoped>
+// .table-fixed {
+// /deep/ .el-table__fixed-right {
+// height: 100% !important;
+// }
+// /deep/ .el-table__fixed {
+// height: 110px !important;
+// }
+// }
+.tablediv {
+  @media only screen and (min-height: 768px) and (max-height: 1024px) {
+    height:400px;
+  }
+  @media only screen and (min-height: 468px) and (max-height: 768px) {
+    height:300px;
+  }
+  @media only screen and (max-height: 468px) {
+    height:200px;
+  }
+}
+.main {
+  height:630px;
+}
 .addbtn {
     margin-left:27px;
     margin-bottom: 10px;
@@ -376,6 +394,9 @@ export default {
 }
 .anniu {
   margin-left: 25px;
+}
+/deep/.el-pagination {
+  text-align: center;
 }
 /deep/.el-pagination__jump {
   margin-left: -8px;
@@ -400,9 +421,6 @@ export default {
 }
 /deep/.el-input__inner {
   border-radius: 8px;
-}
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
 }
 .slotText {
   color: #606266;

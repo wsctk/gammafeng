@@ -7,7 +7,7 @@
       </el-breadcrumb>
       <p class="indexText">管理员管理</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="账号：" class="firInput" prop="userName">
           <el-input placeholder="请输入" v-model="queryInfo.userName"></el-input>
@@ -103,7 +103,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="addkeeper">确定</el-button>
+        <el-button type="primary" @click="addkeeper" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑管理员" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
@@ -155,7 +155,15 @@
 <script>
 export default {
   data () {
+    var checkMobile = (rule, value, cb) => {
+      const regMobile = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
+      if (regMobile.test(value)) {
+        return cb()
+      }
+      cb(new Error('请输入合法的手机号码'))
+    }
     return {
+      zhinenganyici: false,
       tableData: [],
       total: 400,
       pageSize: 10,
@@ -188,7 +196,8 @@ export default {
           { required: true, message: '请输入密码', trigger: 'blur' }
         ],
         phoneNumber: [
-          { required: true, message: '请输入电话号码', trigger: 'blur' }
+          { required: true, message: '请输入手机号码', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }
         ]
       },
       editForm: {},
@@ -239,7 +248,6 @@ export default {
     },
     async getInformationList () {
       const msg = await this.$http.get('admin/getAdminList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('获取管理员列表失败！')
       }
@@ -267,10 +275,14 @@ export default {
     async addkeeper () {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
+        this.zhinenganyici = true
         const msg = await this.$http.post('admin/addAdmin', this.$qs.stringify(this.addForm))
         if (msg.status !== 200) {
           this.dialogVisible = false
           return this.$message.error('新增管理员失败！')
+        }
+        if (msg.data.code === 3) {
+          return this.$message.error('管理员已存在！')
         }
         this.getInformationList()
         this.$message.success('新增管理员成功！')
@@ -278,6 +290,7 @@ export default {
       })
     },
     closeaddform () {
+      this.zhinenganyici = false
       this.$refs.addFormRef.resetFields()
     },
     showeditform (user) {
@@ -395,5 +408,9 @@ export default {
   color: #606266;
   font-weight: 400;
   font-size: 13px;
+}
+.main {
+  height:630px;
+  overflow: auto;
 }
 </style>

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { Button, Input, Form, FormItem, Message, Container, Header, Aside, Main, Menu, Submenu, MenuItem, MenuItemGroup, Breadcrumb, BreadcrumbItem, Card, Row, Col, Table, TableColumn, Switch, Tooltip, Pagination, Dialog, MessageBox, Tag, Tree, Select, Option, Cascader, Alert, TabPane, Tabs, Step, Steps, Checkbox, CheckboxGroup, Upload, Link, Footer, Avatar, Radio, RadioGroup, DatePicker } from 'element-ui'
+import { Button, Input, Form, FormItem, Message, Container, Header, Aside, Main, Menu, Submenu, MenuItem, MenuItemGroup, Breadcrumb, BreadcrumbItem, Card, Row, Col, Table, TableColumn, Switch, Tooltip, Pagination, Dialog, MessageBox, Tag, Tree, Select, Option, Cascader, Alert, TabPane, Tabs, Step, Steps, Checkbox, CheckboxGroup, Upload, Link, Footer, Avatar, Radio, RadioGroup, DatePicker, Image } from 'element-ui'
 Vue.use(Button)
 Vue.use(Form)
 Vue.use(FormItem)
@@ -42,5 +42,6 @@ Vue.use(Avatar)
 Vue.use(Radio)
 Vue.use(RadioGroup)
 Vue.use(DatePicker)
+Vue.use(Image)
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm

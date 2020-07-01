@@ -7,7 +7,7 @@
       </el-breadcrumb>
       <p class="indexText">分类管理</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="分类名称：" class="firInput" prop="categoryName">
           <el-input placeholder="请输入" v-model="queryInfo.categoryName" @keydown.enter.native="querycate"></el-input>
@@ -69,7 +69,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible1 = false">取消</el-button>
-        <el-button type="primary" @click="addcate">确定</el-button>
+        <el-button type="primary" @click="addcate" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑分类" :visible.sync="dialogVisible2" width="40%" @close="closeeditform">
@@ -101,6 +101,7 @@
 export default {
   data () {
     return {
+      zhinenganyici: false,
       tableData: [],
       total: 400,
       pageNum: 1,
@@ -118,12 +119,18 @@ export default {
       addFormRules: {
         categoryName: [
           { required: true, message: '请输入分类名称', trigger: 'blur' }
+        ],
+        categoryState: [
+          { required: true, message: '请输入分类状态', trigger: 'blur' }
         ]
       },
       editForm: {},
       editFormRules: {
         categoryName: [
           { required: true, message: '请输入分类名称', trigger: 'blur' }
+        ],
+        categoryState: [
+          { required: true, message: '请输入分类状态', trigger: 'blur' }
         ]
       },
       dialogVisible1: false,
@@ -141,7 +148,6 @@ export default {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('category/categoryList', { params: { categoryName: this.queryInfo.categoryName } })
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('查询失败！')
       }
@@ -151,7 +157,6 @@ export default {
     },
     async getInformationList () {
       const msg = await this.$http.get('category/categoryList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
-      console.log(msg.data.data)
       if (msg.status !== 200) {
         return this.$message.error('获取分类列表失败！')
       }
@@ -172,8 +177,8 @@ export default {
     async addcate () {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
+        this.zhinenganyici = true
         const msg = await this.$http.post('category/addCategory', this.$qs.stringify(this.addForm))
-        console.log(msg)
         if (msg.status !== 200) {
           return this.$message.error('添加分类失败！')
         }
@@ -183,6 +188,7 @@ export default {
       })
     },
     closeaddform () {
+      this.zhinenganyici = false
       this.$refs.addFormRef.resetFields()
     },
     showDialogForm (user) {
@@ -215,7 +221,6 @@ export default {
         return this.$message.info('已取消删除')
       }
       const msg = await this.$http.post('category/deleteCategory', this.$qs.stringify({ id: id }))
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('删除分类失败！')
       }
@@ -240,6 +245,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.main {
+  height:630px;
+  overflow: auto;
+}
 .addbtn {
     margin-left:27px;
     margin-bottom: 10px;

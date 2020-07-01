@@ -7,7 +7,7 @@
       </el-breadcrumb>
       <p class="indexText">订单管理</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="订单ID：" class="firInput" prop="orderNumber">
           <el-input placeholder="请输入" v-model="queryInfo.orderNumber" @keydown.enter.native="queryinfo"></el-input>
@@ -106,7 +106,6 @@ export default {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('order/orderList', { params: this.queryInfo })
-      console.log(msg)
       if (msg.status !== 200) {
         this.resetQueryForm()
         return this.$message.error('查询订单失败！')
@@ -136,7 +135,6 @@ export default {
     },
     async getorderlist () {
       const msg = await this.$http.get('order/orderList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
-      console.log(msg)
       if (msg.status !== 200) {
         this.$message.error('获取订单列表失败！')
       }
@@ -185,6 +183,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.main {
+  height:630px;
+  overflow: auto;
+}
 .el-card {
   margin: 35px 25px;
 }

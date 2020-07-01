@@ -7,7 +7,7 @@
       </el-breadcrumb>
       <p class="indexText">提现记录</p>
     </div>
-    <el-card>
+    <el-card class="main">
       <el-form :inline="true" :model="queryinfo" ref="queryInfoRef">
         <el-form-item label="用户手机号：" class="firInput" prop="phoneNumber">
           <el-input placeholder="请输入" v-model="queryinfo.phoneNumber" @keydown.enter.native="querylist"></el-input>
@@ -101,7 +101,6 @@ export default {
     },
     async getCustomerList () {
       const msg = await this.$http.get('draw/drawList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
-      console.log(msg.data.data)
       if (msg.status !== 200) {
         return this.$message.error('获取提现列表失败！')
       }
@@ -182,7 +181,6 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('提交提现结果失败！')
       }
-      console.log(this.checked)
       this.$message.success('提交提现结果成功！')
       this.getCustomerList()
     },
@@ -204,6 +202,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.main {
+  height:630px;
+  overflow: auto;
+}
 .el-card {
   margin: 35px 25px;
 }
