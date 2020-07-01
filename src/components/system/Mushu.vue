@@ -8,25 +8,21 @@
         <p class="indexText">亩数定价范围</p>
       </div>
       <el-card class="main">
-        <el-row v-for="item in rowlist" :key="item.id">
+        <div v-for="item in rowlist" :key="item.id">
             <template>
-              <el-col :span="1" class="middletext">
+              <span class="middletext">
                 未超出
-              </el-col>
-              <el-col :span="1">
-                <el-input placeholder="亩数范围" v-model="item.end"></el-input>
-              </el-col>
-              <el-col :span="2" class="middletext">
+              </span>
+              <input placeholder="亩数范围" v-model="item.end" />
+              <span class="middletext">
                 亩的每亩价格为
-              </el-col>
-              <el-col :span="1">
-                <el-input  placeholder="请输入价格" v-model="item.price"></el-input>
-              </el-col>
-              <el-col :span="1" class="middletext">
+              </span>
+              <input  placeholder="请输入价格" v-model="item.price" />
+              <span class="middletext">
                 元
-              </el-col>
+              </span>
             </template>
-        </el-row>
+        </div>
         <el-button type="warning" @click="add" class="btn">新增</el-button>
         <el-button type="danger" @click="remove" class="btn">删减</el-button>
         <el-button type="primary" @click="rangeload" class="btn">提交</el-button>
@@ -87,8 +83,15 @@ export default {
 .el-button+.el-button {
   margin-left: 50px;
 }
-.middletext {
+input {
+  width:100px;
+  height:24px;
   text-align: center;
+  margin:0 10px 0 10px;
+  border-radius: 10px;
+}
+.middletext {
+  display:inline-block;
   height:40px;
   line-height:40px;
 }

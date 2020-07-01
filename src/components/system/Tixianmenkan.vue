@@ -3,9 +3,9 @@
       <div class="head">
         <el-breadcrumb separator-class="el-icon-arrow-right">
             <el-breadcrumb-item>系统设置</el-breadcrumb-item>
-            <el-breadcrumb-item>通用配置</el-breadcrumb-item>
+            <el-breadcrumb-item>分销提现门槛</el-breadcrumb-item>
         </el-breadcrumb>
-        <p class="indexText">通用配置</p>
+        <p class="indexText">分销提现门槛</p>
       </div>
       <el-card class="main">
         <el-row>
@@ -17,7 +17,11 @@
             </el-form>
           </el-col>
         </el-row>
-        <el-button type="primary" @click="save">提交</el-button>
+        <el-row>
+          <el-col :span="3" :offset="1">
+            <el-button type="primary" @click="save">提交</el-button>
+          </el-col>
+        </el-row>
       </el-card>
     </div>
 </template>
@@ -45,14 +49,10 @@ export default {
 }
 .main {
   height:630px;
-  overflow: auto;
 }
 .head {
   background-color: #fff;
   height: 88px;
-}
-.el-button--primary {
-  margin-left: 350px;
 }
 .el-row {
   padding-left:30px;

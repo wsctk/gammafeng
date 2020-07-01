@@ -25,50 +25,52 @@
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="订单ID">
-        </el-table-column>
-        <el-table-column align="center" prop="name" label="用户名">
-        </el-table-column>
-        <el-table-column align="center" prop="phone_number" label="手机号码">
-        </el-table-column>
-        <el-table-column align="center" prop="demand_mu" label="需求亩数">
-        </el-table-column>
-        <el-table-column align="center" prop="service_time" label="预约时间" width="150px">
-          <template v-slot="scope">
-            {{ scope.row.service_time | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="order_amount" label="订单金额(元)">
-        </el-table-column>
-        <el-table-column align="center" prop="pay_time" label="付款时间" width="150px">
-          <template v-slot="scope">
-            <p v-if="scope.row.pay_time">{{ scope.row.pay_time | dateFormat}}</p>
-            <p v-else></p>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="feishou_name" label="服务飞手">
-        </el-table-column>
-        <el-table-column align="center" prop="order_state_name" label="订单状态">
-        </el-table-column>
-        <el-table-column align="center" prop="create_time" label="创建时间" width="150px">
-          <template v-slot="scope">
-            {{ scope.row.create_time | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="process_time" label="处理时间" width="150px" v-slot="scope">
-          <template>
-            <p v-if="scope.row.process_time">{{ scope.row.process_time | dateFormat}}</p>
-            <p v-else></p>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="220px" v-slot="scope">
-          <template>
-            <el-button size="small" type="primary" @click="showAppoint(scope.row)">添加飞手</el-button>
-            <el-button size="small" type="primary" @click="showorderconfirm(scope.row)">订单确认</el-button>
-          </template>
-        </el-table-column>
-    </el-table>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="id" label="订单ID" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="name" label="用户名" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="phone_number" label="手机号码" min-width="100px">
+          </el-table-column>
+          <el-table-column align="center" prop="demand_mu" label="需求亩数" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="service_time" label="预约时间" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.service_time | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="order_amount" label="订单金额(元)" min-width="100px">
+          </el-table-column>
+          <el-table-column align="center" prop="pay_time" label="付款时间" min-width="200px">
+            <template v-slot="scope">
+              <p v-if="scope.row.pay_time">{{ scope.row.pay_time | dateFormat}}</p>
+              <p v-else></p>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="feishou_name" label="服务飞手(手机号码)" min-width="140px">
+          </el-table-column>
+          <el-table-column align="center" prop="order_state_name" label="订单状态" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="create_time" label="创建时间" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.create_time | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="process_time" label="处理时间" min-width="200px" v-slot="scope">
+            <template>
+              <p v-if="scope.row.process_time">{{ scope.row.process_time | dateFormat}}</p>
+              <p v-else></p>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" min-width="200px" v-slot="scope" fixed="right">
+            <template>
+              <el-button size="small" type="primary" @click="showAppoint(scope.row)">添加飞手</el-button>
+              <el-button size="small" type="primary" @click="showorderconfirm(scope.row)">订单确认</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -287,12 +289,12 @@ export default {
 .el-card {
   margin: 35px 25px;
 }
-.el-table {
-  @media only screen and (min-height: 200px) and (max-height: 468px) {
-    max-height:400px;
+.tablediv {
+  @media only screen and (min-width: 1112px) {
+    height:450px;
   }
-  @media only screen and (min-height: 468px) and (max-height: 768px) {
-    max-height:300px;
+  @media only screen and (max-width: 1112px) {
+    height:360px;
   }
 }
 .head {

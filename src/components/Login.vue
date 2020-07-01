@@ -1,5 +1,5 @@
 <template>
-    <div class="login_container" min-height="1000px">
+    <div class="login_container">
         <div class="login_head">
           <img src="../assets/logo.png" />
         </div>
@@ -21,7 +21,7 @@
                     </el-col>
                     <el-col :span="7" class="btndiv">
                       <el-button class="yanzhengma" @click="uploadimgcode">
-                        <img style="width:100px;height:40px" :src="img" />
+                        <img style="width:100%;height:40px" :src="img" />
                       </el-button>
                     </el-col>
                   </el-row>
@@ -52,9 +52,6 @@
           <el-row class="xuanxiangrow">
             <el-col :span="5">
               <el-checkbox v-model="checked">自动登录</el-checkbox>
-            </el-col>
-            <el-col :span="14">
-              <div class="zhanwei">123</div>
             </el-col>
           </el-row>
           <el-button type="primary" size="small" class="dlbtn" @click="login">登录</el-button>
@@ -252,7 +249,7 @@ img{
   top:53%;
   transform:translate(-50%,-50%);
   height:200px;
-  width:368px;
+  width:25%;
 }
 /deep/.el-tabs__item {
   font-size:16px;
@@ -261,7 +258,7 @@ img{
   color: rgba(0, 0, 0, 0.647058823529412);
 }
 .lastFormItem {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 .xuanxiangrow {
   margin:10px 0;
@@ -297,11 +294,8 @@ img{
 /deep/.el-link {
   margin-left:20px;
 }
-.zhanwei{
-  opacity: 0;
-}
 .dlbtn {
-  width:368px;
+  width:100%;
   margin: 0;
 }
 .el-footer{

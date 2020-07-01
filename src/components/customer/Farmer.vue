@@ -20,49 +20,48 @@
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="用户ID" min-width="50px">
-        </el-table-column>
-        <el-table-column align="center" prop="wechatName" label="用户名" min-width="50px">
-        </el-table-column>
-        <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
-          <!-- <template v-slot="scope">
-            <img :src=scope.row.wechatAvatar style="width:50px;height:50px;" />
-          </template> -->
-          <template v-slot="scope">
-            <el-image
-              style="width: 50px; height: 50px"
-              :src="scope.row.wechatAvatar"
-              :preview-src-list="[scope.row.wechatAvatar]">
-            </el-image>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="70px">
-        </el-table-column>
-        <el-table-column align="center" prop="statusState" label="身份状态" min-width="50px">
-        </el-table-column>
-        <el-table-column align="center" prop="points" label="用户积分" min-width="50px">
-        </el-table-column>
-        <el-table-column align="center" prop="commissionRate" label="商品佣金比例" min-width="50px">
-        </el-table-column>
-        <el-table-column align="center" prop="distributionRate" label="派单佣金比例" min-width="50px">
-        </el-table-column>
-        <el-table-column align="center" prop="balance" label="钱包余额" min-width="50px">
-        </el-table-column>
-        <el-table-column align="center" prop="parentPhoneNumber" label="邀请人" min-width="50px">
-        </el-table-column>
-        <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope" min-width="100px">
-          <template>
-            {{scope.row.registerTime | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
-          <template>
-            <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="removefarmer(scope.row.id)">删除</el-button>
-          </template>
-        </el-table-column>
-    </el-table>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="id" label="用户ID" min-width="50px">
+          </el-table-column>
+          <el-table-column align="center" prop="wechatName" label="用户名" min-width="50px">
+          </el-table-column>
+          <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
+            <template v-slot="scope">
+              <el-image
+                style="width: 50px; height: 50px"
+                :src="scope.row.wechatAvatar"
+                :preview-src-list="[scope.row.wechatAvatar]">
+              </el-image>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="statusState" label="身份状态" min-width="50px">
+          </el-table-column>
+          <el-table-column align="center" prop="points" label="用户积分" min-width="50px">
+          </el-table-column>
+          <el-table-column align="center" prop="commissionRate" label="商品佣金比例" min-width="50px">
+          </el-table-column>
+          <el-table-column align="center" prop="distributionRate" label="派单佣金比例" min-width="50px">
+          </el-table-column>
+          <el-table-column align="center" prop="balance" label="钱包余额" min-width="50px">
+          </el-table-column>
+          <el-table-column align="center" prop="parentPhoneNumber" label="邀请人" min-width="50px">
+          </el-table-column>
+          <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope" min-width="100px">
+            <template>
+              {{scope.row.registerTime | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
+            <template>
+              <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
+              <el-button size="small" type="danger" @click="removefarmer(scope.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" background :page-sizes="[1, 5, 10, 20]" :page-size="pageSize" :page-count="11" :current-page="pageNum" layout="total, slot, prev, pager, next, sizes, jumper" :total="total">
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
@@ -232,6 +231,14 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.tablediv {
+  @media only screen and (min-width: 1112px) {
+    height:450px;
+  }
+  @media only screen and (max-width: 1112px) {
+    height:360px;
+  }
+}
 .main {
   height:630px;
 }

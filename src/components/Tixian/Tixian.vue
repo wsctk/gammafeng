@@ -24,43 +24,45 @@
           <el-button plain @click="resetField">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="提现记录ID">
-        </el-table-column>
-        <el-table-column align="center" prop="gmUser.wechatName" label="用户名">
-        </el-table-column>
-        <el-table-column align="center" prop="gmUser.phoneNumber" label="手机号码">
-        </el-table-column>
-        <el-table-column align="center" prop="gmUser.userStatus" label="用户身份">
-        </el-table-column>
-        <el-table-column align="center" prop="drawMoney" label="提现金额">
-        </el-table-column>
-        <el-table-column align="center" prop="balance" label="钱包余额">
-        </el-table-column>
-        <el-table-column align="center" prop="drawTime" label="发起时间" width="150px">
-          <template v-slot="scope">
-            {{ scope.row.drawTime | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="accountTime" label="到账时间" width="150px">
-          <template v-slot="scope">
-            {{ scope.row.accountTime | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="drawStatus" label="提现状态" v-slot="scope" width="100px">
-          <template>
-            <el-button size="small" type="success" icon="el-icon-check" circle v-if="scope.row.drawStatus==='1'"></el-button>
-            <el-button size="small" type="danger" icon="el-icon-close" circle v-else-if="scope.row.drawStatus==='2'"></el-button>
-            <el-button size="small" type="warning" icon="el-icon-loading" circle v-else></el-button>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
-          <template>
-            <el-button size="small" type="primary" @click="tixiansuccess(scope.row)">成功</el-button>
-            <el-button size="small" type="danger" @click="tixianfailed(scope.row)">失败</el-button>
-          </template>
-        </el-table-column>
-    </el-table>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="id" label="提现记录ID" min-width="100px">
+          </el-table-column>
+          <el-table-column align="center" prop="gmUser.wechatName" label="用户名" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="gmUser.phoneNumber" label="手机号码" min-width="120px">
+          </el-table-column>
+          <el-table-column align="center" prop="gmUser.userStatus" label="用户身份" min-width="100px">
+          </el-table-column>
+          <el-table-column align="center" prop="drawMoney" label="提现金额(元)" min-width="120px">
+          </el-table-column>
+          <el-table-column align="center" prop="balance" label="钱包余额(元)" min-width="120px">
+          </el-table-column>
+          <el-table-column align="center" prop="drawTime" label="发起时间" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.drawTime | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="accountTime" label="到账时间" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.accountTime | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="drawStatus" label="提现状态" v-slot="scope" min-width="150px">
+            <template>
+              <el-button size="small" type="success" icon="el-icon-check" circle v-if="scope.row.drawStatus==='1'"></el-button>
+              <el-button size="small" type="danger" icon="el-icon-close" circle v-else-if="scope.row.drawStatus==='2'"></el-button>
+              <el-button size="small" type="warning" icon="el-icon-loading" circle v-else></el-button>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
+            <template>
+              <el-button size="small" type="primary" @click="tixiansuccess(scope.row)">成功</el-button>
+              <el-button size="small" type="danger" @click="tixianfailed(scope.row)">失败</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     <el-pagination
       @size-change="handleSizeChange" @current-change="handleCurrentChange"
       background
@@ -202,9 +204,16 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.tablediv {
+  @media only screen and (min-width: 1162px) {
+    height:450px;
+  }
+  @media only screen and (max-width: 1162px) {
+    height:360px;
+  }
+}
 .main {
   height:630px;
-  overflow: auto;
 }
 .el-card {
   margin: 35px 25px;
@@ -222,6 +231,9 @@ export default {
 }
 .anniu {
   margin-left: 25px;
+}
+/deep/.el-pagination {
+  text-align: center;
 }
 /deep/.el-pagination__jump {
   margin-left: -8px;
@@ -246,9 +258,6 @@ export default {
 }
 /deep/.el-input__inner {
   border-radius: 8px;
-}
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
 }
 .slotText {
   color: #606266;

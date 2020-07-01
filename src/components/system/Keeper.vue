@@ -27,31 +27,34 @@
         </el-form-item>
       </el-form>
       <el-button class="addbtn" type="primary" size="large" @click="showaddform">+ 新建</el-button>
-      <el-table max-height=400 :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="用户ID">
-        </el-table-column>
-        <el-table-column align="center" prop="realName" label="管理员姓名">
-        </el-table-column>
-        <el-table-column align="center" prop="userName" label="管理员帐号">
-        </el-table-column>
-        <el-table-column align="center" prop="phoneNumber" label="手机号">
-        </el-table-column>
-        <el-table-column align="center" prop="status" label="管理员状态">
-        </el-table-column>
-        <el-table-column align="center" prop="createTime" label="创建时间" width="150px">
-          <template v-slot="scope">
-            {{ scope.row.createTime | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
-          <template>
-            <el-button size="small" type="primary" @click="showeditform(scope.row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="removekeeper(scope.row.id)">删除</el-button>
-          </template>
-        </el-table-column>
-    </el-table>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="id" label="用户ID" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="realName" label="管理员姓名" min-width="80px">
+          </el-table-column>
+          <el-table-column align="center" prop="userName" label="管理员帐号" min-width="80px">
+          </el-table-column>
+          <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="120px">
+          </el-table-column>
+          <el-table-column align="center" prop="status" label="管理员状态" min-width="80px">
+          </el-table-column>
+          <el-table-column align="center" prop="createTime" label="创建时间" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.createTime | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
+            <template>
+              <el-button size="small" type="primary" @click="showeditform(scope.row)">编辑</el-button>
+              <el-button size="small" type="danger" @click="removekeeper(scope.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     <el-pagination
-      @size-change="handleSizeChange" @current-change="handleCurrentChange"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
       :page-size="pageSize"
@@ -356,6 +359,14 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.tablediv {
+  @media only screen and (min-width: 1700px) {
+    height:440px;
+  }
+  @media only screen and (max-width: 1700px) {
+    height:361px;
+  }
+}
 .addbtn {
     margin-left:27px;
     margin-bottom: 10px;
@@ -376,6 +387,9 @@ export default {
 }
 .anniu {
   margin-left: 25px;
+}
+/deep/.el-pagination {
+  text-align: center;
 }
 /deep/.el-pagination__jump {
   margin-left: -8px;
@@ -401,9 +415,6 @@ export default {
 /deep/.el-input__inner {
   border-radius: 8px;
 }
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
-}
 .slotText {
   color: #606266;
   font-weight: 400;
@@ -411,6 +422,5 @@ export default {
 }
 .main {
   height:630px;
-  overflow: auto;
 }
 </style>

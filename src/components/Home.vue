@@ -6,13 +6,7 @@
             <span>伽马蜂管理后台</span>
           </div>
           <div class="headR">
-            <div class="left"><i class="el-icon-s-fold"></i></div>
-            <div class="right">
-              <span><i class="el-icon-search"></i></span>
-              <span><i class="el-icon-bell"></i></span>
-              <el-avatar size="small" fit="fill" :src='"https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"'></el-avatar>
-              <el-button size='small' class="quit" @click="quitlogin" type="danger" round>退出登录</el-button>
-            </div>
+            <el-button size='small' class="quit" @click="quitlogin" type="danger" round>退出登录</el-button>
           </div>
         </el-header>
         <el-container>
@@ -157,7 +151,7 @@ export default {
     display: flex;
     align-items: center;
     background-color: #000;
-    height:100%;
+    // height:100%;
     width: 14%;
     color: #fff;
     > span {
@@ -167,19 +161,10 @@ export default {
   > .headR {
     display:flex;
     align-items: center;
-    height:100%;
     border-bottom: 2px solid #eee;
     width:86%;
+    justify-content: flex-end;
   }
-}
-.left {
-  width: 20%;
-}
-.right {
-  display:flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: 80%;
 }
 .quit {
   margin-left: 10px;

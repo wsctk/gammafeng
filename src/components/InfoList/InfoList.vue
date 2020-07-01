@@ -22,7 +22,7 @@
       </el-form>
       <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       <div class="tablediv">
-      <el-table :data="tableData" style="width: 100%" border class="table-fixed" height="100%">
+      <el-table :data="tableData" style="width: 100%" border height="100%">
         <el-table-column align="center" prop="id" label="图文ID" min-width="50px">
         </el-table-column>
         <el-table-column align="center" prop="articleName" label="文章名称" min-width="150px">
@@ -352,23 +352,12 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-// .table-fixed {
-// /deep/ .el-table__fixed-right {
-// height: 100% !important;
-// }
-// /deep/ .el-table__fixed {
-// height: 110px !important;
-// }
-// }
 .tablediv {
-  @media only screen and (min-height: 768px) and (max-height: 1024px) {
-    height:400px;
+  @media only screen and (max-width: 1120px) {
+    height:361px;
   }
-  @media only screen and (min-height: 468px) and (max-height: 768px) {
-    height:300px;
-  }
-  @media only screen and (max-height: 468px) {
-    height:200px;
+  @media only screen and (min-width: 1120px) {
+    height:420px;
   }
 }
 .main {

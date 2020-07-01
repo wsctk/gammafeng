@@ -8,24 +8,20 @@
       <p class="indexText">轮播图管理</p>
     </div>
     <el-card class="main">
-      <el-row>
-        <el-col :span="3" v-for="img in imgslist" :key="img.id" >
-            <el-card>
-              <el-image
-                style="width: 105px; height: 105px"
-                :src="img.route"
-                :preview-src-list="[img.route]">
-              </el-image>
-              <el-link class="lunbobtn" icon="el-icon-close" @click="deleteimg($event)" :data-id="img.id"></el-link>
-            </el-card>
-        </el-col>
-      </el-row>
+      <div v-for="img in imgslist" :key="img.id" class="outerbox">
+        <el-image
+          style="width: 150px; height: 150px"
+          :src="img.route"
+          :preview-src-list="[img.route]">
+        </el-image>
+        <el-button circle class="lunbobtn" type="warning" icon="el-icon-close" @click="deleteimg($event)" :data-id="img.id"></el-button>
+      </div>
       <div v-if="morenimg">
         <img  style="width:200px;height:200px;" src="../../assets/nocan.jpg" />
       </div>
       <el-row>
         <el-col :span="2" class="addbtn">
-          <el-button type="primary" @click="dialogVisible=true">新增轮播图片</el-button>
+          <el-button type="success" @click="dialogVisible=true">新增轮播图片</el-button>
         </el-col>
       </el-row>
     </el-card>
@@ -135,6 +131,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.outerbox {
+  display:inline-block;
+  margin:20px;
+}
 .el-card {
   margin: 35px 25px;
 }
@@ -148,20 +148,16 @@ export default {
 }
 .main {
   height:630px;
-  overflow: auto;
 }
 .addbtn {
   margin-left:24px;
 }
 /deep/.el-card__body {
-  padding-left:20px;
-  padding-right:20px;
-  padding-top:20px;
-  padding-bottom:0px;
+  padding: 20px;
 }
 .lunbobtn {
   position: relative;
-  left:105px;
-  top:-130px;
+  left:-30px;
+  top:-135px;
 }
 </style>
