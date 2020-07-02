@@ -33,34 +33,36 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="small" @click="queryretail">查询</el-button>
-          <el-button plain size="small" @click="resetQueryForm">重置</el-button>
+          <el-button type="primary" @click="queryretail">查询</el-button>
+          <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="did" label="分销ID">
-        </el-table-column>
-        <el-table-column align="center" prop="first_name" label="一级用户">
-        </el-table-column>
-        <el-table-column align="center" prop="seconde_name" label="二级用户">
-        </el-table-column>
-        <el-table-column align="center" prop="goods_name" label="分销商品">
-        </el-table-column>
-        <el-table-column align="center" prop="goods_cover" label="商品图片">
-          <template v-slot="scope">
-            <img :src=scope.row.goods_cover style="wight:50px;height:50px" />
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="order_amount" label="订单金额">
-        </el-table-column>
-        <el-table-column align="center" prop="profit" label="分销收益">
-        </el-table-column>
-        <el-table-column align="center" prop="create_time" label="成单时间" width="150px">
-          <template v-slot="scope">
-            {{ scope.row.create_time | dateFormat}}
-          </template>
-        </el-table-column>
-    </el-table>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="did" label="分销ID" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="first_name" label="一级用户(手机号码)" min-width="150px">
+          </el-table-column>
+          <el-table-column align="center" prop="seconde_name" label="二级用户(手机号码)" min-width="150px">
+          </el-table-column>
+          <el-table-column align="center" prop="goods_name" label="分销商品" min-width="200px" show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column align="center" prop="goods_cover" label="商品图片" min-width="70px">
+            <template v-slot="scope">
+              <img :src=scope.row.goods_cover style="wight:50px;height:50px" />
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="order_amount" label="订单金额(元)" min-width="90px">
+          </el-table-column>
+          <el-table-column align="center" prop="profit" label="分销收益(元)" min-width="90px">
+          </el-table-column>
+          <el-table-column align="center" prop="create_time" label="成单时间" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.create_time | dateFormat}}
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -140,9 +142,16 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.tablediv {
+  @media only screen and (min-width: 1505px) {
+    height:460px;
+  }
+  @media only screen and (max-width: 1505px) {
+    height:380px;
+  }
+}
 .main {
   height:630px;
-  overflow: auto;
 }
 .el-card {
   margin: 35px 25px;
@@ -158,11 +167,11 @@ export default {
 .firInput {
   margin-left: 30px
 }
-// .anniu {
-//   margin-left: 25px;
-// }
 /deep/.el-button--primary {
   margin-left: 30px;
+}
+/deep/.el-pagination{
+  text-align: center;
 }
 /deep/.el-pagination__jump {
   margin-left: -8px;
@@ -187,9 +196,6 @@ export default {
 }
 /deep/.el-input__inner {
   border-radius: 8px;
-}
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
 }
 .slotText {
   color: #606266;

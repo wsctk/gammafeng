@@ -29,7 +29,7 @@
         <el-table :data="tableData" style="width: 100%" border height="100%">
           <el-table-column align="center" prop="id" label="订单ID" min-width="70px">
           </el-table-column>
-          <el-table-column align="center" prop="name" label="用户名" min-width="70px">
+          <el-table-column align="center" prop="wechat_name" label="用户名" min-width="70px">
           </el-table-column>
           <el-table-column align="center" prop="phone_number" label="手机号码" min-width="100px">
           </el-table-column>
@@ -48,7 +48,7 @@
               <p v-else></p>
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="feishou_name" label="服务飞手(手机号码)" min-width="140px">
+          <el-table-column align="center" prop="feishou_name" label="服务飞手" min-width="100px">
           </el-table-column>
           <el-table-column align="center" prop="order_state_name" label="订单状态" min-width="70px">
           </el-table-column>
@@ -65,8 +65,8 @@
           </el-table-column>
           <el-table-column align="center" prop="" label="操作" min-width="200px" v-slot="scope" fixed="right">
             <template>
-              <el-button size="small" type="primary" @click="showAppoint(scope.row)">添加飞手</el-button>
-              <el-button size="small" type="primary" @click="showorderconfirm(scope.row)">订单确认</el-button>
+              <el-button size="small" type="primary" @click="showAppoint(scope.row)">转派</el-button>
+              <el-button size="small" type="primary" @click="showorderconfirm(scope.row)">审核</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -102,7 +102,7 @@
         <el-button type="primary" @click="addfly">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="订单确认" :visible.sync="dialogVisible1" width="40%">
+    <el-dialog title="订单确认" :visible.sync="dialogVisible1" width="800px">
       <el-row>
         <el-col :span="5" v-for="item in confirmimgs" :key="item.id">
           <el-card>
@@ -241,7 +241,7 @@ export default {
     },
     async showorderconfirm (user) {
       if (user.order_state_name !== '待确认') {
-        return this.$message.error('该订单尚未完成')
+        return this.$message.error('飞手尚未提交作业！')
       }
       const msg = await this.$http.get('gmTask/getTask', { params: { orderId: user.id } })
       this.id = user.id

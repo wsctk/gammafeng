@@ -249,7 +249,7 @@ img{
   top:53%;
   transform:translate(-50%,-50%);
   height:200px;
-  width:25%;
+  width:20%;
 }
 /deep/.el-tabs__item {
   font-size:16px;

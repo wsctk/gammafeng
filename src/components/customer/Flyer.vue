@@ -66,32 +66,32 @@
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="30%" @close="closeeditform">
-      <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk="false">
+    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="500px" @close="closeeditform">
+      <el-form label-width="200px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk="false">
         <el-row>
-          <el-col :span="12" :offset="3">
-            <el-form-item label="商品佣金比例：" prop="commissionRate">
+          <el-col :span="14" :offset="3">
+            <el-form-item label="商品佣金比例(千分比)：" prop="commissionRate" :inline-message="true">
               <el-input v-model="editForm.commissionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="17" :offset="3">
-            <el-form-item label="派单佣金比例：" prop="distributionRate">
+          <el-col :span="14" :offset="3">
+            <el-form-item label="派单分销佣金比例(千分比)：" prop="distributionRate" :inline-message="true">
               <el-input v-model="editForm.distributionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="17" :offset="3">
-            <el-form-item label="派单分成比例：" prop="shareProp">
+          <el-col :span="14" :offset="3">
+            <el-form-item label="派单分成比例(千分比)：" prop="shareProp" :inline-message="true">
               <el-input v-model="editForm.shareProp"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="17" :offset="3">
-            <el-form-item label="邀请人：" prop="parentPhoneNumber">
+          <el-col :span="14" :offset="3">
+            <el-form-item label="邀请人(手机号码)：" prop="parentPhoneNumber">
               <el-input v-model="editForm.parentPhoneNumber"></el-input>
             </el-form-item>
           </el-col>
@@ -100,6 +100,12 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible1 = false">取消</el-button>
         <el-button type="primary" @click="editdialog">确定</el-button>
+      </div>
+      <div>
+        （上面三个比例都是千分比，输入数字后台会自动转成相应的千分比。
+        商品佣金比例：根据二级用户在商城的消费按此比例给一级用户返利
+        派单分销佣金比例：根据二级用户派单所付金额按此比例给一级用户返利
+        派单分成比例：飞手完成任务后从派单金额获得佣金的比例）
       </div>
     </el-dialog>
   </div>
@@ -127,7 +133,7 @@ export default {
           { required: true, message: '请输入商品佣金比例', trigger: 'blur' }
         ],
         distributionRate: [
-          { required: true, message: '请输入派单佣金比例：', trigger: 'blur' }
+          { required: true, message: '请输入派单分销佣金比例：', trigger: 'blur' }
         ],
         shareProp: [
           { required: true, message: '请输入派单分成比例：：', trigger: 'blur' }
@@ -221,6 +227,7 @@ export default {
     },
     closeeditform () {
       this.editForm = {}
+      this.$refs.editFormRef.resetFields()
       this.getCustomerList()
     },
     async removeflyer (id) {
@@ -232,11 +239,11 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      const msg = await this.$http.delete('user/deleteUser', { params: { id: id } })
+      const msg = await this.$http.post('user/deleteUser', this.$qs.stringify({ id: id }))
       if (msg.status !== 200) {
-        return this.$message.error('删除飞手失败')
+        return this.$message.error('删除飞手身份失败')
       }
-      this.$message.success('飞手已删除')
+      this.$message.success('飞手身份已删除')
       this.getCustomerList()
     }
   }

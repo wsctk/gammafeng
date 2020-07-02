@@ -3,48 +3,85 @@
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item>系统管理</el-breadcrumb-item>
-        <el-breadcrumb-item>轮播图管理</el-breadcrumb-item>
+        <el-breadcrumb-item>轮播图片管理</el-breadcrumb-item>
       </el-breadcrumb>
-      <p class="indexText">轮播图管理</p>
+      <p class="indexText">轮播图片管理</p>
     </div>
     <el-card class="main">
-      <div v-for="img in imgslist" :key="img.id" class="outerbox">
-        <el-image
-          style="width: 150px; height: 150px"
-          :src="img.route"
-          :preview-src-list="[img.route]">
-        </el-image>
-        <el-button circle class="lunbobtn" type="warning" icon="el-icon-close" @click="deleteimg($event)" :data-id="img.id"></el-button>
+      <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="id" label="图片ID" min-width="50px">
+          </el-table-column>
+          <el-table-column align="center" prop="goodsName" label="标题" min-width="150px" show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column align="center" prop="thumbnailPicture" label="轮播图片" min-width="70px">
+            <template v-slot="scope">
+              <el-image
+                style="width: 50px; height: 50px"
+                :src="scope.row.thumbnailPicture"
+                :preview-src-list="[scope.row.thumbnailPicture]">
+              </el-image>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="createTime" label="排序" min-width="80px">
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" v-slot="scope" min-width="100px" fixed="right">
+            <template>
+              <el-button size="small" type="danger" @click="showeditform(scope.row.id)">编辑</el-button>
+              <el-button size="small" type="danger" @click="removeimg(scope.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-      <div v-if="morenimg">
-        <img  style="width:200px;height:200px;" src="../../assets/nocan.jpg" />
-      </div>
-      <el-row>
-        <el-col :span="2" class="addbtn">
-          <el-button type="success" @click="dialogVisible=true">新增轮播图片</el-button>
-        </el-col>
-      </el-row>
     </el-card>
-    <el-dialog title="新增轮播图片" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
+    <el-dialog title="新增优惠券" :visible.sync="dialogVisible" width="600px" @close="closeaddform">
+      <el-form label-width="120px" :model="addForm" ref="addFormRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
-            <el-col :span="15" :offset="4">
-                <el-upload
+          <el-col :span="15" :offset="3">
+            <el-form-item label="标题:" prop="acquireTime">
+              <el-input v-model="addForm" placeholder="请输入标题"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="3">
+            <el-form-item label="图片:" prop="expirationDate">
+              <el-upload
                 ref="addimgRef"
+                :limit=1
                 :http-request="uploadaddFormFile"
                 action="#"
                 list-type="picture-card"
                 :on-preview="addimgPreview"
                 :on-remove="handleRemove">
                 <i class="el-icon-plus"></i>
-                </el-upload>
-                <el-dialog :visible.sync="dialogVisible2" append-to-body>
+              </el-upload>
+              <el-dialog :visible.sync="dialogVisible1" append-to-body>
                 <img width="100%" :src="dialogImageUrl" alt="">
-                </el-dialog>
-            </el-col>
+              </el-dialog>
+            </el-form-item>
+          </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="11" :offset="3">
+            <el-form-item label="显示:" prop="phoneNumber">
+                <el-radio v-model="addForm" :label="0">禁用</el-radio>
+                <el-radio v-model="addForm" :label="1">启用</el-radio>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11" :offset="3">
+            <el-form-item label="排序:" prop="useType">
+              <el-input v-model="addForm" placeholder="请输入排序"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="addlunboimgs" :disabled="zhinenganyici">确定</el-button>
+        <el-button @click="addlunboimg">确认</el-button>
       </div>
     </el-dialog>
   </div>
@@ -53,64 +90,62 @@
 export default {
   data () {
     return {
-      morenimg: false,
-      zhinenganyici: false,
-      total: 200,
-      maxPage: '',
-      pageNum: '',
-      pageSize: '',
       dialogVisible: false,
+      dialogVisible1: false,
       dialogVisible2: false,
-      dialogImageUrl: '',
-      imgslist: []
+      dialogVisible3: false,
+      tableData: [],
+      total: 1,
+      pageNum: 1,
+      pageSize: 10,
+      maxPage: 1,
+      addForm: {
+      },
+      addFormRules: {},
+      eidtForm: {},
+      editFormRules: {}
     }
   },
   created () {
-    this.getlunboimgsList()
+    this.getInformationList()
   },
   methods: {
-    async getlunboimgsList () {
-      const msg = await this.$http.get('rotation/rotationList')
+    resetQueryForm () {
+      this.$refs.queryInfoRef.resetFields()
+    },
+    async queryinfo () {
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
+      const msg = await this.$http.get('picture/pictureList', { params: this.queryInfo })
       if (msg.status !== 200) {
-        return this.$message.error('获取轮播图片失败！')
+        this.resetQueryForm()
+        this.$message.error('查询失败！')
       }
-      this.imgslist = msg.data.data
-      if (this.imgslist.length === 0) {
-        this.morenimg = true
-        return
-      }
-      this.morenimg = false
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
-    uploadaddFormFile () {
-    },
-    async addlunboimgs () {
-      const formData = new FormData()
-      for (let i = 0; i < this.$refs.addimgRef.uploadFiles.length; i++) {
-        formData.append('files', this.$refs.addimgRef.uploadFiles[i].raw)
-      }
-      if (!this.$refs.addimgRef.uploadFiles) {
-        return this.$message.error('没有图片可以提交！')
-      }
-      this.zhinenganyici = true
-      const msg = await this.$http.post('rotation/insertRotation', formData)
+    async getInformationList () {
+      const msg = await this.$http.get('picture/pictureList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
-        this.dialogVisible = false
-        return this.$message.error('新增轮播图片失败！')
+        return this.$message.error('获取商品图片失败！')
       }
-      this.$message.success('新增轮播图片成功！')
-      this.dialogVisible = false
-      this.getlunboimgsList()
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
-    addimgPreview (file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible2 = true
+    async addlunboimg () {
+      const msg = await this.$http.post('')
+      console.log(msg)
     },
-    closeaddform () {
-      this.zhinenganyici = false
-      this.$refs.addimgRef.clearFiles()
+    async showeditform (id) {
+      this.dialogVisible1 = true
+      const msg = await this.$http.get('', { params: { id: id } })
+      console.log(msg)
+      this.editForm = msg.data.data
     },
-    async deleteimg (e) {
-      const confirmResult = await this.$confirm('此操作将永久删除该图片, 是否继续?', '提示', {
+    async removeimg (id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该商品图片, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -118,22 +153,47 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      const msg = await this.$http.post('rotation/deleteRotation', this.$qs.stringify({ id: e.path[1].attributes[1].nodeValue }))
+      const msg = await this.$http.post('picture/deletePicture', this.$qs.stringify({ id: id }))
       if (msg.status !== 200) {
-        return this.$message.error('删除图片失败')
+        return this.$message.error('删除失败！')
       }
-      this.$message.success('删除图片成功！')
-      this.getlunboimgsList()
+      this.$message.success('删除成功！')
+      this.getInformationList()
+    },
+    addimgPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible1 = true
     },
     handleRemove (file, fileList) {
+      // this.hideUpload = fileList.length >= this.limitcount
+    },
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+      if (!this.queryInfo.goodsName) {
+        return this.getInformationList()
+      }
+      this.queryinfo()
+    },
+    handleCurrentChange (newPage) {
+      this.pageNum = newPage
+      if (!this.queryInfo.goodsName) {
+        return this.getInformationList()
+      }
+      this.queryinfo()
     }
   }
 }
 </script>
 <style lang="less" scoped>
-.outerbox {
-  display:inline-block;
-  margin:20px;
+.addbtn {
+    margin-left:27px;
+    margin-bottom: 10px;
+}
+.tablediv {
+  height:470px;
+}
+.main {
+  height:630px;
 }
 .el-card {
   margin: 35px 25px;
@@ -146,18 +206,7 @@ export default {
   margin-right:30px;
   margin-bottom: 25px;
 }
-.main {
-  height:630px;
-}
-.addbtn {
-  margin-left:24px;
-}
-/deep/.el-card__body {
-  padding: 20px;
-}
-.lunbobtn {
-  position: relative;
-  left:-30px;
-  top:-135px;
+.anniu {
+  margin-left: 25px;
 }
 </style>

@@ -12,6 +12,8 @@ Vue.prototype.$qs = qs
 axios.defaults.withCredentials = true
 var instance = axios.create({
   baseURL: 'https://admin-api.gamma.it-10.com/',
+  // baseURL: 'http://192.168.18.8:8181/',
+  // baseURL: 'http://192.168.18.5:8181/',
   header: {
     'content-type': 'application/x-www-form-urlencode, multipart/form-data;charset=utf-8'
   }
@@ -28,7 +30,7 @@ Vue.filter('dateFormat', function (originVal) {
   const hh = (dt.getHours() + '').padStart(2, '0')
   const mm = (dt.getMinutes() + '').padStart(2, '0')
   const sec = (dt.getSeconds() + '').padStart(2, '0')
-  return `${y}年${m}月${d}日${hh}时${mm}分${sec}秒`
+  return `${y}年${m}月${d}日${hh}:${mm}:${sec}`
 })
 new Vue({
   router,

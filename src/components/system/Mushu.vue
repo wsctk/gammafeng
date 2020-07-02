@@ -11,7 +11,7 @@
         <div v-for="item in rowlist" :key="item.id">
             <template>
               <span class="middletext">
-                未超出
+                不大于
               </span>
               <input placeholder="亩数范围" v-model="item.end" />
               <span class="middletext">
@@ -26,6 +26,10 @@
         <el-button type="warning" @click="add" class="btn">新增</el-button>
         <el-button type="danger" @click="remove" class="btn">删减</el-button>
         <el-button type="primary" @click="rangeload" class="btn">提交</el-button>
+        <div class="textrule">
+          例子：未超出50亩的每亩价格为5元，未超出100亩的每亩价格为4元
+          如果现在您有51亩，则每亩价格为4元，总价为204元
+        </div>
       </el-card>
     </div>
 </template>
@@ -69,6 +73,9 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.textrule {
+  margin-top:30px;
+}
 .head {
   background-color: #fff;
   height: 88px;

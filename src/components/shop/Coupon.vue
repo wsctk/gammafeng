@@ -25,41 +25,43 @@
         </el-form-item>
       </el-form>
       <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
-      <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="优惠券ID">
-        </el-table-column>
-        <el-table-column align="center" prop="phoneNumber" label="被绑定用户">
-        </el-table-column>
-        <el-table-column align="center" prop="value" label="优惠券面额">
-        </el-table-column>
-        <el-table-column align="center" prop="useCondition" label="优惠券使用条件">
-        </el-table-column>
-        <el-table-column align="center" prop="expirationDate" label="优惠券有效期" width="150px">
-          <template v-slot="scope">
-            {{ scope.row.expirationDate | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="statename" label="优惠券状态">
-        </el-table-column>
-        <el-table-column align="center" prop="createTime" label="创建时间" width="150px">
-          <template v-slot="scope">
-            {{ scope.row.createTime | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="useTime" label="使用时间" width="150px">
-          <template v-slot="scope">
-            {{ scope.row.useTime | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
-          <template>
-            <el-button size="small" type="primary" @click="showEditForm(scope.row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="removecoupon(scope.row.id)">删除</el-button>
-          </template>
-        </el-table-column>
-    </el-table>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="id" label="优惠券ID" min-width="80px">
+          </el-table-column>
+          <el-table-column align="center" prop="phoneNumber" label="被绑定用户(手机号码)" min-width="150px">
+          </el-table-column>
+          <el-table-column align="center" prop="value" label="优惠券面额(元)" min-width="90px">
+          </el-table-column>
+          <el-table-column align="center" prop="useCondition" label="使用门槛" min-width="110px">
+          </el-table-column>
+          <el-table-column align="center" prop="expirationDate" label="优惠券有效期" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.expirationDate | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="statename" label="优惠券状态" min-width="100px">
+          </el-table-column>
+          <el-table-column align="center" prop="createTime" label="创建时间" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.createTime | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="useTime" label="使用时间" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.useTime | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" min-width="180px" v-slot="scope" fixed="right">
+            <template>
+              <el-button size="small" type="danger" @click="removecoupon(scope.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     <el-pagination
-      @size-change="handleSizeChange" @current-change="handleCurrentChange"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
       :page-size="pageSize"
@@ -70,18 +72,24 @@
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="新增优惠券" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
+    <el-dialog title="新增优惠券" :visible.sync="dialogVisible" width="600px" @close="closeaddform">
       <el-form label-width="120px" :model="addForm" ref="addFormRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
-          <el-col :span="11" :offset="6">
-            <el-form-item label="优惠券面额:" prop="value">
-              <el-input v-model="addForm.value" placeholder="请输入面额"></el-input>
+          <el-col :span="12" :offset="3">
+            <el-form-item label="开始时间:" prop="acquireTime">
+              <el-date-picker
+                v-model="addForm.acquireTime"
+                type="date"
+                placeholder="选择日期"
+                format="yyyy 年 MM 月 dd 日"
+                value-format="timestamp">
+              </el-date-picker>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="15" :offset="6">
-            <el-form-item label="优惠券有效期:" prop="expirationDate">
+          <el-col :span="15" :offset="3">
+            <el-form-item label="结束时间:" prop="expirationDate">
               <el-date-picker
                 v-model="addForm.expirationDate"
                 type="date"
@@ -93,27 +101,37 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="11" :offset="6">
+          <el-col :span="15" :offset="3">
             <el-form-item label="绑定用户:" prop="phoneNumber">
               <el-input v-model="addForm.phoneNumber" placeholder="请输入绑定用户手机号"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="11" :offset="6">
-            <el-form-item label="优惠券使用方式:" prop="useCondition">
-              <el-input v-model="addForm.useCondition" placeholder="请输入条件金额"></el-input>
+          <el-col :span="15" :offset="3">
+            <el-form-item label="使用类型:" prop="useType">
+              <el-radio v-model="addForm.useType" :label="1">派单优惠券</el-radio>
+              <el-radio v-model="addForm.useType" :label="0">商品优惠券</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="15" :offset="6">
-            <el-form-item label="优惠券状态:" prop="state">
-               <el-radio-group v-model="addForm.state">
-                <el-radio :label="0">未使用</el-radio>
-                <el-radio :label="1">已使用</el-radio>
-                <el-radio :label="2">已失效</el-radio>
-               </el-radio-group>
+          <el-col :span="15" :offset="3">
+            <el-form-item label="优惠券类型:" prop="couponsType">
+              <el-radio v-model="addForm.couponsType" :label="1">直减</el-radio>
+              <el-radio v-model="addForm.couponsType" :label="0">满减</el-radio>
+              <div v-if="addForm.couponsType===0">
+                <span class="textspan">满</span>
+                <input class="textinput" v-model="addForm.useCondition" placeholder="请输入条件金额" />
+                <span class="textspan">元使用</span>
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="3">
+            <el-form-item label="优惠券面额(元):" prop="value">
+              <el-input v-model="addForm.value" placeholder="请输入面额"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -121,59 +139,6 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible=false">取消</el-button>
         <el-button type="primary" @click="addcoupon" :disabled="zhinenganyici">确定</el-button>
-      </div>
-    </el-dialog>
-    <el-dialog title="编辑优惠券" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
-      <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" hide-required-asterisk>
-        <el-row>
-          <el-col :span="11" :offset="6">
-            <el-form-item label="优惠券面额:" prop="value">
-              <el-input v-model="editForm.value" placeholder="请输入面额"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15" :offset="6">
-            <el-form-item label="优惠券有效期:" prop="expirationDate">
-              <el-date-picker
-                v-model="editForm.expirationDate"
-                type="date"
-                placeholder="选择日期"
-                format="yyyy 年 MM 月 dd 日"
-                value-format="timestamp">
-              </el-date-picker>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="11" :offset="6">
-            <el-form-item label="绑定用户:" prop="phoneNumber">
-              <el-input v-model="editForm.phoneNumber" placeholder="请输入绑定用户手机号"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="11" :offset="6">
-            <el-form-item label="优惠券类型:" prop="useCondition">
-              <el-input v-model="editForm.useCondition"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15" :offset="6">
-            <el-form-item label="优惠券状态:" prop="state">
-               <el-radio-group v-model="editForm.state">
-                <el-radio label="0">未使用</el-radio>
-                <el-radio label="1">已使用</el-radio>
-                <el-radio label="2">已失效</el-radio>
-               </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible1=false">取消</el-button>
-        <el-button type="primary" @click="editcoupon">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -197,22 +162,15 @@ export default {
       dialogVisible: false,
       dialogVisible1: false,
       addForm: {
+        useType: '',
+        couponsType: 0,
         value: '',
+        acquireTime: '',
         expirationDate: '',
         phoneNumber: '',
-        state: '',
-        useCondition: ''
+        useCondition: 0
       },
       addFormRules: {
-        value: [
-          { required: true, message: '请输入优惠券面额', trigger: 'blur' }
-        ],
-        expirationDate: [
-          { required: true, message: '请选择优惠券有效期', trigger: 'blur' }
-        ]
-      },
-      editForm: {},
-      editFormRules: {
         value: [
           { required: true, message: '请输入优惠券面额', trigger: 'blur' }
         ],
@@ -271,6 +229,8 @@ export default {
             msg.data.rows[i].statename = '已失效'
             break
         }
+        msg.data.rows[i].value /= 100
+        msg.data.rows[i].useCondition /= 100
       }
       this.tableData = msg.data.rows
       this.total = msg.data.total
@@ -280,6 +240,8 @@ export default {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
         this.zhinenganyici = true
+        this.addForm.value *= 100
+        this.addForm.useCondition *= 100
         const msg = await this.$http.post('coupons/addCoupons', this.$qs.stringify(this.addForm))
         if (msg.status !== 200) {
           this.dialogVisible = false
@@ -293,27 +255,6 @@ export default {
     closeaddform () {
       this.zhinenganyici = false
       this.$refs.addFormRef.resetFields()
-    },
-    showEditForm (user) {
-      this.dialogVisible1 = true
-      this.editForm = user
-    },
-    async editcoupon () {
-      this.$refs.editFormRef.validate(async valid => {
-        if (!valid) return
-        const msg = await this.$http.post('coupons/updateCoupons', this.$qs.stringify(this.editForm))
-        if (msg.status !== 200) {
-          this.dialogVisible1 = false
-          return this.$message.error('编辑失败！')
-        }
-        this.getcouponlist()
-        this.$message.success('编辑成功！')
-        this.dialogVisible1 = false
-      })
-    },
-    closeeditform () {
-      this.$refs.editFormRef.resetFields()
-      this.getcouponlist()
     },
     async removecoupon (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
@@ -349,9 +290,29 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.tablediv {
+  @media only screen and (max-width: 1120px) {
+    height:361px;
+  }
+  @media only screen and (min-width: 1120px) {
+    height:420px;
+  }
+}
+.textspan {
+  font-size:16px;
+  color:#aaa;
+  margin: 0 20px 0 20px
+}
+.textinput {
+  border:1px solid #DCDFE6;
+  border-radius:5px;
+  width:80px;
+  height:18px;
+  font-size:16px;
+  text-align: center;
+}
 .main {
   overflow:auto;
-  height:630px;
 }
 .addbtn {
     margin-left:27px;
@@ -373,6 +334,9 @@ export default {
 }
 .anniu {
   margin-left: 25px;
+}
+/deep/.el-pagination {
+  text-align: center;
 }
 /deep/.el-pagination__jump {
   margin-left: -8px;
@@ -397,9 +361,6 @@ export default {
 }
 /deep/.el-input__inner {
   border-radius: 8px;
-}
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
 }
 .slotText {
   color: #606266;

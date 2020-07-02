@@ -27,52 +27,54 @@
         </el-form-item>
       </el-form>
       <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
-      <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="商品ID">
-        </el-table-column>
-        <el-table-column align="center" prop="goodsName" label="商品名">
-        </el-table-column>
-        <el-table-column align="center" prop="cateGoryName" label="商品分类">
-        </el-table-column>
-        <el-table-column align="center" prop="goodsCover" label="封面图片" v-slot="scope">
-          <template>
-            <el-image
-              style="width: 50px; height: 50px"
-              :src="scope.row.goodsCover"
-              :preview-src-list="[scope.row.goodsCover]">
-            </el-image>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="项目图册">
-          <template v-slot="scope">
-            <el-button type="success" size="small" @click="showimgs(scope.row.id)">查看</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="goodsPrice" label="价格(元)">
-        </el-table-column>
-        <el-table-column align="center" prop="inventory" label="库存">
-        </el-table-column>
-        <el-table-column align="center" prop="goodsClassficationname" label="商品归属">
-        </el-table-column>
-        <el-table-column align="center" prop="goodsStatename" label="商品状态">
-        </el-table-column>
-        <el-table-column align="center" prop="createTime" label="创建时间" v-slot="scope" width="150px">
-          <template>
-            {{scope.row.createTime | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
-          <template>
-            <el-button size="small" type="primary" @click="showeditForm(scope.row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="remove(scope.row.id)">删除</el-button>
-          </template>
-        </el-table-column>
-     </el-table>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="id" label="商品ID" min-width="120px">
+          </el-table-column>
+          <el-table-column align="center" prop="goodsName" label="商品名" min-width="200px" show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column align="center" prop="cateGoryName" label="商品分类" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="goodsCover" label="封面图片" v-slot="scope" min-width="80px">
+            <template>
+              <el-image
+                style="width: 50px; height: 50px"
+                :src="scope.row.goodsCover"
+                :preview-src-list="[scope.row.goodsCover]">
+              </el-image>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="项目图册" min-width="80px">
+            <template v-slot="scope">
+              <el-button type="success" size="small" @click="showimgs(scope.row.id)">查看</el-button>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="goodsPrice" label="价格(元)" min-width="90px">
+          </el-table-column>
+          <el-table-column align="center" prop="inventory" label="库存" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="goodsClassficationname" label="商品归属" min-width="80px">
+          </el-table-column>
+          <el-table-column align="center" prop="goodsStatename" label="商品状态" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="createTime" label="创建时间" v-slot="scope" min-width="200px">
+            <template>
+              {{scope.row.createTime | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
+            <template>
+              <el-button size="small" type="primary" @click="showeditForm(scope.row)">编辑</el-button>
+              <el-button size="small" type="danger" @click="remove(scope.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" background :page-sizes="[1, 5, 10, 20]" :page-size="pageSize" :page-count="11" :current-page="pageNum" layout="total, slot, prev, pager, next, sizes, jumper" :total="total">
        <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
      </el-pagination>
     </el-card>
-    <el-dialog title="新增商品" :visible.sync="dialogVisible" width="50%" @close="closeaddform">
+    <el-dialog title="新增商品" :visible.sync="dialogVisible" width="800px" @close="closeaddform">
       <el-form label-width="130px" :model="addForm" ref="addFormRef" :rules="addFormRules" label-position="right" :hide-required-asterisk='false'>
         <el-row>
           <el-col :span="10">
@@ -166,7 +168,7 @@
         <el-button type="primary" @click="submitaddform" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑商品" :visible.sync="dialogVisible1" width="50%" @close="closeeditform">
+    <el-dialog title="编辑商品" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
       <el-form label-width="130px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk='false'>
         <el-row>
           <el-col :span="10">
@@ -261,12 +263,12 @@
         <el-button type="primary" @click="submiteditform">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="项目图册" :visible.sync="dialogVisibleimgs" width="40%">
+    <el-dialog title="项目图册" :visible.sync="dialogVisibleimgs" width="800px">
       <el-row>
         <el-col :span="7" v-for="item in showimgslist" :key="item.id">
             <el-card>
               <el-image
-                style="width: 115px; height: 115px"
+                style="width: 130px; height: 115px"
                 :src="item.thumbnailPicture"
                 :preview-src-list="[item.thumbnailPicture]">
               </el-image>
@@ -584,9 +586,16 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.tablediv {
+  @media only screen and (min-width: 1505px) {
+    height:420px;
+  }
+  @media only screen and (max-width: 1505px) {
+    height:360px;
+  }
+}
 .main {
   height:630px;
-  overflow: auto;
 }
 .uploadimg {
   margin-bottom: 10px;
@@ -612,6 +621,9 @@ export default {
 .anniu {
   margin-left: 25px;
 }
+/deep/.el-pagination {
+  text-align: center;
+}
 /deep/.el-pagination__jump {
   margin-left: -8px;
 }
@@ -635,9 +647,6 @@ export default {
 }
 /deep/.el-input__inner {
   border-radius: 8px;
-}
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:725px;
 }
 .slotText {
   color: #606266;

@@ -94,7 +94,7 @@
         <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
       </el-pagination>
     </el-card>
-    <el-dialog title="认证详情" :visible.sync="dialogVisible" width="40%" @close="closeform">
+    <el-dialog title="认证详情" :visible.sync="dialogVisible" width="500px" @close="closeform">
       <el-form label-width="150px" :model="details" ref="editFormRef" label-position="right">
         <el-row>
           <el-col :span="17" :offset="3">
@@ -148,7 +148,7 @@
         <el-row v-if="details.enterpriseName">
           <el-col :span="17" :offset="3">
             <el-form-item label="企业名称：">
-              <el-input v-model="details.enterpriseName" type="textarea" :rows="6" disabled></el-input>
+              <el-input v-model="details.enterpriseName" disabled></el-input>
             </el-form-item>
           </el-col>
         </el-row>

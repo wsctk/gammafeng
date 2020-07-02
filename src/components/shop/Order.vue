@@ -30,37 +30,52 @@
       </el-form>
       <el-button type="primary" @click="queryinfo">查询</el-button>
       <el-button plain @click="resetQueryForm">重置</el-button>
-      <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="orderNumber" label="订单ID">
-        </el-table-column>
-        <el-table-column align="center" prop="goodsName" label="商品名">
-        </el-table-column>
-        <el-table-column align="center" prop="orderAmout" label="订单金额">
-        </el-table-column>
-        <el-table-column align="center" prop="paidAmout" label="实付金额">
-        </el-table-column>
-        <el-table-column align="center" prop="paidTime" label="付款时间" width="150px">
-          <template v-slot="scope">
-            <p v-if="scope.row.paidTime">{{ scope.row.paidTime | dateFormat}}</p>
-            <p v-else></p>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="orderState" label="订单状态">
-        </el-table-column>
-        <el-table-column align="center" prop="wechatName" label="用户昵称">
-        </el-table-column>
-        <el-table-column align="center" prop="phoneNumber" label="手机号码">
-        </el-table-column>
-        <!-- <el-table-column align="center" prop="logisticsCompany" label="物流公司">
-        </el-table-column>
-        <el-table-column align="center" prop="shipmentNumber" label="物流单号">
-        </el-table-column> -->
-        <el-table-column align="center" prop="createTime" label="创建时间" width="150px">
-          <template v-slot="scope">
-            {{ scope.row.createTime | dateFormat}}
-          </template>
-        </el-table-column>
-    </el-table>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="orderNumber" label="订单号" min-width="200px">
+          </el-table-column>
+          <el-table-column align="center" prop="goodsName" label="商品名" min-width="200px" show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column align="center" prop="orderAmout" label="订单金额" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="paidAmout" label="实付金额" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="paidTime" label="付款时间" min-width="200px">
+            <template v-slot="scope">
+              <p v-if="scope.row.paidTime">{{ scope.row.paidTime | dateFormat}}</p>
+              <p v-else></p>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="orderState" label="订单状态" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="wechatName" label="用户昵称" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="phoneNumber" label="用户手机号码" min-width="120px">
+          </el-table-column>
+          <!-- <el-table-column align="center" prop="logisticsCompany" label="物流公司">
+          </el-table-column>
+          <el-table-column align="center" prop="shipmentNumber" label="物流单号">
+          </el-table-column> -->
+          <el-table-column align="center" prop="createTime" label="创建时间" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.createTime | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="address.address" label="收货地址" min-width="200px" show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column align="center" prop="address.name" label="收货人" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="address.orderPhoneNumber" label="收货人手机号码" min-width="150px">
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" min-width="240px" v-slot="scope" fixed="right">
+            <template>
+              <el-button size="small" type="primary" @click="changestate(scope.row.id, 2)">发货</el-button>
+              <el-button size="small" type="warning" @click="changestate(scope.row.id, 3)">取消</el-button>
+              <el-button size="small" type="danger" @click="changestate(scope.row.id, 4)">退货</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -80,6 +95,7 @@
 export default {
   data () {
     return {
+      dialogVisible: false,
       tableData: [],
       total: 400,
       pageNum: 1,
@@ -165,6 +181,22 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    async changestate (id, state) {
+      const confirmResult = await this.$confirm('确定执行该操作吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消操作！')
+      }
+      const msg = await this.$http.post('order/updateOrder', this.$qs.stringify({ id: id, orderState: state }))
+      console.log(msg)
+      if (msg.data.code === 6) {
+        return this.$message.error('操作失败！')
+      }
+      this.$message.success('操作成功！')
+    },
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.orderNumber && !this.queryInfo.goodsName && !this.queryInfo.phoneNumber && !this.queryInfo.orderState) {
@@ -183,9 +215,16 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.tablediv {
+  @media only screen and (min-width: 1566px) {
+    height:430px;
+  }
+  @media only screen and (max-width: 1566px) {
+    height:360px;
+  }
+}
 .main {
   height:630px;
-  overflow: auto;
 }
 .el-card {
   margin: 35px 25px;
@@ -201,11 +240,11 @@ export default {
 .firInput {
   margin-left: 30px
 }
-// .anniu {
-//   margin-left: 25px;
-// }
 /deep/.el-button--primary {
   margin-left: 30px;
+}
+/deep/.el-pagination {
+  text-align: center;
 }
 /deep/.el-pagination__jump {
   margin-left: -8px;
@@ -230,9 +269,6 @@ export default {
 }
 /deep/.el-input__inner {
   border-radius: 8px;
-}
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
 }
 .slotText {
   color: #606266;

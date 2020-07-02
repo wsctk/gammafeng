@@ -17,33 +17,36 @@
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="图片ID">
-        </el-table-column>
-        <el-table-column align="center" prop="goodsName" label="商品名称">
-        </el-table-column>
-        <el-table-column align="center" prop="thumbnailPicture" label="商品图片">
-          <template v-slot="scope">
-            <el-image
-              style="width: 50px; height: 50px"
-              :src="scope.row.thumbnailPicture"
-              :preview-src-list="[scope.row.thumbnailPicture]">
-            </el-image>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="createTime" label="创建时间">
-          <template v-slot="scope">
-            {{scope.row.createTime | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" v-slot="scope">
-          <template>
-            <el-button size="small" type="danger" @click="removeimg(scope.row.id)">删除</el-button>
-          </template>
-        </el-table-column>
-    </el-table>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="id" label="图片ID" min-width="50px">
+          </el-table-column>
+          <el-table-column align="center" prop="goodsName" label="商品名称" min-width="200px" show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column align="center" prop="thumbnailPicture" label="商品图片" min-width="70px">
+            <template v-slot="scope">
+              <el-image
+                style="width: 50px; height: 50px"
+                :src="scope.row.thumbnailPicture"
+                :preview-src-list="[scope.row.thumbnailPicture]">
+              </el-image>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="createTime" label="创建时间" min-width="200px">
+            <template v-slot="scope">
+              {{scope.row.createTime | dateFormat}}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" v-slot="scope" min-width="100px" fixed="right">
+            <template>
+              <el-button size="small" type="danger" @click="removeimg(scope.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     <el-pagination
-       @size-change="handleSizeChange" @current-change="handleCurrentChange"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
       :page-size="pageSize"
@@ -139,9 +142,11 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.tablediv {
+  height:470px;
+}
 .main {
   height:630px;
-  overflow: auto;
 }
 .el-card {
   margin: 35px 25px;
@@ -159,6 +164,9 @@ export default {
 }
 .anniu {
   margin-left: 25px;
+}
+/deep/.el-pagination {
+  text-align: center;
 }
 /deep/.el-pagination__jump {
   margin-left: -8px;
@@ -183,9 +191,6 @@ export default {
 }
 /deep/.el-input__inner {
   border-radius: 8px;
-}
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
 }
 .slotText {
   color: #606266;

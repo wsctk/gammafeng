@@ -52,10 +52,9 @@
               {{scope.row.registerTime | dateFormat}}
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
+          <el-table-column align="center" prop="" label="操作" min-width="100px" v-slot="scope" fixed="right">
             <template>
               <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="removeuser(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -64,18 +63,18 @@
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="30%" @close="closeeditform">
+    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="500px" @close="closeeditform">
       <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="17" :offset="3">
-            <el-form-item label="商品佣金比例：" prop="commissionRate">
+            <el-form-item label="商品佣金比例：" prop="commissionRate" :inline-message="true">
               <el-input v-model="editForm.commissionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="17" :offset="3">
-            <el-form-item label="派单佣金比例：" prop="distributionRate">
+            <el-form-item label="派单佣金比例：" prop="distributionRate" :inline-message="true">
               <el-input v-model="editForm.distributionRate"></el-input>
             </el-form-item>
           </el-col>
@@ -209,22 +208,6 @@ export default {
         this.dialogVisible1 = false
         this.$message.success('编辑普通用户信息成功!')
       })
-    },
-    async removeuser (id) {
-      const confirmResult = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).catch(err => err)
-      if (confirmResult !== 'confirm') {
-        return this.$message.info('已取消删除')
-      }
-      const msg = await this.$http.delete('user/deleteUser', { params: { id: id } })
-      if (msg.status !== 200) {
-        return this.$message.error('删除用户失败')
-      }
-      this.$message.success('用户已删除')
-      this.getCustomerList()
     }
   }
 }

@@ -25,7 +25,7 @@
       <el-table :data="tableData" style="width: 100%" border height="100%">
         <el-table-column align="center" prop="id" label="图文ID" min-width="50px">
         </el-table-column>
-        <el-table-column align="center" prop="articleName" label="文章名称" min-width="150px">
+        <el-table-column align="center" prop="articleName" label="文章名称" min-width="150px" show-overflow-tooltip>
         </el-table-column>
         <el-table-column align="center" label="封面图片" min-width="70px">
           <template v-slot="scope">
@@ -65,7 +65,7 @@
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="新增资讯" :visible.sync="dialogVisible" width="40%" @close="closeaddform">
+    <el-dialog title="新增资讯" :visible.sync="dialogVisible" width="800px" @close="closeaddform">
       <el-form label-width="100px" :model="additionalInfo" ref="additionalInfoRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="4">
@@ -78,9 +78,11 @@
           <el-col :span="15" :offset="4">
             <el-form-item label="商品封面:">
               <el-upload
+                :class="{ hide: hideUpload }"
                 ref="addimgRef"
                 :limit=1
                 :http-request="uploadaddFormFile"
+                :on-change="changeupload"
                 action="#"
                 list-type="picture-card"
                 :on-preview="addimgPreview"
@@ -120,7 +122,7 @@
         <el-button type="primary" @click="submitaddinfo" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑资讯" :visible.sync="dialogVisible1" width="40%" @close="closeeditform">
+    <el-dialog title="编辑资讯" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
       <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="4">
@@ -181,6 +183,9 @@
 export default {
   data () {
     return {
+      hideUpload: false,
+      limitcount: 1,
+      showaddimgbox: true,
       zhinenganyici: false,
       tableData: [],
       total: 400,
@@ -244,6 +249,9 @@ export default {
       this.tableData = msg.data.rows
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
+    },
+    changeupload (file, fileList) {
+      this.hideUpload = fileList.length >= this.limitcount
     },
     uploadaddFormFile (params) {
     },
@@ -317,6 +325,7 @@ export default {
       this.dialogVisible3 = true
     },
     handleRemove (file, fileList) {
+      this.hideUpload = fileList.length >= this.limitcount
     },
     async removeuser (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该条资讯, 是否继续?', '提示', {

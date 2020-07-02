@@ -18,27 +18,32 @@
         </el-form-item>
       </el-form>
       <el-button class="addbtn" type="primary" size="large" @click="dialogVisible1=true">+ 新建</el-button>
-      <el-table :data="tableData" style="width: 100%" border>
-        <el-table-column align="center" prop="id" label="分类ID">
-        </el-table-column>
-        <el-table-column align="center" prop="categoryName" label="分类名称">
-        </el-table-column>
-        <el-table-column align="center" prop="categoryStateName" label="分类状态">
-        </el-table-column>
-        <el-table-column align="center" prop="createTime" label="创建时间">
-          <template v-slot="scope">
-            {{scope.row.createTime | dateFormat}}
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="" label="操作" width="180px" v-slot="scope">
-            <template>
-              <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="removecate(scope.row.id)">删除</el-button>
+      <div class="tablediv">
+        <el-table :data="tableData" style="width: 100%" border height="100%">
+          <el-table-column align="center" prop="index" label="分类排序权重" min-width="120px">
+          </el-table-column>
+          <el-table-column align="center" prop="id" label="分类ID" min-width="120px">
+          </el-table-column>
+          <el-table-column align="center" prop="categoryName" label="分类名称" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="categoryStateName" label="分类状态" min-width="70px">
+          </el-table-column>
+          <el-table-column align="center" prop="createTime" label="创建时间" min-width="200px">
+            <template v-slot="scope">
+              {{scope.row.createTime | dateFormat}}
             </template>
-        </el-table-column>
-    </el-table>
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
+              <template>
+                <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
+                <el-button size="small" type="danger" @click="removecate(scope.row.id)">删除</el-button>
+              </template>
+          </el-table-column>
+        </el-table>
+      </div>
     <el-pagination
-      @size-change="handleSizeChange" @current-change="handleCurrentChange"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       background
       :page-sizes="[1, 5, 10, 20]"
       :page-size="pageSize"
@@ -49,17 +54,24 @@
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="新增分类" :visible.sync="dialogVisible1" width="40%" @close="closeaddform">
+    <el-dialog title="新增分类" :visible.sync="dialogVisible1" width="800px" @close="closeaddform">
       <el-form hide-required-asterisk label-width="100px" :model="addForm" ref="addFormRef" :rules="addFormRules">
         <el-row>
-          <el-col :span="15" :offset="4">
+          <el-col :span="7" :offset="4">
+            <el-form-item label="分类排序权重:" prop="index">
+              <el-input v-model=addForm.index></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="13" :offset="4">
             <el-form-item label="分类名称:" prop="categoryName">
               <el-input v-model=addForm.categoryName></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="15" :offset="4">
+          <el-col :span="13" :offset="4">
             <el-form-item label="分类状态:" prop="categoryState">
               <el-radio v-model="addForm.categoryState" label="1">正常</el-radio>
               <el-radio v-model="addForm.categoryState" label="0">禁用</el-radio>
@@ -67,22 +79,32 @@
           </el-col>
         </el-row>
       </el-form>
+      <div style="text-align:center">
+        (分类排序权重是用来调整小程序端分类在列表中的显示顺序，数值越小越靠前)
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible1 = false">取消</el-button>
         <el-button type="primary" @click="addcate" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑分类" :visible.sync="dialogVisible2" width="40%" @close="closeeditform">
+    <el-dialog title="编辑分类" :visible.sync="dialogVisible2" width="800px" @close="closeeditform">
       <el-form hide-required-asterisk label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules">
         <el-row>
-          <el-col :span="11" :offset="4">
+          <el-col :span="7" :offset="4">
+            <el-form-item label="分类排序权重:" prop="index">
+              <el-input v-model=editForm.index step="1" type="number"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+        <el-row>
+          <el-col :span="13" :offset="4">
             <el-form-item label="分类名称:" prop="categoryName">
               <el-input v-model=editForm.categoryName></el-input>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="15" :offset="4">
+          <el-col :span="13" :offset="4">
             <el-form-item label="分类状态:" prop="categoryState">
               <el-radio v-model="editForm.categoryState" :label='1'>正常</el-radio>
               <el-radio v-model="editForm.categoryState" :label='0'>禁用</el-radio>
@@ -90,6 +112,9 @@
           </el-col>
         </el-row>
       </el-form>
+      <div style="text-align:center">
+        (分类排序权重是用来调整小程序端分类在列表中的显示顺序，数值越小越靠前)
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible2 = false">取消</el-button>
         <el-button type="primary" @click="editcate">确定</el-button>
@@ -178,9 +203,19 @@ export default {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
         this.zhinenganyici = true
+        this.addForm.index = Math.ceil(this.addForm.index)
         const msg = await this.$http.post('category/addCategory', this.$qs.stringify(this.addForm))
         if (msg.status !== 200) {
+          this.dialogVisible1 = false
           return this.$message.error('添加分类失败！')
+        }
+        if (msg.data.code === 2) {
+          this.dialogVisible1 = false
+          return this.$message.error('分类排序权重已存在！')
+        }
+        if (msg.data.code === 10) {
+          this.dialogVisible1 = false
+          return this.$message.error('分类排序权重不能为负！')
         }
         this.getInformationList()
         this.$message.success('添加分类成功！')
@@ -201,6 +236,9 @@ export default {
         const msg = await this.$http.post('category/updateCategory', this.$qs.stringify(this.editForm))
         if (msg.status !== 200) {
           return this.$message.error('编辑分类失败！')
+        }
+        if (msg.data.code === 2) {
+          return this.$refs.message.error('分类排序权重已存在！')
         }
         this.getInformationList()
         this.$message.success('编辑分类成功！')
@@ -245,9 +283,11 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.tablediv {
+  height:420px;
+}
 .main {
   height:630px;
-  overflow: auto;
 }
 .addbtn {
     margin-left:27px;
@@ -269,6 +309,9 @@ export default {
 }
 .anniu {
   margin-left: 25px;
+}
+/deep/.el-pagination {
+  text-align: center;
 }
 /deep/.el-pagination__jump {
   margin-left: -8px;
@@ -293,9 +336,6 @@ export default {
 }
 /deep/.el-input__inner {
   border-radius: 8px;
-}
-/deep/.el-pagination.is-background .btn-prev {
-  margin-left:825px;
 }
 .slotText {
   color: #606266;
