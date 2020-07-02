@@ -122,7 +122,7 @@
         <el-button type="primary" @click="submitaddinfo" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑资讯" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
+    <el-dialog title="编辑资讯" @opened="showtooltip" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
       <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="4">
@@ -154,12 +154,27 @@
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="文章详情:">
-              <el-input
-                type="textarea"
-                :rows="4"
-                placeholder="富文本编辑器"
-                v-model="editForm.article">
-              </el-input>
+              <el-upload
+                class="updateimg"
+                :show-upload-list="false"
+                :on-success="handleSuccess"
+                :format="['jpg','jpeg','png','gif']"
+                :max-size="2048"
+                multiple
+                action="#"
+                >
+                <el-button icon="ios-cloud-upload-outline" ></el-button>
+              </el-upload>
+              <div>
+                <quill-editor
+                  ref="myQuillEditor"
+                  v-model="content"
+                  :options="editorOption"
+                  @blur="onEditorBlur($event)"
+                  @focus="onEditorFocus($event)"
+                  @ready="onEditorReady($event)"
+                />
+              </div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -180,9 +195,35 @@
   </div>
 </template>
 <script>
+import { quilltitle } from '../../assets/js/quill-title.js'
 export default {
   data () {
     return {
+      editorOption: {
+        modules: {
+          toolbar: {
+            container: [
+              ['bold', 'italic', 'underline', 'strike'],
+              ['image', 'clean'],
+              [{ script: 'sub' }, { script: 'super' }],
+              [{ header: [1, 2, false] }],
+              [{ color: [] }],
+              [{ background: [] }],
+              [{ font: [] }, { align: [] }]
+            ],
+            handlers: {
+              image: function (value) {
+                if (value) {
+                  document.querySelector('.updateimg .el-button').click()
+                } else {
+                  this.quill.format('image', false)
+                }
+              }
+            }
+          }
+        }
+      },
+      content: '',
       hideUpload: false,
       limitcount: 1,
       showaddimgbox: true,
@@ -286,8 +327,25 @@ export default {
       this.editForm = user
       this.fileList.push({ url: user.cover })
     },
+    showtooltip () {
+      quilltitle()
+    },
+    handleSuccess (res) {
+      const quill = this.$refs.QuillEditor.quill
+      if (res) {
+        const length = quill.getSelection().index
+        quill.insertEmbed(length, 'image', res)
+        quill.setSelection(length + 1)
+      } else {
+        this.$message.error('图片插入失败')
+      }
+    },
     uploadeditFormFile (params) {
     },
+    onEditorBlur (e) {
+    },
+    onEditorFocus (e) {},
+    onEditorReady (e) {},
     async submiteditinfo () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
@@ -361,6 +419,9 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.updateimg {
+  display: none;
+}
 .tablediv {
   @media only screen and (max-width: 1120px) {
     height:361px;

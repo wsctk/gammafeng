@@ -7,12 +7,19 @@ import './assets/css/global.css'
 import 'nprogress/nprogress.css'
 import qs from 'qs'
 import axios from 'axios'
+import VueQuillEditor from 'vue-quill-editor'
+
+import 'quill/dist/quill.core.css' // import styles
+import 'quill/dist/quill.snow.css' // for snow theme
+import 'quill/dist/quill.bubble.css' // for bubble theme
+
+Vue.use(VueQuillEditor)
 Vue.prototype.$qs = qs
 
 axios.defaults.withCredentials = true
 var instance = axios.create({
-  // baseURL: 'https://admin-api.gamma.it-10.com/',
-  baseURL: 'http://192.168.18.8:8181/',
+  baseURL: 'https://admin-api.gamma.it-10.com/',
+  // baseURL: 'http://192.168.18.8:8181/',
   // baseURL: 'http://192.168.18.8:8181/',
   header: {
     'content-type': 'application/x-www-form-urlencode, multipart/form-data;charset=utf-8'
