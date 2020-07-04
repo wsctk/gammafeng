@@ -88,6 +88,19 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
+      this.pageNum = 1
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
+      const msg = await this.$http.get('picture/pictureList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        this.$message.error('查询失败！')
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    async queryinfopage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('picture/pictureList', { params: this.queryInfo })
@@ -129,14 +142,14 @@ export default {
       if (!this.queryInfo.goodsName) {
         return this.getInformationList()
       }
-      this.queryinfo()
+      this.queryinfopage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.goodsName) {
         return this.getInformationList()
       }
-      this.queryinfo()
+      this.queryinfopage()
     }
   }
 }

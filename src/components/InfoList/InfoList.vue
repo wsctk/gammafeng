@@ -54,7 +54,8 @@
       </el-table>
       </div>
     <el-pagination
-      @size-change="handleSizeChange" @current-change="handleCurrentChange"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       background
       :page-count="11"
       :page-sizes="[1, 5, 10, 20]"
@@ -65,7 +66,7 @@
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="新增资讯" :visible.sync="dialogVisible" width="800px" @close="closeaddform">
+    <el-dialog title="新增资讯" @opened="showtooltipadd" :visible.sync="dialogVisible" width="800px" @close="closeaddform">
       <el-form label-width="100px" :model="additionalInfo" ref="additionalInfoRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="4">
@@ -78,11 +79,11 @@
           <el-col :span="15" :offset="4">
             <el-form-item label="商品封面:">
               <el-upload
-                :class="{ hide: hideUpload }"
+                class="addgoodscover"
                 ref="addimgRef"
                 :limit=1
                 :http-request="uploadaddFormFile"
-                :on-change="changeupload"
+                :on-change="changeaddcover"
                 action="#"
                 list-type="picture-card"
                 :on-preview="addimgPreview"
@@ -98,13 +99,28 @@
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="文章详情:">
-              <el-input
-                resize="none"
-                type="textarea"
-                :rows="4"
-                placeholder="富文本编辑器"
-                v-model="additionalInfo.article">
-              </el-input>
+              <el-upload
+                class="updateimg"
+                :with-credentials="true"
+                :show-file-list="false"
+                :on-success="handleSuccess"
+                :format="['jpg','jpeg','png','gif']"
+                :max-size="2048"
+                multiple
+                action="http://192.168.18.5:8181/picture/loadPicture"
+                >
+                <el-button icon="ios-cloud-upload-outline" ></el-button>
+              </el-upload>
+              <div>
+                <quill-editor
+                  ref="myQuillEditor"
+                  v-model="content"
+                  :options="editorOption"
+                  @blur="onEditorBlur($event)"
+                  @focus="onEditorFocus($event)"
+                  @ready="onEditorReady($event)"
+                />
+              </div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -122,7 +138,7 @@
         <el-button type="primary" @click="submitaddinfo" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑资讯" @opened="showtooltip" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
+    <el-dialog title="编辑资讯" @opened="showtooltipedit" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
       <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="4">
@@ -135,12 +151,14 @@
           <el-col :span="15" :offset="4">
             <el-form-item label="商品封面:">
               <el-upload
+                class="addgoodscover"
                 ref="editimgRef"
                 :limit=1
                 :http-request="uploadeditFormFile"
                 action="#"
                 list-type="picture-card"
                 :file-list="fileList"
+                :on-change="changeeditcover"
                 :on-preview="editimgPreview"
                 :on-remove="handleRemove">
                 <i class="el-icon-plus"></i>
@@ -156,13 +174,12 @@
             <el-form-item label="文章详情:">
               <el-upload
                 class="updateimg"
-                :show-upload-list="false"
+                :show-file-list="false"
                 :on-success="handleSuccess"
                 :format="['jpg','jpeg','png','gif']"
                 :max-size="2048"
                 multiple
-                action="#"
-                >
+                action="http://192.168.18.5:8181/picture/loadPicture">
                 <el-button icon="ios-cloud-upload-outline" ></el-button>
               </el-upload>
               <div>
@@ -224,9 +241,6 @@ export default {
         }
       },
       content: '',
-      hideUpload: false,
-      limitcount: 1,
-      showaddimgbox: true,
       zhinenganyici: false,
       tableData: [],
       total: 400,
@@ -271,6 +285,19 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
+      this.pageNum = 1
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
+      const msg = await this.$http.get('information/selectInformation', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        this.$message.error('查询失败！')
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    async queryinfopage () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('information/selectInformation', { params: this.queryInfo })
@@ -291,21 +318,52 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
-    changeupload (file, fileList) {
-      this.hideUpload = fileList.length >= this.limitcount
+    showtooltipadd () {
+      quilltitle()
+    },
+    showtooltipedit () {
+      quilltitle()
+      if (this.$refs.editimgRef.uploadFiles[0]) {
+        const editbtn = document.querySelector('.addgoodscover .el-upload')
+        editbtn.style.display = 'none'
+      }
+    },
+    handleSuccess (res) {
+      const quill = this.$refs.myQuillEditor.quill
+      if (res) {
+        const length = quill.getSelection().index
+        quill.insertEmbed(length, 'image', res)
+        quill.setSelection(length + 1)
+      } else {
+        this.$message.error('图片插入失败')
+      }
+    },
+    handleRemove (file, fileList) {
+      const addbtn = document.querySelector('.addgoodscover .el-upload')
+      addbtn.style.display = 'inline-block'
+    },
+    changeaddcover (file, fileList) {
+      if (this.$refs.addimgRef.uploadFiles[0]) {
+        const addbtn = document.querySelector('.addgoodscover .el-upload')
+        addbtn.style.display = 'none'
+      }
     },
     uploadaddFormFile (params) {
+    },
+    addimgPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible2 = true
     },
     async submitaddinfo () {
       this.$refs.additionalInfoRef.validate(async valid => {
         if (!valid) return
-        if (!this.$refs.addimgRef) {
+        if (!this.$refs.addimgRef.uploadFiles[0]) {
           return this.$message.error('请添加图片之后再提交！')
         }
         const formData = new FormData()
         formData.append('file', this.$refs.addimgRef.uploadFiles[0].raw)
         formData.append('articleName', this.additionalInfo.title)
-        formData.append('content', this.additionalInfo.article)
+        formData.append('content', this.content)
         formData.append('state', this.additionalInfo.state)
         this.zhinenganyici = true
         const msg = await this.$http.post('information/addInformation', formData)
@@ -319,44 +377,41 @@ export default {
     },
     closeaddform () {
       this.zhinenganyici = false
-      this.$refs.addimgRef.clearFiles()
+      const addbtn = document.querySelector('.addgoodscover .el-upload')
+      addbtn.style.display = 'inline-block'
       this.$refs.additionalInfoRef.resetFields()
+      this.$refs.addimgRef.clearFiles()
+      this.content = ''
     },
     showeditform (user) {
       this.dialogVisible1 = true
       this.editForm = user
       this.fileList.push({ url: user.cover })
+      this.content = this.editForm.article
     },
-    showtooltip () {
-      quilltitle()
-    },
-    handleSuccess (res) {
-      const quill = this.$refs.QuillEditor.quill
-      if (res) {
-        const length = quill.getSelection().index
-        quill.insertEmbed(length, 'image', res)
-        quill.setSelection(length + 1)
-      } else {
-        this.$message.error('图片插入失败')
+    changeeditcover (file, fileList) {
+      if (this.$refs.editimgRef.uploadFiles[0]) {
+        const editbtn = document.querySelector('.addgoodscover .el-upload')
+        editbtn.style.display = 'none'
       }
     },
     uploadeditFormFile (params) {
     },
-    onEditorBlur (e) {
+    editimgPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible3 = true
     },
-    onEditorFocus (e) {},
-    onEditorReady (e) {},
     async submiteditinfo () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
         const formData = new FormData()
-        if (!this.$refs.editimgRef.uploadFiles[0].raws) {
+        if (!this.$refs.editimgRef.uploadFiles[0].raw) {
           formData.append('path', this.$refs.editimgRef.uploadFiles[0].url)
         } else {
           formData.append('file', this.$refs.editimgRef.uploadFiles[0].raw)
         }
         formData.append('articleName', this.editForm.articleName)
-        formData.append('content', this.editForm.article)
+        formData.append('content', this.content)
         formData.append('state', this.editForm.state)
         formData.append('id', this.editForm.id)
         const msg = await this.$http.post('information/editInformation', formData)
@@ -374,17 +429,6 @@ export default {
       this.$refs.editimgRef.clearFiles()
       this.getInformationList()
     },
-    addimgPreview (file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible2 = true
-    },
-    editimgPreview (file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible3 = true
-    },
-    handleRemove (file, fileList) {
-      this.hideUpload = fileList.length >= this.limitcount
-    },
     async removeuser (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该条资讯, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -401,19 +445,22 @@ export default {
       this.$message.success('用户已删除')
       this.getInformationList()
     },
+    onEditorBlur (e) {},
+    onEditorFocus (e) {},
+    onEditorReady (e) {},
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.articleName && !this.queryInfo.createTime) {
         return this.getInformationList()
       }
-      this.queryinfo()
+      this.queryinfopage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.articleName && !this.queryInfo.createTime) {
         return this.getInformationList()
       }
-      this.queryinfo()
+      this.queryinfopage()
     }
   }
 }
@@ -422,11 +469,14 @@ export default {
 .updateimg {
   display: none;
 }
+.adddetailsimg {
+  display: none;
+}
 .tablediv {
-  @media only screen and (max-width: 1120px) {
+  @media only screen and (max-width: 1133px) {
     height:361px;
   }
-  @media only screen and (min-width: 1120px) {
+  @media only screen and (min-width: 1133px) {
     height:420px;
   }
 }

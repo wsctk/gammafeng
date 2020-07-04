@@ -55,7 +55,7 @@
     </el-pagination>
     </el-card>
     <el-dialog title="新增分类" :visible.sync="dialogVisible1" width="800px" @close="closeaddform">
-      <el-form hide-required-asterisk label-width="100px" :model="addForm" ref="addFormRef" :rules="addFormRules">
+      <el-form :hide-required-asterisk="false" label-width="120px" :model="addForm" ref="addFormRef" :rules="addFormRules">
         <el-row>
           <el-col :span="7" :offset="4">
             <el-form-item label="分类排序权重:" prop="index">
@@ -88,7 +88,7 @@
       </div>
     </el-dialog>
     <el-dialog title="编辑分类" :visible.sync="dialogVisible2" width="800px" @close="closeeditform">
-      <el-form hide-required-asterisk label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules">
+      <el-form :hide-required-asterisk="false" label-width="120px" :model="editForm" ref="editFormRef" :rules="editFormRules">
         <el-row>
           <el-col :span="7" :offset="4">
             <el-form-item label="分类排序权重:" prop="index">
@@ -142,6 +142,9 @@ export default {
         categoryState: ''
       },
       addFormRules: {
+        index: [
+          { required: true, message: '请输入分类排序权重', trigger: 'blur' }
+        ],
         categoryName: [
           { required: true, message: '请输入分类名称', trigger: 'blur' }
         ],
@@ -151,6 +154,9 @@ export default {
       },
       editForm: {},
       editFormRules: {
+        index: [
+          { required: true, message: '请输入分类排序权重', trigger: 'blur' }
+        ],
         categoryName: [
           { required: true, message: '请输入分类名称', trigger: 'blur' }
         ],
@@ -170,6 +176,18 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async querycate () {
+      this.pageNum = 1
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
+      const msg = await this.$http.get('category/categoryList', { params: { categoryName: this.queryInfo.categoryName } })
+      if (msg.status !== 200) {
+        return this.$message.error('查询失败！')
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    async querycatepage () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('category/categoryList', { params: { categoryName: this.queryInfo.categoryName } })
@@ -233,7 +251,8 @@ export default {
     async editcate () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
-        const msg = await this.$http.post('category/updateCategory', this.$qs.stringify(this.editForm))
+        this.editForm.index = Math.ceil(this.editForm.index)
+        const msg = await this.$http.post('category/updateCategory', this.$qs.stringify({ index: this.editForm.index, categoryName: this.editForm.categoryName, categoryState: this.editForm.categoryState, id: this.editForm.id }))
         if (msg.status !== 200) {
           return this.$message.error('编辑分类失败！')
         }
@@ -270,14 +289,14 @@ export default {
       if (!this.queryInfo.categoryName) {
         return this.getInformationList()
       }
-      this.querycate()
+      this.querycatepage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.categoryName) {
         return this.getInformationList()
       }
-      this.querycate()
+      this.querycatepage()
     }
   }
 }

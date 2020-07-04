@@ -119,6 +119,38 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
+      this.pageNum = 1
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
+      const msg = await this.$http.get('order/orderList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询订单失败！')
+      }
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].orderState) {
+          case '0':
+            msg.data.rows[i].orderState = '等待付款'
+            break
+          case '1':
+            msg.data.rows[i].orderState = '等待发货'
+            break
+          case '2':
+            msg.data.rows[i].orderState = '已发货'
+            break
+          case '3':
+            msg.data.rows[i].orderState = '已取消'
+            break
+          case '4':
+            msg.data.rows[i].orderState = '已退货'
+            break
+        }
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    async queryinfopage () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('order/orderList', { params: this.queryInfo })
@@ -191,7 +223,6 @@ export default {
         return this.$message.info('已取消操作！')
       }
       const msg = await this.$http.post('order/updateOrder', this.$qs.stringify({ id: id, orderState: state }))
-      console.log(msg)
       if (msg.data.code === 6) {
         return this.$message.error('操作失败！')
       }
@@ -202,24 +233,24 @@ export default {
       if (!this.queryInfo.orderNumber && !this.queryInfo.goodsName && !this.queryInfo.phoneNumber && !this.queryInfo.orderState) {
         return this.getorderlist()
       }
-      this.queryinfo()
+      this.queryinfopage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.orderNumber && !this.queryInfo.goodsName && !this.queryInfo.phoneNumber && !this.queryInfo.orderState) {
         return this.getorderlist()
       }
-      this.queryinfo()
+      this.queryinfopage()
     }
   }
 }
 </script>
 <style lang="less" scoped>
 .tablediv {
-  @media only screen and (min-width: 1566px) {
+  @media only screen and (min-width: 1588px) {
     height:430px;
   }
-  @media only screen and (max-width: 1566px) {
+  @media only screen and (max-width: 1588px) {
     height:360px;
   }
 }

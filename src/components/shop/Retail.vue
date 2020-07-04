@@ -10,46 +10,50 @@
     <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
         <el-form-item label="商品名：" class="firInput" prop="goodsName">
-          <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="queryretail"></el-input>
+          <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="queryretailbtn"></el-input>
         </el-form-item>
         <el-form-item label="一级用户：" prop="firstUser">
-          <el-select placeholder="请选择" v-model="queryInfo.firstUser" @keydown.enter.native="queryretail">
+          <el-select placeholder="请选择" v-model="queryInfo.firstUser" @keydown.enter.native="queryretailbtn">
             <el-option
-              v-for="item in tableData"
-              :key="item.first_id"
-              :label="item.first_name"
-              :value="item.first_id">
+              v-for="item in leveloneuser"
+              :key="item.firstUser"
+              :label="item.wechatName"
+              :value="item.firstUser">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="二级用户：" prop="secondUser">
-          <el-select placeholder="请选择" v-model="queryInfo.secondUser" @keydown.enter.native="queryretail">
+          <el-select placeholder="请选择" v-model="queryInfo.secondUser" @keydown.enter.native="queryretailbtn">
             <el-option
-              v-for="item in tableData"
+              v-for="item in leveltwouser"
               :key="item.second_id"
-              :label="item.seconde_name"
+              :label="item.wechatName"
               :value="item.second_id">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="queryretail">查询</el-button>
+          <el-button type="primary" @click="queryretailbtn">查询</el-button>
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
       <div class="tablediv">
-        <el-table :data="tableData" style="width: 100%" border height="100%">
+        <el-table :data="tableData" style="width: 100%" border height="100%" row-key="did">
           <el-table-column align="center" prop="did" label="分销ID" min-width="70px">
           </el-table-column>
-          <el-table-column align="center" prop="first_name" label="一级用户(手机号码)" min-width="150px">
+          <el-table-column align="center" prop="first_name" label="一级用户" min-width="150px">
           </el-table-column>
-          <el-table-column align="center" prop="seconde_name" label="二级用户(手机号码)" min-width="150px">
+          <el-table-column align="center" prop="seconde_name" label="二级用户" min-width="150px">
           </el-table-column>
           <el-table-column align="center" prop="goods_name" label="分销商品" min-width="200px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="goods_cover" label="商品图片" min-width="70px">
             <template v-slot="scope">
-              <img :src=scope.row.goods_cover style="wight:50px;height:50px" />
+              <el-image
+              style="width: 40px; height: 40px"
+              :src="scope.row.goods_cover"
+              :preview-src-list="[scope.row.goods_cover]">
+            </el-image>
             </template>
           </el-table-column>
           <el-table-column align="center" prop="order_amount" label="订单金额(元)" min-width="90px">
@@ -82,6 +86,8 @@
 export default {
   data () {
     return {
+      leveloneuser: [],
+      leveltwouser: [],
       pageSize: 10,
       tableData: [],
       total: 400,
@@ -98,6 +104,8 @@ export default {
   },
   created  () {
     this.getInformationList()
+    this.getfirstuser()
+    this.getseconduser()
   },
   methods: {
     async getInformationList () {
@@ -109,8 +117,29 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    async getfirstuser () {
+      const msg = await this.$http.get('distribution/getFirstUser')
+      this.leveloneuser = msg.data.data
+    },
+    async getseconduser () {
+      const msg = await this.$http.get('distribution/getSecondUser')
+      this.leveltwouser = msg.data.data
+    },
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
+    },
+    async queryretailbtn () {
+      this.pageNum = 1
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
+      const msg = await this.$http.get('distribution/getDistribution', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
     },
     async queryretail () {
       this.queryInfo.pageSize = this.pageSize
@@ -143,11 +172,11 @@ export default {
 </script>
 <style lang="less" scoped>
 .tablediv {
-  @media only screen and (min-width: 1505px) {
-    height:460px;
+  @media only screen and (min-width: 1516px) {
+    height:470px;
   }
-  @media only screen and (max-width: 1505px) {
-    height:380px;
+  @media only screen and (max-width: 1516px) {
+    height:400px;
   }
 }
 .main {

@@ -185,6 +185,40 @@ export default {
       this.maxPage = msg.data.maxPage
     },
     async queryInfomation () {
+      this.pageNum = 1
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
+      const msg = await this.$http.get('dispatcher/getDispatcherList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].order_state_name) {
+          case 0:
+            msg.data.rows[i].order_state_name = '待付款'
+            break
+          case 1:
+            msg.data.rows[i].order_state_name = '待指派'
+            break
+          case 2:
+            msg.data.rows[i].order_state_name = '待服务'
+            break
+          case 3:
+            msg.data.rows[i].order_state_name = '待确认'
+            break
+          case 4:
+            msg.data.rows[i].order_state_name = '已完成'
+            break
+        }
+        msg.data.rows[i].order_amount /= 100
+        msg.data.rows[i].order_amount = msg.data.rows[i].order_amount.toFixed(2)
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    async queryInfomationpage () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('dispatcher/getDispatcherList', { params: this.queryInfo })
@@ -220,6 +254,9 @@ export default {
     async showAppoint (order) {
       if (!(order.feishou_name === '未指派')) {
         return this.$message.error('飞手已指派！')
+      }
+      if (order.order_state !== 2) {
+        return this.$message.error('此订单不满足指派飞手的条件！')
       }
       this.dialogVisible = true
       const msg = await this.$http.get('dispatcher/getFeishou')
@@ -273,14 +310,14 @@ export default {
       if (!this.queryInfo.phoneNumber && !this.queryInfo.orderState) {
         return this.getInformationList()
       }
-      this.queryInfomation()
+      this.queryInfomationpage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.phoneNumber && !this.queryInfo.orderState) {
         return this.getInformationList()
       }
-      this.queryInfomation()
+      this.queryInfomationpage()
     }
   }
 }
@@ -290,11 +327,11 @@ export default {
   margin: 35px 25px;
 }
 .tablediv {
-  @media only screen and (min-width: 1112px) {
-    height:450px;
+  @media only screen and (min-width: 1129px) {
+    height:470px;
   }
-  @media only screen and (max-width: 1112px) {
-    height:360px;
+  @media only screen and (max-width: 1129px) {
+    height:403px;
   }
 }
 .head {

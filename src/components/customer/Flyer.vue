@@ -66,25 +66,32 @@
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="500px" @close="closeeditform">
+    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
       <el-form label-width="200px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="14" :offset="3">
-            <el-form-item label="商品佣金比例(千分比)：" prop="commissionRate" :inline-message="true">
+            <el-form-item label="用户积分：" prop="points">
+              <el-input v-model="editForm.points"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="14" :offset="3">
+            <el-form-item label="商品佣金比例(千分比)：" prop="commissionRate">
               <el-input v-model="editForm.commissionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="14" :offset="3">
-            <el-form-item label="派单分销佣金比例(千分比)：" prop="distributionRate" :inline-message="true">
+            <el-form-item label="派单分销佣金比例(千分比)：" prop="distributionRate">
               <el-input v-model="editForm.distributionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="14" :offset="3">
-            <el-form-item label="派单分成比例(千分比)：" prop="shareProp" :inline-message="true">
+            <el-form-item label="派单分成比例(千分比)：" prop="shareProp">
               <el-input v-model="editForm.shareProp"></el-input>
             </el-form-item>
           </el-col>
@@ -129,6 +136,9 @@ export default {
       dialogVisible1: false,
       editForm: {},
       editFormRules: {
+        points: [
+          { required: true, message: '请输入用户积分', trigger: 'blur' }
+        ],
         commissionRate: [
           { required: true, message: '请输入商品佣金比例', trigger: 'blur' }
         ],
@@ -149,6 +159,29 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
+      this.pageNum = 1
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
+      const msg = await this.$http.get('user/userList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.rows[i].statusState) {
+          case '0':
+            msg.data.rows[i].statusState = '未认证'
+            break
+          case '1':
+            msg.data.rows[i].statusState = '已认证'
+            break
+        }
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    async queryinfopage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('user/userList', { params: this.queryInfo })
@@ -194,25 +227,23 @@ export default {
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
         return this.getCustomerList()
       }
-      this.queryinfo()
+      this.queryinfopage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
-      this.getCustomerList()
+      if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
+        return this.getCustomerList()
+      }
+      this.queryinfopage()
     },
     showDialogForm (user) {
       this.editForm = user
       this.dialogVisible1 = true
-      // this.dialogVisible1 = true
-      // if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
-      //   return this.getCustomerList()
-      // }
-      // this.queryinfo()
     },
     async editdialog () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
-        const msg = await this.$http.post('user/updateUser', this.$qs.stringify({ commissionRate: this.editForm.commissionRate, parentPhoneNumber: this.editForm.parentPhoneNumber, distributionRate: this.editForm.distributionRate, id: this.editForm.id, shareProp: this.editForm.shareProp }))
+        const msg = await this.$http.post('user/updateUser', this.$qs.stringify({ commissionRate: this.editForm.commissionRate, parentPhoneNumber: this.editForm.parentPhoneNumber, distributionRate: this.editForm.distributionRate, id: this.editForm.id, shareProp: this.editForm.shareProp, points: this.editForm.points }))
         if (msg.status !== 200) {
           this.dialogVisible1 = false
           return this.$message.error('编辑飞手信息失败！')
@@ -251,11 +282,11 @@ export default {
 </script>
 <style lang="less" scoped>
 .tablediv {
-  @media only screen and (min-width: 1112px) {
+  @media only screen and (min-width: 1111px) {
     height:450px;
   }
-  @media only screen and (max-width: 1112px) {
-    height:360px;
+  @media only screen and (max-width: 1111px) {
+    height:364px;
   }
 }
 .main {

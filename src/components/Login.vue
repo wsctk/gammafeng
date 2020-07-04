@@ -142,8 +142,11 @@ export default {
           this.$qs.stringify({
             phoneNumber: this.loginMessage.phoneNumber
           }))
-        if (msg.data !== 'success') {
+        if (msg.status !== 200) {
           return this.$message.error('获取验证码失败！')
+        }
+        if (msg.data.code === 21) {
+          return this.$message.error('该手机号未绑定管理员！')
         }
         this.btnavalible = true
         this.cangetcode = false

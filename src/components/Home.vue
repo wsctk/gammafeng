@@ -89,7 +89,7 @@ export default {
           authName: '系统管理',
           id: 5,
           children: [
-            { authName: '分销提现门槛', id: 1, path: 'tixianmenkan' },
+            { authName: '基础设置', id: 1, path: 'tixianmenkan' },
             { authName: '亩数定价范围', id: 2, path: 'mushu' },
             { authName: '管理员管理', id: 3, path: 'keeper' },
             { authName: '首页轮播图管理', id: 4, path: 'lunbotu' }

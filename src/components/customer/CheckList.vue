@@ -83,7 +83,8 @@
         </el-table>
       </div>
       <el-pagination
-        @size-change="handleSizeChange" @current-change="handleCurrentChange"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
         background
         :page-sizes="[1, 5, 10, 20]"
         :page-size="pageSize"
@@ -174,7 +175,7 @@
 export default {
   data () {
     return {
-      details: [],
+      details: {},
       queryInfo: {
         wechatName: '',
         phoneNumber: '',
@@ -230,6 +231,41 @@ export default {
       this.maxPage = arr.data.maxPage
     },
     async queryinfo () {
+      this.pageNum = 1
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
+      const msg = await this.$http.get('auth/authList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        return this.$message.error('查询失败！')
+      }
+      let arr = []
+      arr = msg
+      for (let i = 0; i < arr.data.rows.length; i++) {
+        switch (arr.data.rows[i].status) {
+          case '1':
+            arr.data.rows[i].status = '飞手'
+            break
+          case '2':
+            arr.data.rows[i].status = '农资商'
+            break
+        }
+        switch (arr.data.rows[i].authenticationState) {
+          case '2':
+            arr.data.rows[i].authenticationState = '已驳回'
+            break
+          case '1':
+            arr.data.rows[i].authenticationState = '已通过'
+            break
+          case '0':
+            arr.data.rows[i].authenticationState = '未认证'
+            break
+        }
+      }
+      this.tableData = arr.data.rows
+      this.total = arr.data.total
+      this.maxPage = arr.data.maxPage
+    },
+    async queryinfopage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('auth/authList', { params: this.queryInfo })
@@ -266,11 +302,10 @@ export default {
     async showdetails (id) {
       this.dialogVisible = true
       const msg = await this.$http.get('auth/getUserAuthDetails', { params: { id: id } })
-      console.log(msg)
       this.details = msg.data.data[0]
     },
     closeform () {
-      this.details = []
+      this.details = {}
     },
     async authsuccess (id) {
       const confirmResult = await this.$confirm('确定要通过该认证？', '提示', {
@@ -320,25 +355,25 @@ export default {
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
         return this.getAuthList()
       }
-      this.queryinfo()
+      this.queryinfopage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
         return this.getAuthList()
       }
-      this.queryinfo()
+      this.queryinfopage()
     }
   }
 }
 </script>
 <style lang="less" scoped>
 .tablediv {
-  @media only screen and (min-width: 1700px) {
-    height:440px;
+  @media only screen and (min-width: 1493px) {
+    height:450px;
   }
-  @media only screen and (max-width: 1700px) {
-    height:361px;
+  @media only screen and (max-width: 1493px) {
+    height:364px;
   }
 }
 .main {

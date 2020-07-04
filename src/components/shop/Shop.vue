@@ -17,8 +17,8 @@
         </el-form-item>
         <el-form-item label="商品归属：" prop="goodsClassfication">
           <el-select placeholder="请选择" v-model="queryInfo.goodsClassfication" @keydown.enter.native="query">
-            <el-option label="用户商城" value="1"></el-option>
-            <el-option label="积分商城" value="0"></el-option>
+            <el-option label="用户商城" value="0"></el-option>
+            <el-option label="积分商城" value="1"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
@@ -74,7 +74,7 @@
        <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
      </el-pagination>
     </el-card>
-    <el-dialog title="新增商品" :visible.sync="dialogVisible" width="800px" @close="closeaddform">
+    <el-dialog title="新增商品" @opened="showtooltipadd" :visible.sync="dialogVisible" width="800px" @close="closeaddform">
       <el-form label-width="130px" :model="addForm" ref="addFormRef" :rules="addFormRules" label-position="right" :hide-required-asterisk='false'>
         <el-row>
           <el-col :span="10">
@@ -109,13 +109,15 @@
         </el-row>
         <el-form-item label="商品封面" class="uploadimg">
           <el-upload
+            class="addgoodscover"
             ref="addimgRef"
             :limit=1
             :http-request="uploadaddimg"
             action=#
             list-type="picture-card"
+            :on-change="changeaddcover"
             :on-preview="addimgPreview"
-            :on-remove="handleRemove">
+            :on-remove="handleaddcoverRemove">
             <i class="el-icon-plus"></i>
           </el-upload>
           <el-dialog :visible.sync="dialogVisible2" append-to-body>
@@ -139,8 +141,8 @@
         <el-row>
           <el-col :span="10">
             <el-form-item label="商品归属：" prop="goodsClassfication">
-              <el-radio v-model="addForm.goodsClassfication" label="1">商城商品</el-radio>
-              <el-radio v-model="addForm.goodsClassfication" label="0">积分商品</el-radio>
+              <el-radio v-model="addForm.goodsClassfication" label="0">商城商品</el-radio>
+              <el-radio v-model="addForm.goodsClassfication" label="1">积分商品</el-radio>
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
@@ -153,12 +155,26 @@
         <el-row>
           <el-col :span="22">
             <el-form-item label="商品详情：" prop="textarea">
-              <el-input
-                type="textarea"
-                :rows="6"
-                placeholder="富文本编辑器"
-                v-model="addForm.textarea">
-              </el-input>
+              <el-upload
+                class="updateimg"
+                :show-file-list="false"
+                :on-success="handleSuccess"
+                :format="['jpg','jpeg','png','gif']"
+                :max-size="2048"
+                multiple
+                action="https://admin-api.gamma.it-10.com/picture/loadPicture">
+                <el-button icon="ios-cloud-upload-outline" ></el-button>
+              </el-upload>
+              <div>
+                <quill-editor
+                  ref="myQuillEditor"
+                  v-model="content"
+                  :options="editorOption"
+                  @blur="onEditorBlur($event)"
+                  @focus="onEditorFocus($event)"
+                  @ready="onEditorReady($event)"
+                />
+              </div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -168,7 +184,7 @@
         <el-button type="primary" @click="submitaddform" :disabled="zhinenganyici">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑商品" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
+    <el-dialog title="编辑商品" @opened="showtooltipedit" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
       <el-form label-width="130px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk='false'>
         <el-row>
           <el-col :span="10">
@@ -177,7 +193,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
-            <el-form-item label="商品分类：" prop="categoryName">
+            <el-form-item label="商品分类：" prop="categoryId">
                <el-select v-model="editForm.categoryId">
                 <el-option
                   v-for="item in category"
@@ -203,14 +219,16 @@
         </el-row>
         <el-form-item label="商品封面" class="uploadimg">
           <el-upload
+            class="addgoodscover"
             ref="editimgRef"
             :file-list="editimglist"
             :limit=1
             :http-request="uploadeditimg"
             action=#
             list-type="picture-card"
+            :on-change="changeeditcover"
             :on-preview="editimgPreview"
-            :on-remove="handleRemove">
+            :on-remove="handleeditcoverRemove">
             <i class="el-icon-plus"></i>
           </el-upload>
           <el-dialog :visible.sync="dialogVisible4" append-to-body>
@@ -249,11 +267,26 @@
         <el-row>
           <el-col :span="22">
             <el-form-item label="商品详情：" prop="goodsDescription">
-              <el-input
-                type="textarea"
-                :rows="6"
-                v-model="editForm.goodsDescription">
-              </el-input>
+              <el-upload
+                class="updateimg"
+                :show-file-list="false"
+                :on-success="handleSuccess"
+                :format="['jpg','jpeg','png','gif']"
+                :max-size="2048"
+                multiple
+                action="https://admin-api.gamma.it-10.com/picture/loadPicture">
+                <el-button icon="ios-cloud-upload-outline" ></el-button>
+              </el-upload>
+              <div>
+                <quill-editor
+                  ref="myQuillEditor"
+                  v-model="content"
+                  :options="editorOption"
+                  @blur="onEditorBlur($event)"
+                  @focus="onEditorFocus($event)"
+                  @ready="onEditorReady($event)"
+                />
+              </div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -282,9 +315,35 @@
   </div>
 </template>
 <script>
+import { quilltitle } from '../../assets/js/quill-title.js'
 export default {
   data () {
     return {
+      editorOption: {
+        modules: {
+          toolbar: {
+            container: [
+              ['bold', 'italic', 'underline', 'strike'],
+              ['image', 'clean'],
+              [{ script: 'sub' }, { script: 'super' }],
+              [{ header: [1, 2, false] }],
+              [{ color: [] }],
+              [{ background: [] }],
+              [{ font: [] }, { align: [] }]
+            ],
+            handlers: {
+              image: function (value) {
+                if (value) {
+                  document.querySelector('.updateimg .el-button').click()
+                } else {
+                  this.quill.format('image', false)
+                }
+              }
+            }
+          }
+        }
+      },
+      content: '',
       zhinenganyici: false,
       tableData: [],
       total: 400,
@@ -329,6 +388,12 @@ export default {
         ],
         inventory: [
           { required: true, message: '请输入商品库存', trigger: 'blur' }
+        ],
+        goodsClassfication: [
+          { required: true, message: '请输入商品归属', trigger: 'blur' }
+        ],
+        goodsState: [
+          { required: true, message: '请输入商品状态', trigger: 'blur' }
         ]
       },
       editForm: {},
@@ -344,6 +409,12 @@ export default {
         ],
         inventory: [
           { required: true, message: '请输入商品库存', trigger: 'blur' }
+        ],
+        goodsClassfication: [
+          { required: true, message: '请输入商品归属', trigger: 'blur' }
+        ],
+        goodsState: [
+          { required: true, message: '请输入商品状态', trigger: 'blur' }
         ]
       },
       editimglist: [],
@@ -360,6 +431,7 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async query () {
+      this.pageNum = 1
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('store/goodsList', { params: this.queryInfo })
@@ -371,10 +443,46 @@ export default {
       arr = msg
       for (let i = 0; i < arr.data.rows.length; i++) {
         switch (arr.data.rows[i].goodsClassfication) {
-          case '1':
+          case '0':
             arr.data.rows[i].goodsClassficationname = '用户商城'
             break
+          case '1':
+            arr.data.rows[i].goodsClassficationname = '积分商城'
+            break
+        }
+        switch (arr.data.rows[i].goodsState) {
+          case 0:
+            arr.data.rows[i].goodsStatename = '下架'
+            break
+          case 1:
+            arr.data.rows[i].goodsStatename = '正常'
+            break
+        }
+        if (arr.data.rows[i].goodsClassfication === '1') {
+          arr.data.rows[i].goodsPrice /= 100
+          arr.data.rows[i].goodsPrice = arr.data.rows[i].goodsPrice.toFixed(2)
+        }
+      }
+      this.tableData = arr.data.rows
+      this.total = arr.data.total
+      this.maxPage = arr.data.maxPage
+    },
+    async querypage () {
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
+      const msg = await this.$http.get('store/goodsList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      let arr = []
+      arr = msg
+      for (let i = 0; i < arr.data.rows.length; i++) {
+        switch (arr.data.rows[i].goodsClassfication) {
           case '0':
+            arr.data.rows[i].goodsClassficationname = '用户商城'
+            break
+          case '1':
             arr.data.rows[i].goodsClassficationname = '积分商城'
             break
         }
@@ -404,10 +512,10 @@ export default {
       arr = msg
       for (let i = 0; i < arr.data.rows.length; i++) {
         switch (arr.data.rows[i].goodsClassfication) {
-          case '1':
+          case '0':
             arr.data.rows[i].goodsClassficationname = '用户商城'
             break
-          case '0':
+          case '1':
             arr.data.rows[i].goodsClassficationname = '积分商城'
             break
         }
@@ -435,9 +543,36 @@ export default {
       }
       this.category = cate.data.data
     },
+    showtooltipadd () {
+      quilltitle()
+    },
+    showtooltipedit () {
+      quilltitle()
+      if (this.$refs.editimgRef.uploadFiles[0]) {
+        const editbtn = document.querySelector('.addgoodscover .el-upload')
+        editbtn.style.display = 'none'
+      }
+    },
+    handleRemove (file, fileList) {},
     uploadaddimg (params) {
     },
     uploadaddimgs (params) {
+    },
+    changeaddcover (file, fileList) {
+      if (this.$refs.addimgRef.uploadFiles[0]) {
+        const addbtn = document.querySelector('.addgoodscover .el-upload')
+        addbtn.style.display = 'none'
+      }
+    },
+    handleSuccess (res) {
+      const quill = this.$refs.myQuillEditor.quill
+      if (res) {
+        const length = quill.getSelection().index
+        quill.insertEmbed(length, 'image', res)
+        quill.setSelection(length + 1)
+      } else {
+        this.$message.error('图片插入失败')
+      }
     },
     async submitaddform () {
       this.$refs.addFormRef.validate(async valid => {
@@ -465,9 +600,12 @@ export default {
     },
     closeaddform () {
       this.zhinenganyici = false
+      const editbtn = document.querySelector('.addgoodscover .el-upload')
+      editbtn.style.display = 'inline-block'
       this.$refs.addFormRef.resetFields()
       this.$refs.addimgRef.clearFiles()
       this.$refs.addimgsRef.clearFiles()
+      this.content = ''
     },
     async showeditForm (user) {
       this.dialogVisible1 = true
@@ -484,10 +622,17 @@ export default {
       for (let i = 0; i < this.showimgslist.length; i++) {
         this.editimgslist.push({ url: this.showimgslist[i].thumbnailPicture })
       }
+      this.content = this.editForm.goodsDescription
     },
     uploadeditimg (params) {
     },
     uploadeditimgs (params) {
+    },
+    changeeditcover (file, fileList) {
+      if (this.$refs.editimgRef.uploadFiles[0]) {
+        const editbtn = document.querySelector('.addgoodscover .el-upload')
+        editbtn.style.display = 'none'
+      }
     },
     async submiteditform () {
       this.$refs.editFormRef.validate(async valid => {
@@ -522,11 +667,22 @@ export default {
       this.editimglist = []
       this.editimgslist = []
       this.showimgslist = []
+      this.content = ''
       this.$refs.editimgRef.clearFiles()
       this.$refs.editimgsRef.clearFiles()
       this.getgoodList()
     },
-    handleRemove (file, fileList) {
+    handleaddcoverRemove (file, fileList) {
+      if (!this.$refs.addimgRef.uploadFiles[0]) {
+        const addbtn = document.querySelector('.addgoodscover .el-upload')
+        addbtn.style.display = 'inline-block'
+      }
+    },
+    handleeditcoverRemove (file, fileList) {
+      if (!this.$refs.editimgRef.uploadFiles[0]) {
+        const addbtn = document.querySelector('.addgoodscover .el-upload')
+        addbtn.style.display = 'inline-block'
+      }
     },
     addimgPreview (file) {
       this.dialogImageUrl = file.url
@@ -568,29 +724,35 @@ export default {
       }
       this.showimgslist = msg.data.data
     },
+    onEditorBlur (e) {},
+    onEditorFocus (e) {},
+    onEditorReady (e) {},
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.goodsName && !this.queryInfo.cateGoryName && !this.queryInfo.goodsClassfication) {
         return this.getgoodList()
       }
-      this.query()
+      this.querypage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.goodsName && !this.queryInfo.cateGoryName && !this.queryInfo.goodsClassfication) {
         return this.getgoodList()
       }
-      this.query()
+      this.querypage()
     }
   }
 }
 </script>
 <style lang="less" scoped>
+.updateimg {
+  display: none;
+}
 .tablediv {
-  @media only screen and (min-width: 1505px) {
+  @media only screen and (min-width: 1494px) {
     height:420px;
   }
-  @media only screen and (max-width: 1505px) {
+  @media only screen and (max-width: 1494px) {
     height:360px;
   }
 }

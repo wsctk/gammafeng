@@ -67,6 +67,13 @@
       <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="17" :offset="3">
+            <el-form-item label="用户积分：" prop="points" :inline-message="true">
+              <el-input v-model="editForm.points"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="17" :offset="3">
             <el-form-item label="商品佣金比例：" prop="commissionRate" :inline-message="true">
               <el-input v-model="editForm.commissionRate"></el-input>
             </el-form-item>
@@ -118,6 +125,9 @@ export default {
         ],
         distributionRate: [
           { required: true, message: '请输入派单佣金分成比例：', trigger: 'blur' }
+        ],
+        points: [
+          { required: true, message: '请输入用户积分：', trigger: 'blur' }
         ]
       }
     }
@@ -130,6 +140,28 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async queryinfo () {
+      this.pageNum = 1
+      this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.pageNum = this.pageNum
+      const msg = await this.$http.get('user/userList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].statusState) {
+          case '0':
+            msg.data.rows[i].statusState = '未认证'
+            break
+          case '1':
+            msg.data.rows[i].statusState = '已认证'
+            break
+        }
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+    },
+    async queryinfopage () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
       const msg = await this.$http.get('user/userList', { params: this.queryInfo })
@@ -176,14 +208,14 @@ export default {
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
         return this.getCustomerList()
       }
-      this.queryinfo()
+      this.queryinfopage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
         return this.getCustomerList()
       }
-      this.queryinfo()
+      this.queryinfopage()
     },
     showDialogForm (user) {
       this.editForm = user
@@ -191,12 +223,13 @@ export default {
     },
     closeeditform () {
       this.editForm = {}
+      this.$refs.editFormRef.resetFields()
       this.getCustomerList()
     },
     async editdialog () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
-        const msg = await this.$http.post('user/updateUser', this.$qs.stringify({ commissionRate: this.editForm.commissionRate, parentPhoneNumber: this.editForm.parentPhoneNumber, distributionRate: this.editForm.distributionRate, id: this.editForm.id }))
+        const msg = await this.$http.post('user/updateUser', this.$qs.stringify({ commissionRate: this.editForm.commissionRate, parentPhoneNumber: this.editForm.parentPhoneNumber, distributionRate: this.editForm.distributionRate, id: this.editForm.id, points: this.editForm.points }))
         if (msg.status !== 200) {
           this.dialogVisible1 = false
           return this.$message.error('编辑普通用户信息失败！')
@@ -214,11 +247,11 @@ export default {
 </script>
 <style lang="less" scoped>
 .tablediv {
-  @media only screen and (min-width: 1112px) {
+  @media only screen and (min-width: 1111px) {
     height:450px;
   }
-  @media only screen and (max-width: 1112px) {
-    height:360px;
+  @media only screen and (max-width: 1111px) {
+    height:364px;
   }
 }
 .main {

@@ -124,6 +124,32 @@ export default {
       this.maxPage = msg.data.maxPage
     },
     async querylist () {
+      this.pageNum = 1
+      this.queryinfo.pageNum = this.pageNum
+      this.queryinfo.pageSize = this.pageSize
+      const msg = await this.$http.get('draw/drawList', { params: this.queryinfo })
+      if (msg.status !== 200) {
+        this.resetField()
+        return this.$message.error('查询失败！')
+      }
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].gmUser.userStatus) {
+          case '0':
+            msg.data.rows[i].gmUser.userStatus = '普通用户'
+            break
+          case '1':
+            msg.data.rows[i].gmUser.userStatus = '飞手'
+            break
+          case '2':
+            msg.data.rows[i].gmUser.userStatus = '农资商'
+            break
+        }
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    async querylistpage () {
       this.queryinfo.pageNum = this.pageNum
       this.queryinfo.pageSize = this.pageSize
       const msg = await this.$http.get('draw/drawList', { params: this.queryinfo })
@@ -191,14 +217,14 @@ export default {
       if (!this.queryInfo.userStatus && !this.queryInfo.phoneNumber) {
         return this.getCustomerList()
       }
-      this.querylist()
+      this.querylistpage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.userStatus && !this.queryInfo.phoneNumber) {
         return this.getCustomerList()
       }
-      this.querylist()
+      this.querylistpage()
     }
   }
 }

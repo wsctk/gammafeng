@@ -9,9 +9,9 @@ import qs from 'qs'
 import axios from 'axios'
 import VueQuillEditor from 'vue-quill-editor'
 
-import 'quill/dist/quill.core.css' // import styles
-import 'quill/dist/quill.snow.css' // for snow theme
-import 'quill/dist/quill.bubble.css' // for bubble theme
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 
 Vue.use(VueQuillEditor)
 Vue.prototype.$qs = qs

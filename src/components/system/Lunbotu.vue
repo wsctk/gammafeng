@@ -13,22 +13,24 @@
         <el-table :data="tableData" style="width: 100%" border height="100%">
           <el-table-column align="center" prop="id" label="图片ID" min-width="50px">
           </el-table-column>
-          <el-table-column align="center" prop="goodsName" label="标题" min-width="150px" show-overflow-tooltip>
+          <el-table-column align="center" prop="banner" label="标题" min-width="150px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="thumbnailPicture" label="轮播图片" min-width="70px">
+          <el-table-column align="center" prop="route" label="轮播图片" min-width="70px">
             <template v-slot="scope">
               <el-image
                 style="width: 50px; height: 50px"
-                :src="scope.row.thumbnailPicture"
-                :preview-src-list="[scope.row.thumbnailPicture]">
+                :src="scope.row.route"
+                :preview-src-list="[scope.row.route]">
               </el-image>
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="createTime" label="排序" min-width="80px">
+          <el-table-column align="center" prop="statusname" label="状态" min-width="80px">
+          </el-table-column>
+          <el-table-column align="center" prop="index" label="排序" min-width="80px">
           </el-table-column>
           <el-table-column align="center" prop="" label="操作" v-slot="scope" min-width="100px" fixed="right">
             <template>
-              <el-button size="small" type="danger" @click="showeditform(scope.row.id)">编辑</el-button>
+              <el-button size="small" type="primary" @click="showeditform(scope.row)">编辑</el-button>
               <el-button size="small" type="danger" @click="removeimg(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
@@ -39,20 +41,22 @@
       <el-form label-width="120px" :model="addForm" ref="addFormRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="3">
-            <el-form-item label="标题:" prop="acquireTime">
-              <el-input v-model="addForm" placeholder="请输入标题"></el-input>
+            <el-form-item label="标题:" prop="banner">
+              <el-input v-model="addForm.banner" placeholder="请输入标题"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="15" :offset="3">
-            <el-form-item label="图片:" prop="expirationDate">
+            <el-form-item label="图片:">
               <el-upload
+                class="addgoodscover"
                 ref="addimgRef"
                 :limit=1
                 :http-request="uploadaddFormFile"
                 action="#"
                 list-type="picture-card"
+                :on-change="changeaddimg"
                 :on-preview="addimgPreview"
                 :on-remove="handleRemove">
                 <i class="el-icon-plus"></i>
@@ -65,23 +69,75 @@
         </el-row>
         <el-row>
           <el-col :span="11" :offset="3">
-            <el-form-item label="显示:" prop="phoneNumber">
-                <el-radio v-model="addForm" :label="0">禁用</el-radio>
-                <el-radio v-model="addForm" :label="1">启用</el-radio>
+            <el-form-item label="显示:" prop="status">
+                <el-radio v-model="addForm.status" :label="0">禁用</el-radio>
+                <el-radio v-model="addForm.status" :label="1">启用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="11" :offset="3">
-            <el-form-item label="排序:" prop="useType">
-              <el-input v-model="addForm" placeholder="请输入排序"></el-input>
+            <el-form-item label="排序:" prop="index">
+              <el-input v-model="addForm.index" placeholder="请输入排序数字"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button @click="addlunboimg">确认</el-button>
+        <el-button @click="addlunboimg" :disabled="zhinenganyici">确认</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="编辑优惠券" :visible.sync="dialogVisible2" width="600px" @close="closeeditform">
+      <el-form label-width="120px" :model="editForm" ref="editFormRef" :rules="editFormRules" :hide-required-asterisk="false">
+        <el-row>
+          <el-col :span="15" :offset="3">
+            <el-form-item label="标题:" prop="banner">
+              <el-input v-model="editForm.banner" placeholder="请输入标题"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="15" :offset="3">
+            <el-form-item label="图片:">
+              <el-upload
+                class="editgoodscover"
+                ref="editimgRef"
+                :file-list="fileList"
+                :limit=1
+                :http-request="uploadeditFormFile"
+                action="#"
+                list-type="picture-card"
+                :on-change="changeeditimg"
+                :on-preview="editimgPreview"
+                :on-remove="handleRemove">
+                <i class="el-icon-plus"></i>
+              </el-upload>
+              <el-dialog :visible.sync="dialogVisible3" append-to-body>
+                <img width="100%" :src="dialogImageUrl" alt="">
+              </el-dialog>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11" :offset="3">
+            <el-form-item label="显示:" prop="status">
+                <el-radio v-model="editForm.status" label="0">禁用</el-radio>
+                <el-radio v-model="editForm.status" label="1">启用</el-radio>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11" :offset="3">
+            <el-form-item label="排序:" prop="index">
+              <el-input v-model="editForm.index" placeholder="请输入排序数字"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible2=false">取消</el-button>
+        <el-button @click="editlunboimg">确认</el-button>
       </div>
     </el-dialog>
   </div>
@@ -94,55 +150,147 @@ export default {
       dialogVisible1: false,
       dialogVisible2: false,
       dialogVisible3: false,
+      dialogImageUrl: '',
+      fileList: [],
+      zhinenganyici: false,
       tableData: [],
       total: 1,
       pageNum: 1,
       pageSize: 10,
       maxPage: 1,
       addForm: {
+        banner: '',
+        index: '',
+        status: ''
       },
-      addFormRules: {},
-      eidtForm: {},
-      editFormRules: {}
+      addFormRules: {
+        banner: [
+          { required: true, message: '请选择标题！', trigger: 'blur' }],
+        articleName: [
+          { required: true, message: '请选择显示状态！', trigger: 'blur' }],
+        index: [
+          { required: true, message: '请输入排序数字！', trigger: 'blur' }],
+        status: [
+          { required: true, message: '请输入排序数字！', trigger: 'blur' }]
+      },
+      editForm: {},
+      editFormRules: {
+        banner: [
+          { required: true, message: '请选择标题！', trigger: 'blur' }],
+        articleName: [
+          { required: true, message: '请选择显示状态！', trigger: 'blur' }],
+        index: [
+          { required: true, message: '请输入排序数字！', trigger: 'blur' }],
+        status: [
+          { required: true, message: '请输入排序数字！', trigger: 'blur' }]
+      }
     }
   },
   created () {
     this.getInformationList()
   },
   methods: {
-    resetQueryForm () {
-      this.$refs.queryInfoRef.resetFields()
-    },
-    async queryinfo () {
-      this.queryInfo.pageNum = this.pageNum
-      this.queryInfo.pageSize = this.pageSize
-      const msg = await this.$http.get('picture/pictureList', { params: this.queryInfo })
-      if (msg.status !== 200) {
-        this.resetQueryForm()
-        this.$message.error('查询失败！')
-      }
-      this.tableData = msg.data.rows
-      this.total = msg.data.total
-      this.maxPage = msg.data.maxPage
-    },
     async getInformationList () {
-      const msg = await this.$http.get('picture/pictureList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
+      const msg = await this.$http.get('rotation/rotationList')
       if (msg.status !== 200) {
         return this.$message.error('获取商品图片失败！')
       }
-      this.tableData = msg.data.rows
-      this.total = msg.data.total
-      this.maxPage = msg.data.maxPage
+      for (let i = 0; i < msg.data.data.length; i++) {
+        switch (msg.data.data[i].status) {
+          case '1':
+            msg.data.data[i].statusname = '启用'
+            break
+          case '0':
+            msg.data.data[i].statusname = '禁用'
+            break
+        }
+      }
+      this.tableData = msg.data.data
+    },
+    uploadaddFormFile () {},
+    changeaddimg () {
+      if (this.$refs.addimgRef.uploadFiles[0]) {
+        const addbtn = document.querySelector('.addgoodscover .el-upload')
+        addbtn.style.display = 'none'
+      }
+    },
+    addimgPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible1 = true
     },
     async addlunboimg () {
-      const msg = await this.$http.post('')
-      console.log(msg)
+      this.$refs.addFormRef.validate(async valid => {
+        if (!valid) return
+        if (!this.$refs.addimgRef.uploadFiles[0]) {
+          return this.$message.error('请添加图片之后再提交！')
+        }
+        this.addForm.index = Math.ceil(this.addForm.index)
+        const formdata = new FormData()
+        formdata.append('banner', this.addForm.banner)
+        formdata.append('index', this.addForm.index)
+        formdata.append('status', this.addForm.status)
+        formdata.append('file', this.$refs.addimgRef.uploadFiles[0].raw)
+        this.zhinenganyici = true
+        const msg = await this.$http.post('rotation/insertRotation', formdata)
+        if (msg.status !== 200) {
+          return this.$message.error('添加轮播图失败！')
+        }
+        this.$message.success('添加轮播图成功！')
+        this.getInformationList()
+        this.dialogVisible = false
+      })
     },
-    async showeditform (id) {
-      this.dialogVisible1 = true
-      const msg = await this.$http.get('', { params: { id: id } })
-      console.log(msg)
-      this.editForm = msg.data.data
+    closeaddform () {
+      this.zhinenganyici = false
+      const addbtn = document.querySelector('.addgoodscover .el-upload')
+      addbtn.style.display = 'inline-block'
+      this.$refs.addimgRef.clearFiles()
+      this.$refs.addFormRef.resetFields()
+    },
+    async showeditform (user) {
+      this.dialogVisible2 = true
+      this.editForm = user
+      this.fileList.push({ url: user.route })
+    },
+    uploadeditFormFile () {},
+    changeeditimg (file, fileList) {
+      if (this.$refs.editimgRef.uploadFiles[0]) {
+        const addbtn = document.querySelector('.editgoodscover .el-upload')
+        addbtn.style.display = 'none'
+      }
+    },
+    editimgPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible3 = true
+    },
+    async editlunboimg () {
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return
+        this.editForm.index = Math.ceil(this.editForm.index)
+        const formData = new FormData()
+        if (!this.$refs.editimgRef.uploadFiles[0].raw) {
+          formData.append('path', this.$refs.editimgRef.uploadFiles[0].url)
+        } else {
+          formData.append('file', this.$refs.editimgRef.uploadFiles[0].raw)
+        }
+        formData.append('banner', this.editForm.banner)
+        formData.append('index', this.editForm.index)
+        formData.append('status', this.editForm.status)
+        formData.append('id', this.editForm.id)
+        const msg = await this.$http.post('rotation/updateRotation', formData)
+        if (msg.status !== 200) {
+          return this.$message.error('编辑提交失败！')
+        }
+        this.$message.success('编辑成功！')
+        this.getInformationList()
+        this.dialogVisible2 = false
+      })
+    },
+    closeeditform () {
+      this.$refs.editFormRef.resetFields()
+      this.fileList = []
+      this.$refs.editimgRef.clearFiles()
+      this.getInformationList()
     },
     async removeimg (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该商品图片, 是否继续?', '提示', {
@@ -153,33 +301,16 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消删除')
       }
-      const msg = await this.$http.post('picture/deletePicture', this.$qs.stringify({ id: id }))
+      const msg = await this.$http.post('rotation/deleteRotation', this.$qs.stringify({ id: id }))
       if (msg.status !== 200) {
         return this.$message.error('删除失败！')
       }
       this.$message.success('删除成功！')
       this.getInformationList()
     },
-    addimgPreview (file) {
-      this.dialogImageUrl = file.url
-      this.dialogVisible1 = true
-    },
     handleRemove (file, fileList) {
-      // this.hideUpload = fileList.length >= this.limitcount
-    },
-    handleSizeChange (newSize) {
-      this.pageSize = newSize
-      if (!this.queryInfo.goodsName) {
-        return this.getInformationList()
-      }
-      this.queryinfo()
-    },
-    handleCurrentChange (newPage) {
-      this.pageNum = newPage
-      if (!this.queryInfo.goodsName) {
-        return this.getInformationList()
-      }
-      this.queryinfo()
+      const addbtn = document.querySelector('.addgoodscover .el-upload')
+      addbtn.style.display = 'inline-block'
     }
   }
 }

@@ -47,11 +47,6 @@
               {{ scope.row.createTime | dateFormat}}
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="useTime" label="使用时间" min-width="200px">
-            <template v-slot="scope">
-              {{ scope.row.useTime | dateFormat}}
-            </template>
-          </el-table-column>
           <el-table-column align="center" prop="" label="操作" min-width="180px" v-slot="scope" fixed="right">
             <template>
               <el-button size="small" type="danger" @click="removecoupon(scope.row.id)">删除</el-button>
@@ -73,9 +68,9 @@
     </el-pagination>
     </el-card>
     <el-dialog title="新增优惠券" :visible.sync="dialogVisible" width="600px" @close="closeaddform">
-      <el-form label-width="120px" :model="addForm" ref="addFormRef" :rules="addFormRules" :hide-required-asterisk="false">
+      <el-form label-width="150px" :model="addForm" ref="addFormRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
-          <el-col :span="12" :offset="3">
+          <el-col :span="13" :offset="3">
             <el-form-item label="开始时间:" prop="acquireTime">
               <el-date-picker
                 v-model="addForm.acquireTime"
@@ -101,14 +96,14 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="15" :offset="3">
-            <el-form-item label="绑定用户:" prop="phoneNumber">
+          <el-col :span="16" :offset="3">
+            <el-form-item label="绑定用户(手机号码):" prop="phoneNumber">
               <el-input v-model="addForm.phoneNumber" placeholder="请输入绑定用户手机号"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="15" :offset="3">
+          <el-col :span="16" :offset="3">
             <el-form-item label="使用类型:" prop="useType">
               <el-radio v-model="addForm.useType" :label="1">派单优惠券</el-radio>
               <el-radio v-model="addForm.useType" :label="0">商品优惠券</el-radio>
@@ -116,15 +111,20 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="15" :offset="3">
+          <el-col :span="18" :offset="3">
             <el-form-item label="优惠券类型:" prop="couponsType">
               <el-radio v-model="addForm.couponsType" :label="1">直减</el-radio>
               <el-radio v-model="addForm.couponsType" :label="0">满减</el-radio>
-              <div v-if="addForm.couponsType===0">
-                <span class="textspan">满</span>
-                <input class="textinput" v-model="addForm.useCondition" placeholder="请输入条件金额" />
-                <span class="textspan">元使用</span>
-              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="addForm.couponsType===0">
+          <el-col :span="16" :offset="3">
+            <el-form-item label="满减:" prop="useCondition">
+              <el-input v-model="addForm.useCondition">
+                <template slot="prepend">满</template>
+                <template slot="append">元可用</template>
+              </el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -163,7 +163,7 @@ export default {
       dialogVisible1: false,
       addForm: {
         useType: '',
-        couponsType: 0,
+        couponsType: 1,
         value: '',
         acquireTime: '',
         expirationDate: '',
@@ -175,7 +175,22 @@ export default {
           { required: true, message: '请输入优惠券面额', trigger: 'blur' }
         ],
         expirationDate: [
-          { required: true, message: '请选择优惠券有效期', trigger: 'blur' }
+          { required: true, message: '请选择优惠券结束时间', trigger: 'blur' }
+        ],
+        acquireTime: [
+          { required: true, message: '请选择优惠券开始时间', trigger: 'blur' }
+        ],
+        couponsType: [
+          { required: true, message: '请选择优惠券类型', trigger: 'blur' }
+        ],
+        phoneNumber: [
+          { required: true, message: '请选择绑定用户手机号码', trigger: 'blur' }
+        ],
+        useType: [
+          { required: true, message: '请选择优惠券使用类型', trigger: 'blur' }
+        ],
+        useCondition: [
+          { required: true, message: '请选择满减金额', trigger: 'blur' }
         ]
       }
     }
@@ -185,6 +200,32 @@ export default {
   },
   methods: {
     async queryinfo () {
+      this.pageNum = 1
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
+      const msg = await this.$http.get('coupons/couponsList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetquery()
+        return this.$message.error('查询失败！')
+      }
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].state) {
+          case '0':
+            msg.data.rows[i].statename = '未使用'
+            break
+          case '1':
+            msg.data.rows[i].statename = '已使用'
+            break
+          case '2':
+            msg.data.rows[i].statename = '已失效'
+            break
+        }
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    async queryinfopage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('coupons/couponsList', { params: this.queryInfo })
@@ -277,39 +318,26 @@ export default {
       if (!this.queryInfo.useCondition && !this.queryInfo.state) {
         return this.getcouponlist()
       }
-      this.queryinfo()
+      this.queryinfopage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.useCondition && !this.queryInfo.state) {
         return this.getcouponlist()
       }
-      this.queryinfo()
+      this.queryinfopage()
     }
   }
 }
 </script>
 <style lang="less" scoped>
 .tablediv {
-  @media only screen and (max-width: 1120px) {
+  @media only screen and (max-width: 1210px) {
     height:361px;
   }
-  @media only screen and (min-width: 1120px) {
+  @media only screen and (min-width: 1210px) {
     height:420px;
   }
-}
-.textspan {
-  font-size:16px;
-  color:#aaa;
-  margin: 0 20px 0 20px
-}
-.textinput {
-  border:1px solid #DCDFE6;
-  border-radius:5px;
-  width:80px;
-  height:18px;
-  font-size:16px;
-  text-align: center;
 }
 .main {
   overflow:auto;

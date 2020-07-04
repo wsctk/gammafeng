@@ -193,10 +193,12 @@ export default {
           { required: true, message: '请输入管理员姓名', trigger: 'blur' }
         ],
         userName: [
-          { required: true, message: '请输入账号名', trigger: 'blur' }
+          { required: true, message: '请输入账号名', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 3 到 7 个字符', trigger: 'blur' }
         ],
         password: [
-          { required: true, message: '请输入密码', trigger: 'blur' }
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
         ],
         phoneNumber: [
           { required: true, message: '请输入手机号码', trigger: 'blur' },
@@ -209,13 +211,16 @@ export default {
           { required: true, message: '请输入管理员姓名', trigger: 'blur' }
         ],
         userName: [
-          { required: true, message: '请输入账号名', trigger: 'blur' }
+          { required: true, message: '请输入账号名', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 3 到 7 个字符', trigger: 'blur' }
         ],
         password: [
-          { required: true, message: '请输入密码', trigger: 'blur' }
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
         ],
         phoneNumber: [
-          { required: true, message: '请输入电话号码', trigger: 'blur' }
+          { required: true, message: '请输入电话号码', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }
         ]
       }
     }
@@ -228,6 +233,29 @@ export default {
       this.$refs.queryInfoRef.resetFields()
     },
     async querykeeper () {
+      this.pageNum = 1
+      this.queryInfo.pageNum = this.pageNum
+      this.queryInfo.pageSize = this.pageSize
+      const msg = await this.$http.get('admin/getAdminList', { params: this.queryInfo })
+      if (msg.status !== 200) {
+        this.resetQueryForm()
+        return this.$message.error('查询失败！')
+      }
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].status) {
+          case '0':
+            msg.data.rows[i].status = '禁用'
+            break
+          case '1':
+            msg.data.rows[i].status = '正常'
+            break
+        }
+      }
+      this.tableData = msg.data.rows
+      this.total = msg.data.total
+      this.maxPage = msg.data.maxPage
+    },
+    async querykeeperpage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
       const msg = await this.$http.get('admin/getAdminList', { params: this.queryInfo })
@@ -346,24 +374,24 @@ export default {
       if (!this.queryInfo.userName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
         return this.getInformationList()
       }
-      this.querykeeper()
+      this.querykeeperpage()
     },
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.userName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
         return this.getInformationList()
       }
-      this.querykeeper()
+      this.querykeeperpage()
     }
   }
 }
 </script>
 <style lang="less" scoped>
 .tablediv {
-  @media only screen and (min-width: 1700px) {
-    height:440px;
+  @media only screen and (min-width: 1528px) {
+    height:420px;
   }
-  @media only screen and (max-width: 1700px) {
+  @media only screen and (max-width: 1528px) {
     height:361px;
   }
 }

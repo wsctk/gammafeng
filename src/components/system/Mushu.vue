@@ -50,7 +50,6 @@ export default {
   methods: {
     async getsys () {
       const msg = await this.$http.get('system/getMuConfig')
-      console.log(msg)
       if (msg.status !== 200) {
         return this.$message.error('获取亩数价格失败！')
       }

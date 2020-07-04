@@ -25,6 +25,11 @@ body,
   margin: 0 30px;
   font-size:20px;
 }
+.el-form-item__error {
+    position: relative;
+    top: 10px;
+    font-size: 14px;
+}
 .el-card {
     box-shadow: 0 1px 1px rgba(0,0,0,0.15) !important;
 }
@@ -34,6 +39,9 @@ body,
 }
 .el-pagination {
     margin-top: 15px;
+}
+.el-image .el-icon-circle-close {
+       color: white;
 }
 .vcenter {
     display: flex;
