@@ -219,7 +219,7 @@
         </el-row>
         <el-form-item label="商品封面" class="uploadimg">
           <el-upload
-            class="addgoodscover"
+            class="editgoodscover"
             ref="editimgRef"
             :file-list="editimglist"
             :limit=1
@@ -549,7 +549,7 @@ export default {
     showtooltipedit () {
       quilltitle()
       if (this.$refs.editimgRef.uploadFiles[0]) {
-        const editbtn = document.querySelector('.addgoodscover .el-upload')
+        const editbtn = document.querySelector('.editgoodscover .el-upload')
         editbtn.style.display = 'none'
       }
     },
@@ -630,7 +630,7 @@ export default {
     },
     changeeditcover (file, fileList) {
       if (this.$refs.editimgRef.uploadFiles[0]) {
-        const editbtn = document.querySelector('.addgoodscover .el-upload')
+        const editbtn = document.querySelector('.editgoodscover .el-upload')
         editbtn.style.display = 'none'
       }
     },
@@ -680,7 +680,7 @@ export default {
     },
     handleeditcoverRemove (file, fileList) {
       if (!this.$refs.editimgRef.uploadFiles[0]) {
-        const addbtn = document.querySelector('.addgoodscover .el-upload')
+        const addbtn = document.querySelector('.editgoodscover .el-upload')
         addbtn.style.display = 'inline-block'
       }
     },

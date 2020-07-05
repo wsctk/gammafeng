@@ -37,7 +37,7 @@
         </el-table>
       </div>
     </el-card>
-    <el-dialog title="新增优惠券" :visible.sync="dialogVisible" width="600px" @close="closeaddform">
+    <el-dialog title="新增轮播图片" :visible.sync="dialogVisible" width="600px" @close="closeaddform">
       <el-form label-width="120px" :model="addForm" ref="addFormRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="3">
@@ -58,7 +58,7 @@
                 list-type="picture-card"
                 :on-change="changeaddimg"
                 :on-preview="addimgPreview"
-                :on-remove="handleRemove">
+                :on-remove="handleRemoveadd">
                 <i class="el-icon-plus"></i>
               </el-upload>
               <el-dialog :visible.sync="dialogVisible1" append-to-body>
@@ -88,7 +88,7 @@
         <el-button @click="addlunboimg" :disabled="zhinenganyici">确认</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="编辑优惠券" :visible.sync="dialogVisible2" width="600px" @close="closeeditform">
+    <el-dialog title="编辑轮播图片" @opened="hiddenaddbtn" :visible.sync="dialogVisible2" width="600px" @close="closeeditform">
       <el-form label-width="120px" :model="editForm" ref="editFormRef" :rules="editFormRules" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="15" :offset="3">
@@ -110,7 +110,7 @@
                 list-type="picture-card"
                 :on-change="changeeditimg"
                 :on-preview="editimgPreview"
-                :on-remove="handleRemove">
+                :on-remove="handleRemoveedit">
                 <i class="el-icon-plus"></i>
               </el-upload>
               <el-dialog :visible.sync="dialogVisible3" append-to-body>
@@ -252,6 +252,12 @@ export default {
       this.editForm = user
       this.fileList.push({ url: user.route })
     },
+    hiddenaddbtn () {
+      if (this.$refs.editimgRef.uploadFiles[0]) {
+        const editbtn = document.querySelector('.editgoodscover .el-upload')
+        editbtn.style.display = 'none'
+      }
+    },
     uploadeditFormFile () {},
     changeeditimg (file, fileList) {
       if (this.$refs.editimgRef.uploadFiles[0]) {
@@ -308,8 +314,12 @@ export default {
       this.$message.success('删除成功！')
       this.getInformationList()
     },
-    handleRemove (file, fileList) {
+    handleRemoveadd (file, fileList) {
       const addbtn = document.querySelector('.addgoodscover .el-upload')
+      addbtn.style.display = 'inline-block'
+    },
+    handleRemoveedit (file, fileList) {
+      const addbtn = document.querySelector('.editgoodscover .el-upload')
       addbtn.style.display = 'inline-block'
     }
   }

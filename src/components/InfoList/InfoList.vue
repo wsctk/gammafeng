@@ -87,7 +87,7 @@
                 action="#"
                 list-type="picture-card"
                 :on-preview="addimgPreview"
-                :on-remove="handleRemove">
+                :on-remove="handleRemoveadd">
                 <i class="el-icon-plus"></i>
               </el-upload>
               <el-dialog :visible.sync="dialogVisible2" append-to-body>
@@ -151,7 +151,7 @@
           <el-col :span="15" :offset="4">
             <el-form-item label="商品封面:">
               <el-upload
-                class="addgoodscover"
+                class="editgoodscover"
                 ref="editimgRef"
                 :limit=1
                 :http-request="uploadeditFormFile"
@@ -160,7 +160,7 @@
                 :file-list="fileList"
                 :on-change="changeeditcover"
                 :on-preview="editimgPreview"
-                :on-remove="handleRemove">
+                :on-remove="handleRemoveedit">
                 <i class="el-icon-plus"></i>
               </el-upload>
               <el-dialog :visible.sync="dialogVisible3" append-to-body>
@@ -324,7 +324,7 @@ export default {
     showtooltipedit () {
       quilltitle()
       if (this.$refs.editimgRef.uploadFiles[0]) {
-        const editbtn = document.querySelector('.addgoodscover .el-upload')
+        const editbtn = document.querySelector('.editgoodscover .el-upload')
         editbtn.style.display = 'none'
       }
     },
@@ -338,8 +338,12 @@ export default {
         this.$message.error('图片插入失败')
       }
     },
-    handleRemove (file, fileList) {
+    handleRemoveadd (file, fileList) {
       const addbtn = document.querySelector('.addgoodscover .el-upload')
+      addbtn.style.display = 'inline-block'
+    },
+    handleRemoveedit (file, fileList) {
+      const addbtn = document.querySelector('.editgoodscover .el-upload')
       addbtn.style.display = 'inline-block'
     },
     changeaddcover (file, fileList) {
@@ -391,7 +395,7 @@ export default {
     },
     changeeditcover (file, fileList) {
       if (this.$refs.editimgRef.uploadFiles[0]) {
-        const editbtn = document.querySelector('.addgoodscover .el-upload')
+        const editbtn = document.querySelector('.editgoodscover .el-upload')
         editbtn.style.display = 'none'
       }
     },

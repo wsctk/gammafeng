@@ -34,7 +34,7 @@ VueRouter.prototype.push = function push (location) {
 }
 const router = new VueRouter({
   routes: [
-    { path: '/', redirect: '/login' },
+    // { path: '/', redirect: '/login' },
     { path: '/login', component: Login },
     {
       path: '/home',
