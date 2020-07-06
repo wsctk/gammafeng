@@ -30,7 +30,9 @@
       </el-form>
       <el-button plain type="primary" @click="queryinfo">查询</el-button>
       <el-button plain @click="resetQueryForm">重置</el-button>
+      <download-excel class="export-excel-wrapper" :data="tableData" :fields="json_fields" name="订单导出.xls">
       <el-button plain round class="exportbtn" type="warning">导出所有订单</el-button>
+      </download-excel>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
           <el-table-column align="center" prop="orderNumber" label="订单号" min-width="200px">
@@ -97,6 +99,25 @@ export default {
     return {
       dialogVisible: false,
       tableData: [],
+      json_fields: {
+        订单号: {
+          field: 'orderNumber',
+          callback: value => {
+            return `${value}`
+          }
+        },
+        商品名: 'goodsName',
+        订单金额: 'orderAmout',
+        实付金额: 'paidAmout',
+        付款时间: 'paidTime',
+        订单状态: 'orderState',
+        用户昵称: 'wechatName',
+        用户手机号码: 'phoneNumber',
+        创建时间: 'createTime',
+        收货地址: 'address.address',
+        收货人: 'address.name',
+        收货人手机号码: 'address.orderPhoneNumber'
+      },
       total: 400,
       pageNum: 1,
       maxPage: 1,

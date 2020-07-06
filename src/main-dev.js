@@ -8,14 +8,12 @@ import 'nprogress/nprogress.css'
 import qs from 'qs'
 import axios from 'axios'
 import VueQuillEditor from 'vue-quill-editor'
-// import fileSaver from 'file-saver'
-// import XLSX from 'xlsx'
+import JsonExcel from 'vue-json-excel'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
-// Vue.use(fileSaver)
-// Vue.use(XLSX)
+Vue.component('downloadExcel', JsonExcel)
 Vue.use(VueQuillEditor)
 Vue.prototype.$qs = qs
 
