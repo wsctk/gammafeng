@@ -28,8 +28,9 @@
           </el-select>
         </el-form-item>
       </el-form>
-      <el-button type="primary" @click="queryinfo">查询</el-button>
+      <el-button plain type="primary" @click="queryinfo">查询</el-button>
       <el-button plain @click="resetQueryForm">重置</el-button>
+      <el-button plain round class="exportbtn" type="warning">导出所有订单</el-button>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
           <el-table-column align="center" prop="orderNumber" label="订单号" min-width="200px">
@@ -69,8 +70,8 @@
           </el-table-column>
           <el-table-column align="center" prop="" label="操作" min-width="180px" v-slot="scope" fixed="right">
             <template>
-              <el-button size="small" type="primary" @click="changestate(scope.row, 2)">发货</el-button>
-              <el-button size="small" type="danger" @click="deleteorder(scope.row)">删除</el-button>
+              <el-button plain size="small" type="success" @click="changestate(scope.row, 2)">发货</el-button>
+              <el-button plain size="small" type="danger" @click="deleteorder(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -266,6 +267,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.exportbtn {
+  position: absolute;
+  right: 80px;
+}
 .tablediv {
   @media only screen and (min-width: 1588px) {
     height:430px;

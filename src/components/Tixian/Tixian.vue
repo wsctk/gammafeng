@@ -20,7 +20,7 @@
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary" @click="querylist">查询</el-button>
+          <el-button plain type="primary" @click="querylist">查询</el-button>
           <el-button plain @click="resetField">重置</el-button>
         </el-form-item>
       </el-form>
@@ -57,8 +57,8 @@
           </el-table-column>
           <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
             <template>
-              <el-button size="small" type="primary" @click="tixiansuccess(scope.row)">成功</el-button>
-              <el-button size="small" type="danger" @click="tixianfailed(scope.row)">失败</el-button>
+              <el-button plain size="small" type="success" @click="tixiansuccess(scope.row)">成功</el-button>
+              <el-button plain size="small" type="danger" @click="tixianfailed(scope.row)">失败</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -106,19 +106,19 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('获取提现列表失败！')
       }
-      for (let i = 0; i < msg.data.rows.length; i++) {
-        switch (msg.data.rows[i].gmUser.userStatus) {
-          case '0':
-            msg.data.rows[i].gmUser.userStatus = '普通用户'
-            break
-          case '1':
-            msg.data.rows[i].gmUser.userStatus = '飞手'
-            break
-          case '2':
-            msg.data.rows[i].gmUser.userStatus = '农资商'
-            break
-        }
-      }
+      // for (let i = 0; i < msg.data.rows.length; i++) {
+      //   switch (msg.data.rows[i].gmUser.userStatus) {
+      //     case '0':
+      //       msg.data.rows[i].gmUser.userStatus = '普通用户'
+      //       break
+      //     case '1':
+      //       msg.data.rows[i].gmUser.userStatus = '飞手'
+      //       break
+      //     case '2':
+      //       msg.data.rows[i].gmUser.userStatus = '农资商'
+      //       break
+      //   }
+      // }
       this.tableData = msg.data.rows
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage

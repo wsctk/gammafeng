@@ -21,7 +21,7 @@
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary" @click="queryInfomation">查询</el-button>
+          <el-button plain type="primary" @click="queryInfomation">查询</el-button>
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
@@ -65,8 +65,8 @@
           </el-table-column>
           <el-table-column align="center" prop="" label="操作" min-width="200px" v-slot="scope" fixed="right">
             <template>
-              <el-button size="small" type="primary" @click="showAppoint(scope.row)">转派</el-button>
-              <el-button size="small" type="primary" @click="showorderconfirm(scope.row)">审核</el-button>
+              <el-button plain size="small" type="success" @click="showAppoint(scope.row)">转派</el-button>
+              <el-button plain size="small" type="warning" @click="showorderconfirm(scope.row)">审核</el-button>
             </template>
           </el-table-column>
         </el-table>

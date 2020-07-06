@@ -22,7 +22,7 @@
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary" @click="queryinfo">查询</el-button>
+          <el-button plain type="primary" @click="queryinfo">查询</el-button>
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
@@ -74,10 +74,10 @@
           </el-table-column>
           <el-table-column align="center" label="操作" min-width="300px" v-slot="scope" fixed="right">
             <template>
-              <el-button size="small" type="danger" @click="showdetails(scope.row.id)">详情</el-button>
-              <el-button size="small" type="primary" @click="authsuccess(scope.row.id)">通过</el-button>
-              <el-button size="small" type="warning" @click="refuse(scope.row)">驳回</el-button>
-              <el-button size="small" type="danger" @click="remove(scope.row.id)">删除</el-button>
+              <el-button plain size="small" type="success" @click="showdetails(scope.row.id)">详情</el-button>
+              <el-button plain size="small" type="primary" @click="authsuccess(scope.row.id)">通过</el-button>
+              <el-button plain size="small" type="warning" @click="refuse(scope.row)">驳回</el-button>
+              <el-button plain size="small" type="danger" @click="remove(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

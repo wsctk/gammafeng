@@ -13,11 +13,11 @@
           <el-input placeholder="请输入" v-model="queryInfo.categoryName" @keydown.enter.native="querycate"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary" @click="querycate">查询</el-button>
+          <el-button plain type="primary" @click="querycate">查询</el-button>
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-button class="addbtn" type="primary" size="large" @click="dialogVisible1=true">+ 新建</el-button>
+      <el-button plain class="addbtn" type="primary" size="large" @click="dialogVisible1=true">+ 新建</el-button>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
           <el-table-column align="center" prop="index" label="分类排序权重" min-width="120px">
@@ -35,8 +35,8 @@
           </el-table-column>
           <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
               <template>
-                <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
-                <el-button size="small" type="danger" @click="removecate(scope.row.id)">删除</el-button>
+                <el-button plain size="small" type="success" @click="showDialogForm(scope.row)">编辑</el-button>
+                <el-button plain size="small" type="danger" @click="removecate(scope.row.id)">删除</el-button>
               </template>
           </el-table-column>
         </el-table>

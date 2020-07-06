@@ -20,11 +20,11 @@
           </el-select>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary" @click="queryinfo">查询</el-button>
+          <el-button plain type="primary" @click="queryinfo">查询</el-button>
           <el-button plain @click="resetquery">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-button class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
+      <el-button plain class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
           <el-table-column align="center" prop="id" label="优惠券ID" min-width="80px">
@@ -54,7 +54,7 @@
           </el-table-column>
           <el-table-column align="center" prop="" label="操作" min-width="180px" v-slot="scope" fixed="right">
             <template>
-              <el-button size="small" type="danger" @click="removecoupon(scope.row.id)">删除</el-button>
+              <el-button plain size="small" type="danger" @click="removecoupon(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

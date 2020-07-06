@@ -16,7 +16,7 @@
           <el-input placeholder="请输入" v-model="queryInfo.phoneNumber" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item class="anniu">
-          <el-button type="primary" @click="queryinfo">查询</el-button>
+          <el-button plain type="primary" @click="queryinfo">查询</el-button>
           <el-button plain @click="resetQueryForm">重置</el-button>
         </el-form-item>
       </el-form>
@@ -56,8 +56,8 @@
           </el-table-column>
           <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
             <template>
-              <el-button size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="removefarmer(scope.row.id)">删除</el-button>
+              <el-button plain size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
+              <el-button plain size="small" type="danger" @click="removefarmer(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
