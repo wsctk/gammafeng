@@ -35,6 +35,11 @@
           </el-table-column>
           <el-table-column align="center" prop="useCondition" label="使用门槛" min-width="110px">
           </el-table-column>
+          <el-table-column align="center" prop="acquireTime" label="优惠券开始时间" min-width="200px">
+            <template v-slot="scope">
+              {{ scope.row.acquireTime | dateFormat}}
+            </template>
+          </el-table-column>
           <el-table-column align="center" prop="expirationDate" label="优惠券有效期" min-width="200px">
             <template v-slot="scope">
               {{ scope.row.expirationDate | dateFormat}}
@@ -73,10 +78,10 @@
           <el-col :span="13" :offset="3">
             <el-form-item label="开始时间:" prop="acquireTime">
               <el-date-picker
+                :picker-options="pickeroptions"
                 v-model="addForm.acquireTime"
-                type="date"
-                placeholder="选择日期"
-                format="yyyy 年 MM 月 dd 日"
+                type="datetime"
+                placeholder="选择开始日期时间"
                 value-format="timestamp">
               </el-date-picker>
             </el-form-item>
@@ -87,9 +92,9 @@
             <el-form-item label="结束时间:" prop="expirationDate">
               <el-date-picker
                 v-model="addForm.expirationDate"
-                type="date"
-                placeholder="选择日期"
-                format="yyyy 年 MM 月 dd 日"
+                :picker-options="pickeroptions"
+                type="datetime"
+                placeholder="选择结束日期时间"
                 value-format="timestamp">
               </el-date-picker>
             </el-form-item>
@@ -147,6 +152,11 @@
 export default {
   data () {
     return {
+      pickeroptions: {
+        disabledDate (time) {
+          return time.getTime() <= Date.now()
+        }
+      },
       zhinenganyici: false,
       tableData: [],
       total: 400,
@@ -280,9 +290,12 @@ export default {
     async addcoupon () {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
-        this.zhinenganyici = true
+        if (this.addForm.acquireTime >= this.addForm.expirationDate) {
+          return this.$message.error('开始时间在结束时间之前！')
+        }
         this.addForm.value *= 100
         this.addForm.useCondition *= 100
+        this.zhinenganyici = true
         const msg = await this.$http.post('coupons/addCoupons', this.$qs.stringify(this.addForm))
         if (msg.status !== 200) {
           this.dialogVisible = false

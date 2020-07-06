@@ -107,7 +107,7 @@
                 :format="['jpg','jpeg','png','gif']"
                 :max-size="2048"
                 multiple
-                action="http://192.168.18.5:8181/picture/loadPicture"
+                action="https://admin-api.gamma.it-10.com/picture/loadPicture"
                 >
                 <el-button icon="ios-cloud-upload-outline" ></el-button>
               </el-upload>
@@ -179,7 +179,7 @@
                 :format="['jpg','jpeg','png','gif']"
                 :max-size="2048"
                 multiple
-                action="http://192.168.18.5:8181/picture/loadPicture">
+                action="https://admin-api.gamma.it-10.com/picture/loadPicture">
                 <el-button icon="ios-cloud-upload-outline" ></el-button>
               </el-upload>
               <div>
@@ -430,6 +430,7 @@ export default {
     closeeditform () {
       this.$refs.editFormRef.resetFields()
       this.fileList = []
+      this.content = ''
       this.$refs.editimgRef.clearFiles()
       this.getInformationList()
     },
@@ -470,6 +471,9 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+/deep/.ql-editor{
+  height:120px;
+}
 .updateimg {
   display: none;
 }

@@ -85,7 +85,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button @click="addlunboimg" :disabled="zhinenganyici">确认</el-button>
+        <el-button type="primary" @click="addlunboimg" :disabled="zhinenganyici">确认</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑轮播图片" @opened="hiddenaddbtn" :visible.sync="dialogVisible2" width="600px" @close="closeeditform">
@@ -137,7 +137,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible2=false">取消</el-button>
-        <el-button @click="editlunboimg">确认</el-button>
+        <el-button type="primary" @click="editlunboimg">确认</el-button>
       </div>
     </el-dialog>
   </div>
@@ -160,7 +160,7 @@ export default {
       maxPage: 1,
       addForm: {
         banner: '',
-        index: '',
+        index: 0,
         status: ''
       },
       addFormRules: {

@@ -7,6 +7,7 @@ import Flyer from '../components/customer/Flyer.vue'
 import Normalcustomer from '../components/customer/Normalcustomer.vue'
 
 import Dispatch from '../components/dispatch/Dispatch.vue'
+import OrderRetail from '../components/dispatch/OrderRetail.vue'
 
 import InfoList from '../components/InfoList/InfoList.vue'
 
@@ -34,7 +35,7 @@ VueRouter.prototype.push = function push (location) {
 }
 const router = new VueRouter({
   routes: [
-    // { path: '/', redirect: '/login' },
+    { path: '/', redirect: '/login' },
     { path: '/login', component: Login },
     {
       path: '/home',
@@ -47,6 +48,7 @@ const router = new VueRouter({
         { path: '/farmer', component: Farmer },
         { path: '/checkList', component: CheckList },
         { path: '/dispatch', component: Dispatch },
+        { path: '/orderRetail', component: OrderRetail },
         { path: '/shop', component: Shop },
         { path: '/order', component: Order },
         { path: '/retail', component: Retail },

@@ -13,7 +13,15 @@
           <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="query"></el-input>
         </el-form-item>
         <el-form-item label="商品分类：" prop="cateGoryName">
-          <el-input placeholder="请输入" v-model="queryInfo.cateGoryName" @keydown.enter.native="query"></el-input>
+          <!-- <el-input placeholder="请输入" v-model="queryInfo.cateGoryName" @keydown.enter.native="query"></el-input> -->
+          <el-select v-model="queryInfo.cateGoryName" placeholder="请选择" @keydown.enter.native="query">
+            <el-option
+              v-for="item in category"
+              :key="item.id"
+              :label="item.categoryName"
+              :value="item.cateGoryName">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="商品归属：" prop="goodsClassfication">
           <el-select placeholder="请选择" v-model="queryInfo.goodsClassfication" @keydown.enter.native="query">
@@ -652,6 +660,7 @@ export default {
             formData.append('file', this.$refs.editimgsRef.uploadFiles[j].raw)
           }
         }
+        this.editForm.goodsDescription = this.content
         const msg = await this.$http.post('store/updateGoods', formData, { params: this.editForm })
         if (msg.status !== 200) {
           this.dialogVisible1 = false
@@ -745,6 +754,9 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+/deep/.ql-editor{
+  height:120px;
+}
 .updateimg {
   display: none;
 }

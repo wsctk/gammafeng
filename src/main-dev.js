@@ -8,18 +8,21 @@ import 'nprogress/nprogress.css'
 import qs from 'qs'
 import axios from 'axios'
 import VueQuillEditor from 'vue-quill-editor'
-
+// import fileSaver from 'file-saver'
+// import XLSX from 'xlsx'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
+// Vue.use(fileSaver)
+// Vue.use(XLSX)
 Vue.use(VueQuillEditor)
 Vue.prototype.$qs = qs
 
 axios.defaults.withCredentials = true
 var instance = axios.create({
-  baseURL: 'https://admin-api.gamma.it-10.com/',
-  // baseURL: 'http://192.168.18.8:8181/',
+  // baseURL: 'https://admin-api.gamma.it-10.com/',
+  baseURL: 'http://192.168.18.5:8181/',
   // baseURL: 'http://192.168.18.8:8181/',
   header: {
     'content-type': 'application/x-www-form-urlencode, multipart/form-data;charset=utf-8'

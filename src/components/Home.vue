@@ -56,7 +56,8 @@ export default {
           authName: '派单管理',
           id: 1,
           children: [
-            { authName: '派单管理', id: 1, path: 'dispatch' }
+            { authName: '派单管理', id: 1, path: 'dispatch' },
+            { authName: '派单分销管理', id: 2, path: 'orderRetail' }
           ]
         },
         {
@@ -65,7 +66,7 @@ export default {
           children: [
             { authName: '商品管理', id: 1, path: 'shop' },
             { authName: '订单管理', id: 2, path: 'order' },
-            { authName: '分销记录', id: 3, path: 'retail' },
+            { authName: '商品分销记录', id: 3, path: 'retail' },
             { authName: '优惠券管理', id: 4, path: 'coupon' },
             { authName: '图片管理', id: 5, path: 'img' },
             { authName: '分类管理', id: 6, path: 'category' }

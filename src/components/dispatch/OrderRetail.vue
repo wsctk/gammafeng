@@ -45,16 +45,7 @@
           </el-table-column>
           <el-table-column align="center" prop="seconde_name" label="二级用户" min-width="150px">
           </el-table-column>
-          <el-table-column align="center" prop="goods_name" label="分销商品" min-width="200px" show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column align="center" prop="goods_cover" label="商品图片" min-width="70px">
-            <template v-slot="scope">
-              <el-image
-              style="width: 40px; height: 40px"
-              :src="scope.row.goods_cover"
-              :preview-src-list="[scope.row.goods_cover]">
-            </el-image>
-            </template>
+          <el-table-column align="center" prop="mu_amount" label="亩数" min-width="100px">
           </el-table-column>
           <el-table-column align="center" prop="order_amount" label="订单金额(元)" min-width="90px">
           </el-table-column>
@@ -114,7 +105,7 @@ export default {
         this.$message.error('获取分销列表失败！')
       }
       for (let i = 0; i < msg.data.rows.length; i++) {
-        if (!msg.data.rows[i].goods_name) {
+        if (msg.data.rows[i].goods_name) {
           msg.data.rows.splice(i, 1)
           i--
         }
@@ -124,11 +115,11 @@ export default {
       this.maxPage = msg.data.maxPage
     },
     async getfirstuser () {
-      const msg = await this.$http.get('distribution/getFirstUser', { params: { status: '1' } })
+      const msg = await this.$http.get('distribution/getFirstUser', { params: { status: '0' } })
       this.leveloneuser = msg.data.data
     },
     async getseconduser () {
-      const msg = await this.$http.get('distribution/getSecondUser', { params: { status: '1' } })
+      const msg = await this.$http.get('distribution/getSecondUser', { params: { status: '0' } })
       this.leveltwouser = msg.data.data
     },
     resetQueryForm () {
@@ -144,7 +135,7 @@ export default {
         return this.$message.error('查询失败！')
       }
       for (let i = 0; i < msg.data.rows.length; i++) {
-        if (!msg.data.rows[i].goods_name) {
+        if (msg.data.rows[i].goods_name) {
           msg.data.rows.splice(i, 1)
           i--
         }
@@ -162,7 +153,7 @@ export default {
         return this.$message.error('查询失败！')
       }
       for (let i = 0; i < msg.data.rows.length; i++) {
-        if (!msg.data.rows[i].goods_name) {
+        if (msg.data.rows[i].goods_name) {
           msg.data.rows.splice(i, 1)
           i--
         }

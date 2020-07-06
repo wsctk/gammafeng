@@ -252,10 +252,11 @@ export default {
       this.maxPage = msg.data.maxPage
     },
     async showAppoint (order) {
-      if (!(order.feishou_name === '未指派')) {
+      console.log(order)
+      if (order.feishou_name !== '未指派') {
         return this.$message.error('飞手已指派！')
       }
-      if (order.order_state !== 2) {
+      if (order.order_state !== '1') {
         return this.$message.error('此订单不满足指派飞手的条件！')
       }
       this.dialogVisible = true

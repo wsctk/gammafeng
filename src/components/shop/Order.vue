@@ -24,7 +24,7 @@
             <el-option label="等待发货" value="1"></el-option>
             <el-option label="已发货" value="2"></el-option>
             <el-option label="已取消" value="3"></el-option>
-            <el-option label="已退货" value="4"></el-option>
+            <el-option label="已完成" value="4"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -67,11 +67,10 @@
           </el-table-column>
           <el-table-column align="center" prop="address.orderPhoneNumber" label="收货人手机号码" min-width="150px">
           </el-table-column>
-          <el-table-column align="center" prop="" label="操作" min-width="240px" v-slot="scope" fixed="right">
+          <el-table-column align="center" prop="" label="操作" min-width="180px" v-slot="scope" fixed="right">
             <template>
-              <el-button size="small" type="primary" @click="changestate(scope.row.id, 2)">发货</el-button>
-              <el-button size="small" type="warning" @click="changestate(scope.row.id, 3)">取消</el-button>
-              <el-button size="small" type="danger" @click="changestate(scope.row.id, 4)">退货</el-button>
+              <el-button size="small" type="primary" @click="changestate(scope.row, 2)">发货</el-button>
+              <el-button size="small" type="danger" @click="deleteorder(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -142,7 +141,7 @@ export default {
             msg.data.rows[i].orderState = '已取消'
             break
           case '4':
-            msg.data.rows[i].orderState = '已退货'
+            msg.data.rows[i].orderState = '已完成'
             break
         }
       }
@@ -173,7 +172,7 @@ export default {
             msg.data.rows[i].orderState = '已取消'
             break
           case '4':
-            msg.data.rows[i].orderState = '已退货'
+            msg.data.rows[i].orderState = '已完成'
             break
         }
       }
@@ -201,7 +200,7 @@ export default {
             msg.data.rows[i].orderState = '已取消'
             break
           case '4':
-            msg.data.rows[i].orderState = '已退货'
+            msg.data.rows[i].orderState = '已完成'
             break
         }
         msg.data.rows[i].orderAmout /= 100
@@ -213,7 +212,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
-    async changestate (id, state) {
+    async changestate (user, state) {
       const confirmResult = await this.$confirm('确定执行该操作吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -222,11 +221,32 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消操作！')
       }
-      const msg = await this.$http.post('order/updateOrder', this.$qs.stringify({ id: id, orderState: state }))
+      const msg = await this.$http.post('order/updateOrder', this.$qs.stringify({ id: user.id, orderState: state, version: user.version }))
       if (msg.data.code === 6) {
         return this.$message.error('操作失败！')
       }
       this.$message.success('操作成功！')
+      this.getorderlist()
+    },
+    async deleteorder (order) {
+      console.log(order)
+      if (order.orderState !== '已取消') {
+        return this.$message.error('只能删除状态为‘已取消’的订单！')
+      }
+      const confirmResult = await this.$confirm('此操作将永久删除该订单, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const msg = await this.$http.post('order/deleteOrder', this.$qs.stringify({ id: order.id }))
+      if (msg.status !== 200) {
+        return this.$message.error('删除订单失败！')
+      }
+      this.$message.success('删除订单成功！')
+      this.getorderlist()
     },
     handleSizeChange (newSize) {
       this.pageSize = newSize

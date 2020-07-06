@@ -9,39 +9,39 @@
       </div>
       <el-card class="main">
         <el-row>
-          <el-col :span="6">
-            <el-form label-width="140px">
-              <el-form-item label="分销提现门槛：">
-                  <el-input placeholder="请输入" v-model="tixian"></el-input>
+          <el-col :span="10">
+            <el-form>
+              <el-form-item>
+                  <el-input placeholder="请输入分销提现门槛" v-model="tixian">
+                    <template slot="prepend">分销提现门槛：</template>
+                    <el-button slot="append" @click="savemenkan">提交</el-button>
+                  </el-input>
               </el-form-item>
             </el-form>
-          </el-col>
-          <el-col :span="3" :offset="1">
-            <el-button type="primary" @click="savemenkan">提交</el-button>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="6">
-            <el-form label-width="180px">
-              <el-form-item label="商品积分转化比(千分比)：">
-                  <el-input placeholder="请输入" v-model="goods"></el-input>
+          <el-col :span="10">
+            <el-form>
+              <el-form-item>
+                  <el-input placeholder="请输入商品积分转化比" v-model="goodsPoints">
+                    <template slot="prepend">商品积分转化比(千分比)：</template>
+                    <el-button slot="append" @click="savegoods">提交</el-button>
+                  </el-input>
               </el-form-item>
             </el-form>
-          </el-col>
-          <el-col :span="3" :offset="1">
-            <el-button type="primary" @click="savegoods">提交</el-button>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="6">
-            <el-form label-width="180px">
-              <el-form-item label="需求积分转化比(千分比)：">
-                  <el-input placeholder="请输入" v-model="order"></el-input>
+          <el-col :span="10">
+            <el-form>
+              <el-form-item>
+                  <el-input placeholder="请输入需求积分转化比" v-model="distributePoints">
+                    <template slot="prepend">需求积分转化比(千分比)：</template>
+                    <el-button slot="append" @click="saveorder">提交</el-button>
+                  </el-input>
               </el-form-item>
             </el-form>
-          </el-col>
-          <el-col :span="3" :offset="1">
-            <el-button type="primary" @click="saveorder">提交</el-button>
           </el-col>
         </el-row>
       </el-card>
@@ -52,8 +52,8 @@ export default {
   data () {
     return {
       tixian: '',
-      goods: '',
-      order: ''
+      goodsPoints: '',
+      distributePoints: ''
     }
   },
   methods: {
@@ -69,28 +69,31 @@ export default {
     async savemenkan () {
       const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ minCash: this.tixian }))
       if (msg.status !== 200) {
-        return this.$message.error('提交失败！')
+        return this.$message.error('提交提现门槛失败！')
       }
-      this.$message.success('提交成功！')
+      this.$message.success('提交提现门槛成功！')
     },
     async savegoods () {
-      const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ minCash: this.goods }))
+      const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ goodsPoints: this.goodsPoints }))
       if (msg.status !== 200) {
-        return this.$message.error('提交失败！')
+        return this.$message.error('提交商品积分转化比失败！')
       }
-      this.$message.success('提交成功！')
+      this.$message.success('提交商品积分转化比成功！')
     },
     async saveorder () {
-      const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ minCash: this.order }))
+      const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ distributePoints: this.distributePoints }))
       if (msg.status !== 200) {
-        return this.$message.error('提交失败！')
+        return this.$message.error('提交派单积分转化比失败！')
       }
-      this.$message.success('提交成功！')
+      this.$message.success('提交派单积分转化比成功！')
     }
   }
 }
 </script>
 <style lang="less" scoped>
+/deep/.el-form-item__content {
+  margin-left:0 !important
+}
 .el-card {
   margin: 35px 25px;
 }
