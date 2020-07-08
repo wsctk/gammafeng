@@ -6,7 +6,7 @@
             <span>伽马蜂管理后台</span>
           </div>
           <div class="headR">
-            <el-button size='small' class="quit" @click="quitlogin" type="danger" round>退出登录</el-button>
+            <el-button plain size='small' class="quit" @click="quitlogin" type="danger" round>退出登录</el-button>
           </div>
         </el-header>
         <el-container>
@@ -152,7 +152,6 @@ export default {
     display: flex;
     align-items: center;
     background-color: #000;
-    // height:100%;
     width: 14%;
     color: #fff;
     > span {
@@ -168,7 +167,7 @@ export default {
   }
 }
 .quit {
-  margin-left: 10px;
+  margin-right: 40px;
 }
 .el-icon-s-fold:before {
   font-size:28px !important;

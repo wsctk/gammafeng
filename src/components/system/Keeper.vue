@@ -37,7 +37,7 @@
           </el-table-column>
           <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="120px">
           </el-table-column>
-          <el-table-column align="center" prop="status" label="管理员状态" min-width="80px">
+          <el-table-column align="center" prop="statusname" label="管理员状态" min-width="80px">
           </el-table-column>
           <el-table-column align="center" prop="createTime" label="创建时间" min-width="200px">
             <template v-slot="scope">
@@ -53,10 +53,11 @@
         </el-table>
       </div>
     <el-pagination
+      :hide-on-single-page="true"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       background
-      :page-sizes="[1, 5, 10, 20]"
+      :page-sizes="[5, 7, 10, 20]"
       :page-size="pageSize"
       :page-count="11"
       :current-page="pageNum"
@@ -142,8 +143,8 @@
         <el-row>
           <el-col :span="15" :offset="4">
             <el-form-item label="管理员状态:" prop="status">
-              <el-radio v-model="editForm.status" label=1>正常</el-radio>
-              <el-radio v-model="editForm.status" label=0>禁用</el-radio>
+              <el-radio v-model="editForm.status" label='1'>正常</el-radio>
+              <el-radio v-model="editForm.status" label='0'>禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
@@ -168,10 +169,10 @@ export default {
     return {
       zhinenganyici: false,
       tableData: [],
-      total: 400,
-      pageSize: 10,
+      total: 100,
+      pageSize: 7,
       pageNum: 1,
-      maxPage: 1,
+      maxPage: 14,
       queryInfo: {
         userName: '',
         phoneNumber: '',
@@ -198,7 +199,7 @@ export default {
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
+          { min: 6, message: '长度至少为6个字符', trigger: 'blur' }
         ],
         phoneNumber: [
           { required: true, message: '请输入手机号码', trigger: 'blur' },
@@ -216,7 +217,7 @@ export default {
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
+          { min: 6, message: '长度至少为6个字符', trigger: 'blur' }
         ],
         phoneNumber: [
           { required: true, message: '请输入电话号码', trigger: 'blur' },
@@ -285,10 +286,10 @@ export default {
       for (let i = 0; i < msg.data.rows.length; i++) {
         switch (msg.data.rows[i].status) {
           case '0':
-            msg.data.rows[i].status = '禁用'
+            msg.data.rows[i].statusname = '禁用'
             break
           case '1':
-            msg.data.rows[i].status = '正常'
+            msg.data.rows[i].statusname = '正常'
             break
         }
       }
@@ -389,10 +390,10 @@ export default {
 <style lang="less" scoped>
 .tablediv {
   @media only screen and (min-width: 1528px) {
-    height:420px;
+    height:465px;
   }
   @media only screen and (max-width: 1528px) {
-    height:361px;
+    height:406px;
   }
 }
 .addbtn {
@@ -449,6 +450,6 @@ export default {
   font-size: 13px;
 }
 .main {
-  height:630px;
+  height:675px;
 }
 </style>

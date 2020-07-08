@@ -4,15 +4,16 @@ import router from './router'
 import './plugins/element.js'
 import './assets/iconfont/iconfont.css'
 import './assets/css/global.css'
-import 'nprogress/nprogress.css'
 import qs from 'qs'
 import axios from 'axios'
 import VueQuillEditor from 'vue-quill-editor'
+import JsonExcel from 'vue-json-excel'
 
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
+Vue.component('downloadExcel', JsonExcel)
 Vue.use(VueQuillEditor)
 Vue.prototype.$qs = qs
 

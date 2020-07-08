@@ -35,7 +35,7 @@
           <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
             <template v-slot="scope">
               <el-image
-                style="width: 40px; height: 40px"
+                style="width: 28px; height: 28px"
                 :src="scope.row.wechatAvatar"
                 :preview-src-list="[scope.row.wechatAvatar]">
               </el-image>
@@ -50,7 +50,7 @@
           <el-table-column align="center" prop="idCardFront" label="身份证正面" min-width="70px">
             <template v-slot="scope">
               <el-image
-                style="width: 40px; height: 40px"
+                style="width: 28px; height: 28px"
                 :src="scope.row.idCardFront"
                 :preview-src-list="[scope.row.idCardFront]">
               </el-image>
@@ -59,7 +59,7 @@
           <el-table-column align="center" prop="idCardReverse" label="身份证背面" min-width="70px">
             <template v-slot="scope">
               <el-image
-                style="width: 40px; height: 40px"
+                style="width: 28px; height: 28px"
                 :src="scope.row.idCardReverse"
                 :preview-src-list="[scope.row.idCardReverse]">
               </el-image>
@@ -83,10 +83,11 @@
         </el-table>
       </div>
       <el-pagination
+        :hide-on-single-page="true"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         background
-        :page-sizes="[1, 5, 10, 20]"
+        :page-sizes="[5, 7, 10, 20]"
         :page-size="pageSize"
         :page-count="11"
         :current-page="pageNum"
@@ -95,66 +96,66 @@
         <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
       </el-pagination>
     </el-card>
-    <el-dialog title="认证详情" :visible.sync="dialogVisible" width="500px" @close="closeform">
+    <el-dialog title="认证详情" :visible.sync="dialogVisible" width="700px" @close="closeform">
       <el-form label-width="150px" :model="details" ref="editFormRef" label-position="right">
         <el-row>
-          <el-col :span="17" :offset="3">
+          <el-col :span="11" :offset="1">
             <el-form-item label="真实(法人)姓名：">
-              <el-input v-model="details.name" disabled></el-input>
+              <el-input v-model="details.name" readonly></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="17" :offset="3">
+          <el-col :span="13" :offset="1">
             <el-form-item label="所在地：">
-              <el-input v-model="details.address" disabled></el-input>
+              <el-input v-model="details.address" readonly></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="17" :offset="3">
+          <el-col :span="17" :offset="1">
             <el-form-item label="详细地址：">
-              <el-input v-model="details.detaileAddress" disabled></el-input>
+              <el-input v-model="details.detaileAddress" readonly></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row v-if="details.qualifications">
-          <el-col :span="17" :offset="3">
+          <el-col :span="10" :offset="1">
             <el-form-item label="飞手资质：">
-              <el-input v-model="details.qualifications" disabled></el-input>
+              <el-input v-model="details.qualifications" readonly></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row v-if="details.machineModel">
-          <el-col :span="17" :offset="3">
+          <el-col :span="10" :offset="1">
             <el-form-item label="机器型号：">
-              <el-input v-model="details.machineModel" disabled></el-input>
+              <el-input v-model="details.machineModel" readonly></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row v-if="details.machineNumber">
-          <el-col :span="17" :offset="3">
+          <el-col :span="10" :offset="1">
             <el-form-item label="机器数量：">
-              <el-input v-model="details.machineNumber" disabled></el-input>
+              <el-input v-model="details.machineNumber" readonly></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row v-if="details.experience">
-          <el-col :span="17" :offset="3">
+          <el-col :span="17" :offset="1">
             <el-form-item label="作业经验：">
-              <el-input v-model="details.experience" type="textarea" :rows="6" disabled></el-input>
+              <el-input v-model="details.experience" type="textarea" :rows="6" readonly></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row v-if="details.enterpriseName">
-          <el-col :span="17" :offset="3">
+          <el-col :span="17" :offset="1">
             <el-form-item label="企业名称：">
-              <el-input v-model="details.enterpriseName" disabled></el-input>
+              <el-input v-model="details.enterpriseName" readonly></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row v-if="details.business">
-          <el-col :span="17" :offset="3">
+          <el-col :span="17" :offset="1">
             <el-form-item label="营业执照副本">
               <el-image
               style="width: 100px; height: 100px"
@@ -184,11 +185,11 @@ export default {
         pageNum: ''
       },
       dialogVisible: false,
-      pageSize: 10,
+      pageSize: 7,
       tableData: [],
-      total: 400,
+      total: 100,
       pageNum: 1,
-      maxPage: 40
+      maxPage: 14
     }
   },
   created () {
@@ -370,14 +371,14 @@ export default {
 <style lang="less" scoped>
 .tablediv {
   @media only screen and (min-width: 1493px) {
-    height:450px;
+    height:495px;
   }
   @media only screen and (max-width: 1493px) {
-    height:364px;
+    height:410px;
   }
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .el-card {
   margin: 35px 25px;

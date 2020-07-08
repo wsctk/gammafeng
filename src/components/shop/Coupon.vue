@@ -9,7 +9,7 @@
     </div>
     <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryinfoRef">
-        <el-form-item label="优惠券使用方式：" prop="useCondition" class="firInput">
+        <el-form-item label="使用门槛：" prop="useCondition" class="firInput">
           <el-input v-model="queryInfo.useCondition" placeholder="请输入条件金额" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="优惠券状态：" prop="state">
@@ -60,10 +60,11 @@
         </el-table>
       </div>
     <el-pagination
+      :hide-on-single-page="true"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       background
-      :page-sizes="[1, 5, 10, 20]"
+      :page-sizes="[5, 7, 10, 20]"
       :page-size="pageSize"
       :page-count="11"
       :current-page="pageNum"
@@ -159,10 +160,10 @@ export default {
       },
       zhinenganyici: false,
       tableData: [],
-      total: 400,
+      total: 100,
       pageNum: 1,
-      pageSize: 10,
-      maxPage: 1,
+      pageSize: 7,
+      maxPage: 14,
       queryInfo: {
         useCondition: '',
         state: '',
@@ -346,14 +347,14 @@ export default {
 <style lang="less" scoped>
 .tablediv {
   @media only screen and (max-width: 1210px) {
-    height:361px;
+    height:405px;
   }
   @media only screen and (min-width: 1210px) {
-    height:420px;
+    height:465px;
   }
 }
 .main {
-  overflow:auto;
+  height:675px;
 }
 .addbtn {
     margin-left:27px;
@@ -368,7 +369,7 @@ export default {
 }
 .el-form--inline .el-form-item {
   margin-right:30px;
-  margin-bottom: 45px;
+  margin-bottom: 25px;
 }
 .firInput {
   margin-left: 30px

@@ -9,7 +9,7 @@
       </div>
       <el-card class="main">
         <el-row>
-          <el-col :span="10">
+          <el-col :span="6">
             <el-form>
               <el-form-item>
                   <el-input placeholder="请输入分销提现门槛" v-model="tixian">
@@ -21,7 +21,7 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="10">
+          <el-col :span="8">
             <el-form>
               <el-form-item>
                   <el-input placeholder="请输入商品积分转化比" v-model="goodsPoints">
@@ -33,7 +33,7 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="10">
+          <el-col :span="8">
             <el-form>
               <el-form-item>
                   <el-input placeholder="请输入需求积分转化比" v-model="distributePoints">
@@ -91,6 +91,15 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+/deep/.el-input__inner {
+  width:228px;
+}
+/deep/.el-input-group__prepend {
+  background-color: #f5f7ff !important
+}
+/deep/.el-input-group__append {
+  background-color: #f5f7ff !important
+}
 /deep/.el-form-item__content {
   margin-left:0 !important
 }
@@ -98,7 +107,7 @@ export default {
   margin: 35px 25px;
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .head {
   background-color: #fff;

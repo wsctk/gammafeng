@@ -4,11 +4,11 @@ import router from './router'
 import './plugins/element.js'
 import './assets/iconfont/iconfont.css'
 import './assets/css/global.css'
-import 'nprogress/nprogress.css'
 import qs from 'qs'
 import axios from 'axios'
 import VueQuillEditor from 'vue-quill-editor'
 import JsonExcel from 'vue-json-excel'
+
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
@@ -19,9 +19,9 @@ Vue.prototype.$qs = qs
 
 axios.defaults.withCredentials = true
 var instance = axios.create({
-  baseURL: 'https://admin-api.gamma.it-10.com/',
+  // baseURL: 'https://admin-api.gamma.it-10.com/',
   // baseURL: 'http://192.168.18.5:8181/',
-  // baseURL: 'http://192.168.18.8:8181/',
+  baseURL: 'http://192.168.18.8:8181/',
   header: {
     'content-type': 'application/x-www-form-urlencode, multipart/form-data;charset=utf-8'
   }

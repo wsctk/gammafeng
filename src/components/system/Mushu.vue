@@ -8,21 +8,19 @@
         <p class="indexText">亩数定价范围</p>
       </div>
       <el-card class="main">
-        <div v-for="item in rowlist" :key="item.id">
-            <template>
-              <span class="middletext">
-                不大于
-              </span>
-              <input placeholder="亩数范围" v-model="item.end" />
-              <span class="middletext">
-                亩的每亩价格为
-              </span>
-              <input  placeholder="请输入价格" v-model="item.price" />
-              <span class="middletext">
-                元
-              </span>
-            </template>
-        </div>
+        <el-row v-for="item in rowlist" :key="item.id">
+          <el-col class="input1">
+            <el-input placeholder="亩数范围" v-model="item.end">
+              <template slot="prepend">不大于</template>
+            </el-input>
+          </el-col>
+          <el-col :span="5">
+            <el-input placeholder="请输入价格" v-model="item.price">
+              <template slot="prepend">亩的每亩价格为</template>
+              <template slot="append">元</template>
+            </el-input>
+          </el-col>
+        </el-row>
         <el-button plain type="primary" @click="add" class="btn">新增</el-button>
         <el-button plain type="danger" @click="remove" class="btn">删减</el-button>
         <el-button plain type="success" @click="rangeload" class="btn">提交</el-button>
@@ -72,6 +70,18 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+/deep/.input1 {
+  width:190px;
+}
+/deep/.el-input__inner {
+  width:121px;
+}
+/deep/.el-input-group__prepend {
+  background-color: #f5f7ff !important
+}
+/deep/.el-input-group__append {
+  background-color: #f5f7ff !important
+}
 .textrule {
   margin-top:30px;
 }
@@ -107,7 +117,6 @@ input {
   margin-top: 10px;
 }
 .main {
-  height:630px;
-  overflow: auto;
+  height:675px;
 }
 </style>

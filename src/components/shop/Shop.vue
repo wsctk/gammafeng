@@ -13,13 +13,12 @@
           <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="query"></el-input>
         </el-form-item>
         <el-form-item label="商品分类：" prop="cateGoryName">
-          <!-- <el-input placeholder="请输入" v-model="queryInfo.cateGoryName" @keydown.enter.native="query"></el-input> -->
           <el-select v-model="queryInfo.cateGoryName" placeholder="请选择" @keydown.enter.native="query">
             <el-option
               v-for="item in category"
               :key="item.id"
               :label="item.categoryName"
-              :value="item.cateGoryName">
+              :value="item.categoryName">
             </el-option>
           </el-select>
         </el-form-item>
@@ -43,10 +42,10 @@
           </el-table-column>
           <el-table-column align="center" prop="cateGoryName" label="商品分类" min-width="70px">
           </el-table-column>
-          <el-table-column align="center" prop="goodsCover" label="封面图片" v-slot="scope" min-width="80px">
+          <el-table-column align="center" prop="goodsCover" label="封面图片" v-slot="scope" min-width="60px">
             <template>
               <el-image
-                style="width: 50px; height: 50px"
+                style="width: 27px; height: 27px"
                 :src="scope.row.goodsCover"
                 :preview-src-list="[scope.row.goodsCover]">
               </el-image>
@@ -54,10 +53,10 @@
           </el-table-column>
           <el-table-column align="center" label="项目图册" min-width="80px">
             <template v-slot="scope">
-              <el-button type="success" size="small" @click="showimgs(scope.row.id)">查看</el-button>
+              <el-button plain type="success" size="small" @click="showimgs(scope.row.id)">查看</el-button>
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="goodsPrice" label="价格(元)" min-width="90px">
+          <el-table-column align="center" prop="goodsPrice" label="价格(元)/积分" min-width="90px">
           </el-table-column>
           <el-table-column align="center" prop="inventory" label="库存" min-width="70px">
           </el-table-column>
@@ -78,9 +77,19 @@
           </el-table-column>
         </el-table>
       </div>
-     <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" background :page-sizes="[1, 5, 10, 20]" :page-size="pageSize" :page-count="11" :current-page="pageNum" layout="total, slot, prev, pager, next, sizes, jumper" :total="total">
+      <el-pagination
+        :hide-on-single-page="true"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        background
+        :page-sizes="[5, 7, 10, 20]"
+        :page-size="pageSize"
+        :page-count="11"
+        :current-page="pageNum"
+        layout="total, slot, prev, pager, next, sizes, jumper"
+        :total="total">
        <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
-     </el-pagination>
+      </el-pagination>
     </el-card>
     <el-dialog title="新增商品" @opened="showtooltipadd" :visible.sync="dialogVisible" width="800px" @close="closeaddform">
       <el-form label-width="130px" :model="addForm" ref="addFormRef" :rules="addFormRules" label-position="right" :hide-required-asterisk='false'>
@@ -125,6 +134,7 @@
             list-type="picture-card"
             :on-change="changeaddcover"
             :on-preview="addimgPreview"
+            :before-upload="beforeUpload"
             :on-remove="handleaddcoverRemove">
             <i class="el-icon-plus"></i>
           </el-upload>
@@ -139,6 +149,7 @@
             action=#
             list-type="picture-card"
             :on-preview="addimgsPreview"
+            :before-upload="beforeUpload"
             :on-remove="handleRemove">
             <i class="el-icon-plus"></i>
           </el-upload>
@@ -147,7 +158,7 @@
           </el-dialog>
         </el-form-item>
         <el-row>
-          <el-col :span="10">
+          <el-col :span="12">
             <el-form-item label="商品归属：" prop="goodsClassfication">
               <el-radio v-model="addForm.goodsClassfication" label="0">商城商品</el-radio>
               <el-radio v-model="addForm.goodsClassfication" label="1">积分商品</el-radio>
@@ -167,9 +178,7 @@
                 class="updateimg"
                 :show-file-list="false"
                 :on-success="handleSuccess"
-                :format="['jpg','jpeg','png','gif']"
-                :max-size="2048"
-                multiple
+                :before-upload="beforeUpload"
                 action="https://admin-api.gamma.it-10.com/picture/loadPicture">
                 <el-button icon="ios-cloud-upload-outline" ></el-button>
               </el-upload>
@@ -236,6 +245,7 @@
             list-type="picture-card"
             :on-change="changeeditcover"
             :on-preview="editimgPreview"
+            :before-upload="beforeUpload"
             :on-remove="handleeditcoverRemove">
             <i class="el-icon-plus"></i>
           </el-upload>
@@ -251,6 +261,7 @@
             action=#
             list-type="picture-card"
             :on-preview="editimgsPreview"
+            :before-upload="beforeUpload"
             :on-remove="handleRemove">
             <i class="el-icon-plus"></i>
           </el-upload>
@@ -259,7 +270,7 @@
           </el-dialog>
         </el-form-item>
         <el-row>
-          <el-col :span="10">
+          <el-col :span="12">
             <el-form-item label="商品归属：" prop="goodsClassfication">
               <el-radio v-model="editForm.goodsClassfication" label="0">商城商品</el-radio>
               <el-radio v-model="editForm.goodsClassfication" label="1">积分商品</el-radio>
@@ -279,9 +290,7 @@
                 class="updateimg"
                 :show-file-list="false"
                 :on-success="handleSuccess"
-                :format="['jpg','jpeg','png','gif']"
-                :max-size="2048"
-                multiple
+                :before-upload="beforeUpload"
                 action="https://admin-api.gamma.it-10.com/picture/loadPicture">
                 <el-button icon="ios-cloud-upload-outline" ></el-button>
               </el-upload>
@@ -305,17 +314,19 @@
       </div>
     </el-dialog>
     <el-dialog title="项目图册" :visible.sync="dialogVisibleimgs" width="800px">
-      <el-row>
-        <el-col :span="7" v-for="item in showimgslist" :key="item.id">
-            <el-card>
-              <el-image
-                style="width: 130px; height: 115px"
-                :src="item.thumbnailPicture"
-                :preview-src-list="[item.thumbnailPicture]">
-              </el-image>
-            </el-card>
-        </el-col>
-      </el-row>
+      <div style="background-color:#edeef0">
+        <el-row>
+          <el-col :span="7" v-for="item in showimgslist" :key="item.id">
+              <el-card>
+                <el-image
+                  style="width: 130px; height: 115px"
+                  :src="item.thumbnailPicture"
+                  :preview-src-list="[item.thumbnailPicture]">
+                </el-image>
+              </el-card>
+          </el-col>
+        </el-row>
+      </div>
       <div slot="footer">
         <el-button @click="dialogVisibleimgs=false">关闭</el-button>
       </div>
@@ -354,10 +365,10 @@ export default {
       content: '',
       zhinenganyici: false,
       tableData: [],
-      total: 400,
+      total: 100,
       pageNum: 1,
-      pageSize: 10,
-      maxPage: 1,
+      pageSize: 7,
+      maxPage: 14,
       queryInfo: {
         goodsName: '',
         cateGoryName: '',
@@ -375,7 +386,6 @@ export default {
       dialogVisible5: false,
       dialogVisibleimgs: false,
       addForm: {
-        textarea: '',
         goodsName: '',
         categoryId: '',
         goodsPrice: '',
@@ -535,7 +545,7 @@ export default {
             arr.data.rows[i].goodsStatename = '正常'
             break
         }
-        if (arr.data.rows[i].goodsClassfication === '1') {
+        if (arr.data.rows[i].goodsClassfication === '0') {
           arr.data.rows[i].goodsPrice /= 100
           arr.data.rows[i].goodsPrice = arr.data.rows[i].goodsPrice.toFixed(2)
         }
@@ -596,6 +606,7 @@ export default {
         }
         this.addForm.goodsPrice *= 100
         this.zhinenganyici = true
+        this.addForm.goodsDescription = this.content
         const msg = await this.$http.post('store/addGoods', formData, { params: this.addForm })
         if (msg.status !== 200) {
           this.dialogVisible = false
@@ -617,9 +628,6 @@ export default {
     },
     async showeditForm (user) {
       this.dialogVisible1 = true
-      if (user.goodsClassfication === '1') {
-        user.goodsPrice = (user.goodsPrice * 100).toFixed(0)
-      }
       const msg = await this.$http.get('picture/pictureListNotPage', { params: { goodsId: user.id } })
       if (msg.status !== 200) {
         this.$message.error('获取图册失败！')
@@ -636,6 +644,19 @@ export default {
     },
     uploadeditimgs (params) {
     },
+    beforeUpload (file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isPNG = file.type === 'image/png'
+      const isPG = (isJPG || isPNG)
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isPG) {
+        this.$message.error('上传图片只能是 JPG 或 PNG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+      }
+      return isPG && isLt2M
+    },
     changeeditcover (file, fileList) {
       if (this.$refs.editimgRef.uploadFiles[0]) {
         const editbtn = document.querySelector('.editgoodscover .el-upload')
@@ -651,6 +672,9 @@ export default {
           editimg = this.$refs.editimgRef.uploadFiles[0].url
         } else {
           editimg = this.$refs.editimgRef.uploadFiles[0].raw
+        }
+        if (this.editForm.goodsClassfication === '0') {
+          this.editForm.goodsPrice = (this.editForm.goodsPrice * 100).toFixed(0)
         }
         formData.append('multipartFileile', editimg)
         for (let j = 0; j < this.$refs.editimgsRef.uploadFiles.length; j++) {
@@ -755,21 +779,21 @@ export default {
 </script>
 <style lang="less" scoped>
 /deep/.ql-editor{
-  height:120px;
+  height:220px;
 }
 .updateimg {
   display: none;
 }
 .tablediv {
   @media only screen and (min-width: 1494px) {
-    height:420px;
+    height:465px;
   }
   @media only screen and (max-width: 1494px) {
-    height:360px;
+    height:405px;
   }
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .uploadimg {
   margin-bottom: 10px;

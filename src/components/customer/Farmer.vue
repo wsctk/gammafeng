@@ -29,7 +29,7 @@
           <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
             <template v-slot="scope">
               <el-image
-                style="width: 50px; height: 50px"
+                style="width: 28px; height: 28px"
                 :src="scope.row.wechatAvatar"
                 :preview-src-list="[scope.row.wechatAvatar]">
               </el-image>
@@ -62,7 +62,17 @@
           </el-table-column>
         </el-table>
       </div>
-    <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" background :page-sizes="[1, 5, 10, 20]" :page-size="pageSize" :page-count="11" :current-page="pageNum" layout="total, slot, prev, pager, next, sizes, jumper" :total="total">
+    <el-pagination
+      :hide-on-single-page="true"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      background
+      :page-sizes="[5, 7, 10, 20]"
+      :page-size="pageSize"
+      :page-count="11"
+      :current-page="pageNum"
+      layout="total, slot, prev, pager, next, sizes, jumper"
+      :total="total">
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
@@ -96,7 +106,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <div>
+        <div class="textdiv">
         （上面两个比例都是千分比，输入数字后台会自动转成相应的千分比。
         商品佣金比例：根据二级用户在商城的消费按此比例给一级用户返利
         派单分销佣金比例：根据二级用户派单所付金额按此比例给一级用户返利）
@@ -114,10 +124,10 @@ export default {
   data () {
     return {
       tableData: [],
-      total: 1,
+      total: 100,
       pageNum: 1,
-      pageSize: 10,
-      maxPage: 40,
+      pageSize: 7,
+      maxPage: 14,
       queryInfo: {
         wechatName: '',
         phoneNumber: '',
@@ -269,16 +279,19 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.textdiv {
+  padding:50px;
+}
 .tablediv {
   @media only screen and (min-width: 1111px) {
-    height:450px;
+    height:495px;
   }
   @media only screen and (max-width: 1111px) {
-    height:364px;
+    height:410px;
   }
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .el-card {
   margin: 35px 25px;

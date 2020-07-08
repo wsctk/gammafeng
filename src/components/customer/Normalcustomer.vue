@@ -29,7 +29,7 @@
           <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
             <template v-slot="scope">
               <el-image
-                style="width: 40px; height: 40px"
+                style="width: 28px; height: 28px"
                 :src="scope.row.wechatAvatar"
                 :preview-src-list="[scope.row.wechatAvatar]">
               </el-image>
@@ -59,7 +59,17 @@
           </el-table-column>
         </el-table>
       </div>
-    <el-pagination  background @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-count="11" :page-sizes="[1, 5, 10, 20]" :page-size="pageSize" :current-page="pageNum" layout="total, slot, prev, pager, next, sizes, jumper" :total="total">
+    <el-pagination
+      :hide-on-single-page="true"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      background
+      :page-count="11"
+      :page-sizes="[5, 7, 10, 20]"
+      :page-size="pageSize"
+      :current-page="pageNum"
+      layout="total, slot, prev, pager, next, sizes, jumper"
+      :total="total">
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
@@ -88,7 +98,7 @@
         </el-row>
         <el-row>
           <el-col :span="17" :offset="3">
-            <el-form-item label="邀请人：" prop="parentPhoneNumber">
+            <el-form-item label="邀请人(手机号码)：" prop="parentPhoneNumber">
               <el-input v-model="editForm.parentPhoneNumber"></el-input>
             </el-form-item>
           </el-col>
@@ -106,10 +116,10 @@ export default {
   data () {
     return {
       tableData: [],
-      maxPage: 1,
-      total: 1,
+      maxPage: 14,
+      total: 100,
       pageNum: 1,
-      pageSize: 10,
+      pageSize: 7,
       queryInfo: {
         wechatName: '',
         phoneNumber: '',
@@ -248,14 +258,14 @@ export default {
 <style lang="less" scoped>
 .tablediv {
   @media only screen and (min-width: 1111px) {
-    height:450px;
+    height:495px;
   }
   @media only screen and (max-width: 1111px) {
-    height:364px;
+    height:410px;
   }
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .el-card {
   margin: 35px 25px;

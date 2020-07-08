@@ -42,10 +42,11 @@
         </el-table>
       </div>
     <el-pagination
+      :hide-on-single-page="true"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       background
-      :page-sizes="[1, 5, 10, 20]"
+      :page-sizes="[5, 7, 10, 20]"
       :page-size="pageSize"
       :page-count="11"
       :current-page="pageNum"
@@ -57,7 +58,7 @@
     <el-dialog title="新增分类" :visible.sync="dialogVisible1" width="800px" @close="closeaddform">
       <el-form :hide-required-asterisk="false" label-width="120px" :model="addForm" ref="addFormRef" :rules="addFormRules">
         <el-row>
-          <el-col :span="7" :offset="4">
+          <el-col :span="10" :offset="4">
             <el-form-item label="分类排序权重:" prop="index">
               <el-input v-model=addForm.index></el-input>
             </el-form-item>
@@ -90,9 +91,9 @@
     <el-dialog title="编辑分类" :visible.sync="dialogVisible2" width="800px" @close="closeeditform">
       <el-form :hide-required-asterisk="false" label-width="120px" :model="editForm" ref="editFormRef" :rules="editFormRules">
         <el-row>
-          <el-col :span="7" :offset="4">
+          <el-col :span="10" :offset="4">
             <el-form-item label="分类排序权重:" prop="index">
-              <el-input v-model=editForm.index step="1" type="number"></el-input>
+              <el-input v-model=editForm.index></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -128,16 +129,17 @@ export default {
     return {
       zhinenganyici: false,
       tableData: [],
-      total: 400,
+      total: 100,
       pageNum: 1,
-      pageSize: 10,
-      maxPage: 40,
+      pageSize: 7,
+      maxPage: 14,
       queryInfo: {
         categoryName: '',
         pageNum: '',
         pageSize: ''
       },
       addForm: {
+        index: 0,
         categoryName: '',
         categoryState: ''
       },
@@ -303,10 +305,10 @@ export default {
 </script>
 <style lang="less" scoped>
 .tablediv {
-  height:420px;
+  height:465px;
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .addbtn {
     margin-left:27px;

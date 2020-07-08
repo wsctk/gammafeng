@@ -58,6 +58,7 @@
                 list-type="picture-card"
                 :on-change="changeaddimg"
                 :on-preview="addimgPreview"
+                :before-upload="beforeUpload"
                 :on-remove="handleRemoveadd">
                 <i class="el-icon-plus"></i>
               </el-upload>
@@ -110,6 +111,7 @@
                 list-type="picture-card"
                 :on-change="changeeditimg"
                 :on-preview="editimgPreview"
+                :before-upload="beforeUpload"
                 :on-remove="handleRemoveedit">
                 <i class="el-icon-plus"></i>
               </el-upload>
@@ -247,6 +249,19 @@ export default {
       this.$refs.addimgRef.clearFiles()
       this.$refs.addFormRef.resetFields()
     },
+    beforeUpload (file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isPNG = file.type === 'image/png'
+      const isPG = (isJPG || isPNG)
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isPG) {
+        this.$message.error('上传图片只能是 JPG 或 PNG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+      }
+      return isPG && isLt2M
+    },
     async showeditform (user) {
       this.dialogVisible2 = true
       this.editForm = user
@@ -331,10 +346,10 @@ export default {
     margin-bottom: 10px;
 }
 .tablediv {
-  height:470px;
+  height:550px;
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .el-card {
   margin: 35px 25px;

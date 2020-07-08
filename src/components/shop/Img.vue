@@ -26,7 +26,7 @@
           <el-table-column align="center" prop="thumbnailPicture" label="商品图片" min-width="70px">
             <template v-slot="scope">
               <el-image
-                style="width: 50px; height: 50px"
+                style="width: 34px; height: 34px"
                 :src="scope.row.thumbnailPicture"
                 :preview-src-list="[scope.row.thumbnailPicture]">
               </el-image>
@@ -45,10 +45,11 @@
         </el-table>
       </div>
     <el-pagination
+      :hide-on-single-page="true"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       background
-      :page-sizes="[1, 5, 10, 20]"
+      :page-sizes="[5, 7, 10, 20]"
       :page-size="pageSize"
       :page-count="11"
       :current-page="pageNum"
@@ -64,10 +65,10 @@ export default {
   data () {
     return {
       tableData: [],
-      total: 1,
+      total: 100,
       pageNum: 1,
-      pageSize: 10,
-      maxPage: 1,
+      pageSize: 7,
+      maxPage: 14,
       queryInfo: {
         goodsName: '',
         pageNum: '',
@@ -156,10 +157,10 @@ export default {
 </script>
 <style lang="less" scoped>
 .tablediv {
-  height:470px;
+  height:515px;
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .el-card {
   margin: 35px 25px;

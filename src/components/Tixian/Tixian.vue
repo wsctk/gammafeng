@@ -45,7 +45,8 @@
           </el-table-column>
           <el-table-column align="center" prop="accountTime" label="到账时间" min-width="200px">
             <template v-slot="scope">
-              {{ scope.row.accountTime | dateFormat}}
+              <p v-if="scope.row.accountTime">{{ scope.row.accountTime | dateFormat}}</p>
+              <p v-else></p>
             </template>
           </el-table-column>
           <el-table-column align="center" prop="drawStatus" label="提现状态" v-slot="scope" min-width="150px">
@@ -64,9 +65,11 @@
         </el-table>
       </div>
     <el-pagination
-      @size-change="handleSizeChange" @current-change="handleCurrentChange"
+      :hide-on-single-page="true"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       background
-      :page-sizes="[1, 5, 10, 20]"
+      :page-sizes="[5, 7, 10, 20]"
       :page-size="pageSize"
       :page-count="11"
       :current-page="pageNum"
@@ -82,10 +85,10 @@ export default {
   data () {
     return {
       tableData: [],
-      pageSize: 10,
-      total: 400,
+      pageSize: 7,
+      total: 100,
       pageNum: 1,
-      maxPage: 1,
+      maxPage: 14,
       queryinfo: {
         userStatus: '',
         phoneNumber: '',
@@ -106,19 +109,21 @@ export default {
       if (msg.status !== 200) {
         return this.$message.error('获取提现列表失败！')
       }
-      // for (let i = 0; i < msg.data.rows.length; i++) {
-      //   switch (msg.data.rows[i].gmUser.userStatus) {
-      //     case '0':
-      //       msg.data.rows[i].gmUser.userStatus = '普通用户'
-      //       break
-      //     case '1':
-      //       msg.data.rows[i].gmUser.userStatus = '飞手'
-      //       break
-      //     case '2':
-      //       msg.data.rows[i].gmUser.userStatus = '农资商'
-      //       break
-      //   }
-      // }
+      for (let i = 0; i < msg.data.rows.length; i++) {
+        switch (msg.data.rows[i].gmUser.userStatus) {
+          case '0':
+            msg.data.rows[i].gmUser.userStatus = '普通用户'
+            break
+          case '1':
+            msg.data.rows[i].gmUser.userStatus = '飞手'
+            break
+          case '2':
+            msg.data.rows[i].gmUser.userStatus = '农资商'
+            break
+        }
+        msg.data.rows[i].drawMoney = (msg.data.rows[i].drawMoney /= 100).toFixed(2)
+        msg.data.rows[i].balance = (msg.data.rows[i].balance /= 100).toFixed(2)
+      }
       this.tableData = msg.data.rows
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
@@ -144,6 +149,7 @@ export default {
             msg.data.rows[i].gmUser.userStatus = '农资商'
             break
         }
+        msg.data.rows[i].drawMoney = (msg.data.rows[i].drawMoney /= 100).toFixed(2)
       }
       this.tableData = msg.data.rows
       this.total = msg.data.total
@@ -169,13 +175,14 @@ export default {
             msg.data.rows[i].gmUser.userStatus = '农资商'
             break
         }
+        msg.data.rows[i].drawMoney = (msg.data.rows[i].drawMoney /= 100).toFixed(2)
       }
       this.tableData = msg.data.rows
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
     async tixiansuccess (user) {
-      if (user.drawStatus !== 0) {
+      if (user.drawStatus !== '0') {
         return this.$message.error('该提现记录已提交，无法重复修改')
       }
       const confirmResult = await this.$confirm('该结果只能更改一次,确定该提现已成功?', '提示', {
@@ -232,14 +239,14 @@ export default {
 <style lang="less" scoped>
 .tablediv {
   @media only screen and (min-width: 1162px) {
-    height:450px;
+    height:495px;
   }
   @media only screen and (max-width: 1162px) {
-    height:360px;
+    height:405px;
   }
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .el-card {
   margin: 35px 25px;

@@ -30,7 +30,7 @@
         <el-table-column align="center" label="封面图片" min-width="70px">
           <template v-slot="scope">
             <el-image
-              style="width: 40px; height: 40px"
+              style="width: 27px; height: 27px"
               :src="scope.row.cover"
               :preview-src-list="[scope.row.cover]">
             </el-image>
@@ -54,11 +54,12 @@
       </el-table>
       </div>
     <el-pagination
+      :hide-on-single-page="true"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       background
       :page-count="11"
-      :page-sizes="[1, 5, 10, 20]"
+      :page-sizes="[5, 7, 10, 20]"
       :page-size="pageSize"
       :current-page="pageNum"
       layout="total, slot, prev, pager, next, sizes, jumper"
@@ -69,14 +70,14 @@
     <el-dialog title="新增资讯" @opened="showtooltipadd" :visible.sync="dialogVisible" width="800px" @close="closeaddform">
       <el-form label-width="100px" :model="additionalInfo" ref="additionalInfoRef" :rules="addFormRules" :hide-required-asterisk="false">
         <el-row>
-          <el-col :span="15" :offset="4">
+          <el-col :span="13" :offset="1">
             <el-form-item label="文章标题:" prop="title">
               <el-input placeholder="请输入" v-model="additionalInfo.title"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="15" :offset="4">
+          <el-col :span="18" :offset="1">
             <el-form-item label="商品封面:">
               <el-upload
                 class="addgoodscover"
@@ -86,6 +87,7 @@
                 :on-change="changeaddcover"
                 action="#"
                 list-type="picture-card"
+                :before-upload="beforeUpload"
                 :on-preview="addimgPreview"
                 :on-remove="handleRemoveadd">
                 <i class="el-icon-plus"></i>
@@ -97,88 +99,14 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="15" :offset="4">
+          <el-col :span="18" :offset="1">
             <el-form-item label="文章详情:">
               <el-upload
                 class="updateimg"
                 :with-credentials="true"
                 :show-file-list="false"
+                :before-upload="beforeUpload"
                 :on-success="handleSuccess"
-                :format="['jpg','jpeg','png','gif']"
-                :max-size="2048"
-                multiple
-                action="https://admin-api.gamma.it-10.com/picture/loadPicture"
-                >
-                <el-button icon="ios-cloud-upload-outline" ></el-button>
-              </el-upload>
-              <div>
-                <quill-editor
-                  ref="myQuillEditor"
-                  v-model="content"
-                  :options="editorOption"
-                  @blur="onEditorBlur($event)"
-                  @focus="onEditorFocus($event)"
-                  @ready="onEditorReady($event)"
-                />
-              </div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15" :offset="4">
-            <el-form-item label="资讯状态:" prop="state">
-              <el-radio v-model="additionalInfo.state" label="6">正常</el-radio>
-              <el-radio v-model="additionalInfo.state" label="5">禁用</el-radio>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="submitaddinfo" :disabled="zhinenganyici">确定</el-button>
-      </div>
-    </el-dialog>
-    <el-dialog title="编辑资讯" @opened="showtooltipedit" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
-      <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" :hide-required-asterisk="false">
-        <el-row>
-          <el-col :span="15" :offset="4">
-            <el-form-item label="文章标题:" prop="articleName">
-              <el-input v-model="editForm.articleName"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15" :offset="4">
-            <el-form-item label="商品封面:">
-              <el-upload
-                class="editgoodscover"
-                ref="editimgRef"
-                :limit=1
-                :http-request="uploadeditFormFile"
-                action="#"
-                list-type="picture-card"
-                :file-list="fileList"
-                :on-change="changeeditcover"
-                :on-preview="editimgPreview"
-                :on-remove="handleRemoveedit">
-                <i class="el-icon-plus"></i>
-              </el-upload>
-              <el-dialog :visible.sync="dialogVisible3" append-to-body>
-                <img width="100%" :src="dialogImageUrl" alt="">
-              </el-dialog>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15" :offset="4">
-            <el-form-item label="文章详情:">
-              <el-upload
-                class="updateimg"
-                :show-file-list="false"
-                :on-success="handleSuccess"
-                :format="['jpg','jpeg','png','gif']"
-                :max-size="2048"
-                multiple
                 action="https://admin-api.gamma.it-10.com/picture/loadPicture">
                 <el-button icon="ios-cloud-upload-outline" ></el-button>
               </el-upload>
@@ -196,7 +124,77 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="15" :offset="4">
+          <el-col :span="18" :offset="1">
+            <el-form-item label="资讯状态:" prop="state">
+              <el-radio v-model="additionalInfo.state" label="6">正常</el-radio>
+              <el-radio v-model="additionalInfo.state" label="5">禁用</el-radio>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible=false">取消</el-button>
+        <el-button type="primary" @click="submitaddinfo" :disabled="zhinenganyici">确定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="编辑资讯" @opened="showtooltipedit" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
+      <el-form label-width="100px" :model="editForm" ref="editFormRef" :rules="editFormRules" :hide-required-asterisk="false">
+        <el-row>
+          <el-col :span="13" :offset="1">
+            <el-form-item label="文章标题:" prop="articleName">
+              <el-input v-model="editForm.articleName"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="18" :offset="1">
+            <el-form-item label="商品封面:">
+              <el-upload
+                class="editgoodscover"
+                ref="editimgRef"
+                :limit=1
+                :http-request="uploadeditFormFile"
+                action="#"
+                list-type="picture-card"
+                :file-list="fileList"
+                :on-change="changeeditcover"
+                :on-preview="editimgPreview"
+                :before-upload="beforeUpload"
+                :on-remove="handleRemoveedit">
+                <i class="el-icon-plus"></i>
+              </el-upload>
+              <el-dialog :visible.sync="dialogVisible3" append-to-body>
+                <img width="100%" :src="dialogImageUrl" alt="">
+              </el-dialog>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="18" :offset="1">
+            <el-form-item label="文章详情:">
+              <el-upload
+                class="updateimg"
+                :show-file-list="false"
+                :on-success="handleSuccess"
+                :before-upload="beforeUpload"
+                action="https://admin-api.gamma.it-10.com/picture/loadPicture">
+                <el-button icon="ios-cloud-upload-outline" ></el-button>
+              </el-upload>
+              <div>
+                <quill-editor
+                  ref="myQuillEditor"
+                  v-model="content"
+                  :options="editorOption"
+                  @blur="onEditorBlur($event)"
+                  @focus="onEditorFocus($event)"
+                  @ready="onEditorReady($event)"
+                />
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="18" :offset="1">
             <el-form-item label="资讯状态:" prop="state">
               <el-radio v-model="editForm.state" :label=6>正常</el-radio>
               <el-radio v-model="editForm.state" :label=5>禁用</el-radio>
@@ -243,10 +241,10 @@ export default {
       content: '',
       zhinenganyici: false,
       tableData: [],
-      total: 400,
-      pageSize: 10,
+      total: 100,
+      pageSize: 7,
       pageNum: 1,
-      maxPage: 40,
+      maxPage: 14,
       queryInfo: {
         articleName: '',
         createTime: '',
@@ -351,6 +349,19 @@ export default {
         const addbtn = document.querySelector('.addgoodscover .el-upload')
         addbtn.style.display = 'none'
       }
+    },
+    beforeUpload (file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isPNG = file.type === 'image/png'
+      const isPG = (isJPG || isPNG)
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isPG) {
+        this.$message.error('上传图片只能是 JPG 或 PNG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+      }
+      return isPG && isLt2M
     },
     uploadaddFormFile (params) {
     },
@@ -472,7 +483,7 @@ export default {
 </script>
 <style lang="less" scoped>
 /deep/.ql-editor{
-  height:120px;
+  height:220px;
 }
 .updateimg {
   display: none;
@@ -482,14 +493,14 @@ export default {
 }
 .tablediv {
   @media only screen and (max-width: 1133px) {
-    height:361px;
+    height:406px;
   }
   @media only screen and (min-width: 1133px) {
-    height:420px;
+    height:465px;
   }
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .addbtn {
     margin-left:27px;

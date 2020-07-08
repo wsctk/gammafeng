@@ -9,10 +9,7 @@
     </div>
     <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="商品名：" class="firInput" prop="goodsName">
-          <el-input placeholder="请输入" v-model="queryInfo.goodsName" @keydown.enter.native="queryretailbtn"></el-input>
-        </el-form-item>
-        <el-form-item label="一级用户：" prop="firstUser">
+        <el-form-item label="一级用户：" prop="firstUser" class="firInput">
           <el-select placeholder="请选择" v-model="queryInfo.firstUser" @keydown.enter.native="queryretailbtn">
             <el-option
               v-for="item in leveloneuser"
@@ -59,10 +56,11 @@
         </el-table>
       </div>
     <el-pagination
+      :hide-on-single-page="true"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       background
-      :page-sizes="[1, 5, 10, 20]"
+      :page-sizes="[5, 7, 10, 20]"
       :page-size="pageSize"
       :page-count="11"
       :current-page="pageNum"
@@ -79,17 +77,17 @@ export default {
     return {
       leveloneuser: [],
       leveltwouser: [],
-      pageSize: 10,
+      pageSize: 7,
       tableData: [],
-      total: 400,
+      total: 100,
       pageNum: 1,
-      maxPage: 1,
+      maxPage: 14,
       queryInfo: {
-        goodsName: '',
         firstUser: '',
         secondUser: '',
         pageNum: '',
-        pageSize: ''
+        pageSize: '',
+        status: 0
       }
     }
   },
@@ -100,11 +98,13 @@ export default {
   },
   methods: {
     async getInformationList () {
-      const msg = await this.$http.get('distribution/getDistribution', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
+      const msg = await this.$http.get('distribution/getDistribution', { params: { pageNum: this.pageNum, pageSize: this.pageSize, status: 0 } })
       if (msg.status !== 200) {
         this.$message.error('获取分销列表失败！')
       }
       for (let i = 0; i < msg.data.rows.length; i++) {
+        msg.data.rows[i].order_amount = (msg.data.rows[i].order_amount /= 100).toFixed(2)
+        msg.data.rows[i].profit = (msg.data.rows[i].profit /= 100).toFixed(2)
         if (msg.data.rows[i].goods_name) {
           msg.data.rows.splice(i, 1)
           i--
@@ -135,6 +135,8 @@ export default {
         return this.$message.error('查询失败！')
       }
       for (let i = 0; i < msg.data.rows.length; i++) {
+        msg.data.rows[i].order_amount = (msg.data.rows[i].order_amount /= 100).toFixed(2)
+        msg.data.rows[i].profit = (msg.data.rows[i].profit /= 100).toFixed(2)
         if (msg.data.rows[i].goods_name) {
           msg.data.rows.splice(i, 1)
           i--
@@ -153,6 +155,8 @@ export default {
         return this.$message.error('查询失败！')
       }
       for (let i = 0; i < msg.data.rows.length; i++) {
+        msg.data.rows[i].order_amount = (msg.data.rows[i].order_amount /= 100).toFixed(2)
+        msg.data.rows[i].profit = (msg.data.rows[i].profit /= 100).toFixed(2)
         if (msg.data.rows[i].goods_name) {
           msg.data.rows.splice(i, 1)
           i--
@@ -182,14 +186,14 @@ export default {
 <style lang="less" scoped>
 .tablediv {
   @media only screen and (min-width: 1516px) {
-    height:470px;
+    height:515px;
   }
   @media only screen and (max-width: 1516px) {
-    height:400px;
+    height:445px;
   }
 }
 .main {
-  height:630px;
+  height:675px;
 }
 .el-card {
   margin: 35px 25px;
