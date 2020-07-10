@@ -215,10 +215,6 @@ export default {
           { required: true, message: '请输入账号名', trigger: 'blur' },
           { min: 3, max: 10, message: '长度在 3 到 7 个字符', trigger: 'blur' }
         ],
-        password: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, message: '长度至少为6个字符', trigger: 'blur' }
-        ],
         phoneNumber: [
           { required: true, message: '请输入电话号码', trigger: 'blur' },
           { validator: checkMobile, trigger: 'blur' }
@@ -314,7 +310,7 @@ export default {
           return this.$message.error('新增管理员失败！')
         }
         if (msg.data.code === 3) {
-          return this.$message.error('管理员已存在！')
+          return this.$message.error('管理员信息已存在！')
         }
         this.getInformationList()
         this.$message.success('新增管理员成功！')
@@ -330,6 +326,7 @@ export default {
       if (!(Super > 0)) {
         return this.$message.error('您没有权限！')
       }
+      user.password = ''
       this.editForm = user
       this.dialogVisible1 = true
     },
@@ -340,6 +337,9 @@ export default {
         if (msg.status !== 200) {
           this.dialogVisible1 = false
           return this.$message.error('编辑管理员失败！')
+        }
+        if (msg.data.code === 3) {
+          return this.$message.error('管理员信息已存在！')
         }
         this.getInformationList()
         this.$message.success('编辑管理员成功！')

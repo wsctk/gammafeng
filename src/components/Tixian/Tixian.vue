@@ -125,6 +125,7 @@ export default {
         msg.data.rows[i].balance = (msg.data.rows[i].balance /= 100).toFixed(2)
       }
       this.tableData = msg.data.rows
+      console.log(this.tableData)
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },

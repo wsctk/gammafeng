@@ -78,7 +78,7 @@
         </el-row>
         <el-row>
           <el-col :span="18" :offset="1">
-            <el-form-item label="商品封面:">
+            <el-form-item label="资讯封面:">
               <el-upload
                 class="addgoodscover"
                 ref="addimgRef"
@@ -148,7 +148,7 @@
         </el-row>
         <el-row>
           <el-col :span="18" :offset="1">
-            <el-form-item label="商品封面:">
+            <el-form-item label="资讯封面:">
               <el-upload
                 class="editgoodscover"
                 ref="editimgRef"

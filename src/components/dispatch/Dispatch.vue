@@ -63,9 +63,9 @@
               <p v-else></p>
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="" label="操作" min-width="220px" v-slot="scope" fixed="right">
+          <el-table-column align="center" prop="" label="操作" min-width="180px" v-slot="scope" fixed="right">
             <template>
-              <el-popover
+              <!-- <el-popover
                 @hide="hidepopover"
                 popper-class="editprice"
                 placement="left"
@@ -79,7 +79,7 @@
                   <el-button type="primary" size="mini" @click="submitordermoney(scope.row)">确定</el-button>
                 </div>
                 <el-button plain type="primary" slot="reference" size="small">修改</el-button>
-              </el-popover>
+              </el-popover> -->
               <el-button plain size="small" type="success" @click="showAppoint(scope.row)">转派</el-button>
               <el-button plain size="small" type="warning" @click="showorderconfirm(scope.row)">审核</el-button>
             </template>
@@ -267,26 +267,26 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
-    hidepopover () {
-      this.getInformationList()
-    },
-    cancelinput (id) {
-      this.$refs[id].doClose()
-    },
-    async submitordermoney (order) {
-      if (order.order_state_name !== '待付款') {
-        this.$refs[order.id].doClose()
-        return this.$message.error('只有待付款的派单可以修改金额！')
-      }
-      order.order_amount *= 100
-      const msg = await this.$http.post('order/updateOrderAmount', this.$qs.stringify({ id: order.id, version: order.version, orderAmout: order.orderAmout }))
-      if (msg.status !== 200) {
-        return this.$message.error('修改派单金额失败！')
-      }
-      this.$refs[order.id].doClose()
-      this.$message.success('修改派单金额成功！')
-      this.getInformationList()
-    },
+    // hidepopover () {
+    //   this.getInformationList()
+    // },
+    // cancelinput (id) {
+    //   this.$refs[id].doClose()
+    // },
+    // async submitordermoney (order) {
+    //   if (order.order_state_name !== '待付款') {
+    //     this.$refs[order.id].doClose()
+    //     return this.$message.error('只有待付款的派单可以修改金额！')
+    //   }
+    //   order.order_amount *= 100
+    //   const msg = await this.$http.post('order/updateOrderAmount', this.$qs.stringify({ id: order.id, version: order.version, orderAmout: order.orderAmout }))
+    //   if (msg.status !== 200) {
+    //     return this.$message.error('修改派单金额失败！')
+    //   }
+    //   this.$refs[order.id].doClose()
+    //   this.$message.success('修改派单金额成功！')
+    //   this.getInformationList()
+    // },
     async showAppoint (order) {
       if (order.feishou_name !== '未指派') {
         return this.$message.error('飞手已指派！')

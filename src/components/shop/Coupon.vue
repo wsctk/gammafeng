@@ -231,6 +231,8 @@ export default {
             msg.data.rows[i].statename = '已失效'
             break
         }
+        msg.data.rows[i].value = msg.data.rows[i].value /= 100
+        msg.data.rows[i].useCondition = msg.data.rows[i].useCondition /= 100
       }
       this.tableData = msg.data.rows
       this.total = msg.data.total
@@ -256,6 +258,8 @@ export default {
             msg.data.rows[i].statename = '已失效'
             break
         }
+        msg.data.rows[i].value = msg.data.rows[i].value /= 100
+        msg.data.rows[i].useCondition = msg.data.rows[i].useCondition /= 100
       }
       this.tableData = msg.data.rows
       this.total = msg.data.total
