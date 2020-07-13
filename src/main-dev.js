@@ -22,13 +22,12 @@ var instance = axios.create({
   baseURL: 'https://admin-api.gamma.it-10.com/',
   // baseURL: 'http://192.168.18.5:8181/',
   // baseURL: 'http://192.168.18.8:8181/',
+  timeout: 10000,
   header: {
     'content-type': 'application/x-www-form-urlencode, multipart/form-data;charset=utf-8'
   }
 })
 Vue.prototype.$http = instance
-
-Vue.config.productionTip = false
 
 Vue.filter('dateFormat', function (originVal) {
   const dt = new Date(originVal)

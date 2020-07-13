@@ -75,7 +75,7 @@
                 width="200"
                 :ref="scope.row.id">
                 <el-input v-model="scope.row.orderAmout" size="small">
-                  <template slot="prepend">订单金额</template>
+                  <template slot="prepend">订单金额(元)</template>
                 </el-input>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" plain @click="cancelinput(scope.row.id)">取消</el-button>
@@ -317,6 +317,11 @@ export default {
       if (order.orderState !== '等待付款') {
         this.$refs[order.id].doClose()
         return this.$message.error('只有待付款的订单可以修改金额！')
+      }
+      const reg = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
+      if (!reg.test(order.orderAmout)) {
+        this.$refs[order.id].doClose()
+        return this.$message.error('请输入正确格式的数字！')
       }
       order.orderAmout *= 100
       const msg = await this.$http.post('order/updateOrderAmount', this.$qs.stringify({ id: order.id, version: order.version, orderAmout: order.orderAmout }))

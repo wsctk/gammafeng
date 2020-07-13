@@ -126,6 +126,13 @@
 <script>
 export default {
   data () {
+    var checknum = (rule, value, cb) => {
+      const regbili = /^(([1-9]\d*)|(0))$/
+      if (regbili.test(value)) {
+        return cb()
+      }
+      cb(new Error('请输入正确格式的数字！'))
+    }
     return {
       zhinenganyici: false,
       tableData: [],
@@ -145,7 +152,8 @@ export default {
       },
       addFormRules: {
         index: [
-          { required: true, message: '请输入分类排序权重', trigger: 'blur' }
+          { required: true, message: '请输入分类排序权重', trigger: 'blur' },
+          { validator: checknum, trigger: 'blur' }
         ],
         categoryName: [
           { required: true, message: '请输入分类名称', trigger: 'blur' }
@@ -157,7 +165,8 @@ export default {
       editForm: {},
       editFormRules: {
         index: [
-          { required: true, message: '请输入分类排序权重', trigger: 'blur' }
+          { required: true, message: '请输入分类排序权重', trigger: 'blur' },
+          { validator: checknum, trigger: 'blur' }
         ],
         categoryName: [
           { required: true, message: '请输入分类名称', trigger: 'blur' }

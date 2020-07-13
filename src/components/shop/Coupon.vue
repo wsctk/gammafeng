@@ -152,6 +152,13 @@
 <script>
 export default {
   data () {
+    var checkdoublenum = (rule, value, cb) => {
+      const regbili = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
+      if (regbili.test(value)) {
+        return cb()
+      }
+      cb(new Error('请输入正确格式的数字！'))
+    }
     return {
       pickeroptions: {
         disabledDate (time) {
@@ -183,7 +190,8 @@ export default {
       },
       addFormRules: {
         value: [
-          { required: true, message: '请输入优惠券面额', trigger: 'blur' }
+          { required: true, message: '请输入优惠券面额', trigger: 'blur' },
+          { validator: checkdoublenum, trigger: 'blur' }
         ],
         expirationDate: [
           { required: true, message: '请选择优惠券结束时间', trigger: 'blur' }
@@ -195,13 +203,14 @@ export default {
           { required: true, message: '请选择优惠券类型', trigger: 'blur' }
         ],
         phoneNumber: [
-          { required: true, message: '请选择绑定用户手机号码', trigger: 'blur' }
+          { required: true, message: '请输入绑定用户手机号码', trigger: 'blur' }
         ],
         useType: [
           { required: true, message: '请选择优惠券使用类型', trigger: 'blur' }
         ],
         useCondition: [
-          { required: true, message: '请选择满减金额', trigger: 'blur' }
+          { required: true, message: '请输入满减金额', trigger: 'blur' },
+          { validator: checkdoublenum, trigger: 'blur' }
         ]
       }
     }

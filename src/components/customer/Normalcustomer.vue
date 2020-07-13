@@ -29,7 +29,7 @@
           <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
             <template v-slot="scope">
               <el-image
-                style="width: 28px; height: 28px"
+                style="width: 26px; height: 26px"
                 :src="scope.row.wechatAvatar"
                 :preview-src-list="[scope.row.wechatAvatar]">
               </el-image>
@@ -73,8 +73,8 @@
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
-    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="500px" @close="closeeditform">
-      <el-form label-width="150px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk="false">
+    <el-dialog title="编辑用户信息" :visible.sync="dialogVisible1" width="600px" @close="closeeditform">
+      <el-form label-width="200px" :model="editForm" ref="editFormRef" :rules="editFormRules" label-position="right" :hide-required-asterisk="false">
         <el-row>
           <el-col :span="17" :offset="3">
             <el-form-item label="用户积分：" prop="points" :inline-message="true">
@@ -84,14 +84,14 @@
         </el-row>
         <el-row>
           <el-col :span="17" :offset="3">
-            <el-form-item label="商品佣金比例：" prop="commissionRate" :inline-message="true">
+            <el-form-item label="商品佣金比例(千分比)：" prop="commissionRate" :inline-message="true">
               <el-input v-model="editForm.commissionRate"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="17" :offset="3">
-            <el-form-item label="派单佣金比例：" prop="distributionRate" :inline-message="true">
+            <el-form-item label="派单佣金比例(千分比)：" prop="distributionRate" :inline-message="true">
               <el-input v-model="editForm.distributionRate"></el-input>
             </el-form-item>
           </el-col>
@@ -114,6 +114,13 @@
 <script>
 export default {
   data () {
+    var checkbili = (rule, value, cb) => {
+      const regbili = /^[1-9]\d*$/
+      if (regbili.test(value)) {
+        return cb()
+      }
+      cb(new Error('请输入正确的数字！'))
+    }
     return {
       tableData: [],
       maxPage: 14,
@@ -131,13 +138,16 @@ export default {
       editForm: {},
       editFormRules: {
         commissionRate: [
-          { required: true, message: '请输入商品佣金分成比例', trigger: 'blur' }
+          { required: true, message: '请输入商品佣金分成比例', trigger: 'blur' },
+          { validator: checkbili, trigger: 'blur' }
         ],
         distributionRate: [
-          { required: true, message: '请输入派单佣金分成比例：', trigger: 'blur' }
+          { required: true, message: '请输入派单佣金分成比例：', trigger: 'blur' },
+          { validator: checkbili, trigger: 'blur' }
         ],
         points: [
-          { required: true, message: '请输入用户积分：', trigger: 'blur' }
+          { required: true, message: '请输入用户积分：', trigger: 'blur' },
+          { validator: checkbili, trigger: 'blur' }
         ]
       }
     }
@@ -193,7 +203,7 @@ export default {
       this.total = msg.data.total
     },
     async getCustomerList () {
-      const msg = await this.$http.get('user/userList', { params: { userStatus: '0', pageNum: this.pageNum, pageSize: this.pageSize } })
+      const msg = await this.$http('user/userList', { params: { userStatus: '0', pageNum: this.pageNum, pageSize: this.pageSize } })
       let arr = {}
       arr = msg
       if (arr.status !== 200) {

@@ -13,7 +13,7 @@
             <el-form>
               <el-form-item>
                   <el-input placeholder="请输入分销提现门槛" v-model="tixian">
-                    <template slot="prepend">分销提现门槛：</template>
+                    <template slot="prepend">分销提现门槛(元)：</template>
                     <el-button slot="append" @click="savemenkan">提交</el-button>
                   </el-input>
               </el-form-item>
@@ -53,27 +53,37 @@ export default {
     return {
       tixian: '',
       goodsPoints: '',
-      distributePoints: ''
+      distributePoints: '',
+      editForm: {}
     }
   },
   methods: {
-    async getinfolist () {
-      const msg = await this.$http.get()
-      if (msg.status !== 200) {
-        return this.$message.error('获取基础设置信息失败！')
-      }
-      this.tixian = msg.data.data.minCash
-      this.goods = msg.data.data.minCash
-      this.order = msg.data.data.minCash
-    },
+    // async getinfolist () {
+    //   const msg = await this.$http.get()
+    //   if (msg.status !== 200) {
+    //     return this.$message.error('获取基础设置信息失败！')
+    //   }
+    //   this.tixian = msg.data.data.minCash
+    //   this.goods = msg.data.data.minCash
+    //   this.order = msg.data.data.minCash
+    // },
     async savemenkan () {
-      const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ minCash: this.tixian }))
+      const reg = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
+      if (!reg.test(this.tixian)) {
+        return this.$message.error('请输入正确的数字格式！')
+      }
+      const tixian = this.tixian * 100
+      const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ minCash: tixian }))
       if (msg.status !== 200) {
         return this.$message.error('提交提现门槛失败！')
       }
       this.$message.success('提交提现门槛成功！')
     },
     async savegoods () {
+      const reg = /^(([1-9]\d*)|(0))$/
+      if (!reg.test(this.goodsPoints)) {
+        return this.$message.error('请输入正确的数字格式！')
+      }
       const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ goodsPoints: this.goodsPoints }))
       if (msg.status !== 200) {
         return this.$message.error('提交商品积分转化比失败！')
@@ -81,6 +91,10 @@ export default {
       this.$message.success('提交商品积分转化比成功！')
     },
     async saveorder () {
+      const reg = /^(([1-9]\d*)|(0))$/
+      if (!reg.test(this.goodsPoints)) {
+        return this.$message.error('请输入正确的数字格式！')
+      }
       const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ distributePoints: this.distributePoints }))
       if (msg.status !== 200) {
         return this.$message.error('提交派单积分转化比失败！')
@@ -92,7 +106,7 @@ export default {
 </script>
 <style lang="less" scoped>
 /deep/.el-input__inner {
-  width:228px;
+  width:235px;
 }
 /deep/.el-input-group__prepend {
   background-color: #f5f7ff !important
@@ -103,8 +117,9 @@ export default {
 /deep/.el-form-item__content {
   margin-left:0 !important
 }
-.el-card {
+/deep/.el-card {
   margin: 35px 25px;
+  overflow: auto;
 }
 .main {
   height:675px;

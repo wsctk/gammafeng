@@ -130,6 +130,13 @@
 <script>
 export default {
   data () {
+    var checkbili = (rule, value, cb) => {
+      const regbili = /^[1-9]\d*$/
+      if (regbili.test(value)) {
+        return cb()
+      }
+      cb(new Error('请输入正确的数字！'))
+    }
     return {
       tableData: [],
       total: 100,
@@ -147,16 +154,20 @@ export default {
       editForm: {},
       editFormRules: {
         points: [
-          { required: true, message: '请输入用户积分', trigger: 'blur' }
+          { required: true, message: '请输入用户积分', trigger: 'blur' },
+          { validator: checkbili, trigger: 'blur' }
         ],
         commissionRate: [
-          { required: true, message: '请输入商品佣金比例', trigger: 'blur' }
+          { required: true, message: '请输入商品佣金比例', trigger: 'blur' },
+          { validator: checkbili, trigger: 'blur' }
         ],
         distributionRate: [
-          { required: true, message: '请输入派单分销佣金比例：', trigger: 'blur' }
+          { required: true, message: '请输入派单分销佣金比例：', trigger: 'blur' },
+          { validator: checkbili, trigger: 'blur' }
         ],
         shareProp: [
-          { required: true, message: '请输入派单分成比例：：', trigger: 'blur' }
+          { required: true, message: '请输入派单分成比例：：', trigger: 'blur' },
+          { validator: checkbili, trigger: 'blur' }
         ]
       }
     }

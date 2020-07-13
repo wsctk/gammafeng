@@ -60,6 +60,16 @@ export default {
       this.rowlist.pop({ end: 0, price: 0 })
     },
     async rangeload () {
+      const reg1 = /^(([1-9]\d*)|(0))([.]\d{0,1})?$/
+      const reg2 = /^(([1-9]\d*)|(0))$/
+      for (let i = 0; i < this.rowlist.length; i++) {
+        if (!reg1.test(this.rowlist[i].end)) {
+          return this.$message.error('请输入正确的数字格式！')
+        }
+        if (!reg2.test(this.rowlist[i].price)) {
+          return this.$message.error('请输入正确的数字格式！')
+        }
+      }
       const msg = await this.$http.post('system/updateMuPrice', this.rowlist)
       if (msg.status !== 200) {
         return this.$message.error('提交失败！')
@@ -74,7 +84,7 @@ export default {
   width:190px;
 }
 /deep/.el-input__inner {
-  width:121px;
+  width:125px;
 }
 /deep/.el-input-group__prepend {
   background-color: #f5f7ff !important

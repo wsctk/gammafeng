@@ -22,6 +22,7 @@ import Keeper from '../components/system/Keeper.vue'
 import Mushu from '../components/system/Mushu.vue'
 import Tixianmenkan from '../components/system/Tixianmenkan.vue'
 import Lunbotu from '../components/system/Lunbotu.vue'
+import RegisterCoupon from '../components/system/RegisterCoupon.vue'
 
 import Tixian from '../components/Tixian/Tixian.vue'
 
@@ -59,7 +60,8 @@ const router = new VueRouter({
         { path: '/tixianmenkan', component: Tixianmenkan },
         { path: '/mushu', component: Mushu },
         { path: '/keeper', component: Keeper },
-        { path: '/lunbotu', component: Lunbotu }
+        { path: '/lunbotu', component: Lunbotu },
+        { path: '/registercoupon', component: RegisterCoupon }
       ]
     }
   ]

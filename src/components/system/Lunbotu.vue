@@ -147,6 +147,13 @@
 <script>
 export default {
   data () {
+    var checknum = (rule, value, cb) => {
+      const regbili = /^(([1-9]\d*)|(0))$/
+      if (regbili.test(value)) {
+        return cb()
+      }
+      cb(new Error('请输入正确格式的数字！'))
+    }
     return {
       dialogVisible: false,
       dialogVisible1: false,
@@ -163,7 +170,7 @@ export default {
       addForm: {
         banner: '',
         index: 0,
-        status: ''
+        status: 0
       },
       addFormRules: {
         banner: [
@@ -171,9 +178,10 @@ export default {
         articleName: [
           { required: true, message: '请选择显示状态！', trigger: 'blur' }],
         index: [
-          { required: true, message: '请输入排序数字！', trigger: 'blur' }],
+          { required: true, message: '请输入排序数字！', trigger: 'blur' },
+          { validator: checknum, trigger: 'blur' }],
         status: [
-          { required: true, message: '请输入排序数字！', trigger: 'blur' }]
+          { required: true, message: '请选择显示状态！', trigger: 'blur' }]
       },
       editForm: {},
       editFormRules: {
@@ -182,9 +190,10 @@ export default {
         articleName: [
           { required: true, message: '请选择显示状态！', trigger: 'blur' }],
         index: [
-          { required: true, message: '请输入排序数字！', trigger: 'blur' }],
+          { required: true, message: '请输入排序数字！', trigger: 'blur' },
+          { validator: checknum, trigger: 'blur' }],
         status: [
-          { required: true, message: '请输入排序数字！', trigger: 'blur' }]
+          { required: true, message: '请选择显示状态！', trigger: 'blur' }]
       }
     }
   },

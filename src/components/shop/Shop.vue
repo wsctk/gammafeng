@@ -114,7 +114,7 @@
         </el-row>
         <el-row>
           <el-col :span="10">
-            <el-form-item label="商品价格：" prop="goodsPrice">
+            <el-form-item label="商品价格(元)：" prop="goodsPrice">
               <el-input placeholder="请输入" v-model="addForm.goodsPrice"></el-input>
             </el-form-item>
           </el-col>
@@ -224,7 +224,7 @@
         </el-row>
         <el-row>
           <el-col :span="10">
-            <el-form-item label="商品价格：" prop="goodsPrice">
+            <el-form-item label="商品价格(元)：" prop="goodsPrice">
               <el-input placeholder="请输入" v-model="editForm.goodsPrice"></el-input>
             </el-form-item>
           </el-col>
@@ -337,6 +337,20 @@
 import { quilltitle } from '../../assets/js/quill-title.js'
 export default {
   data () {
+    var checknum = (rule, value, cb) => {
+      const regbili = /^(([1-9]\d*)|(0))$/
+      if (regbili.test(value)) {
+        return cb()
+      }
+      cb(new Error('请输入正确格式的数字！'))
+    }
+    var checkdoublenum = (rule, value, cb) => {
+      const regbili = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
+      if (regbili.test(value)) {
+        return cb()
+      }
+      cb(new Error('请输入正确格式的数字！'))
+    }
     return {
       editorOption: {
         modules: {
@@ -402,10 +416,12 @@ export default {
           { required: true, message: '请输入商品分类', trigger: 'blur' }
         ],
         goodsPrice: [
-          { required: true, message: '请输入商品价格', trigger: 'blur' }
+          { required: true, message: '请输入商品价格', trigger: 'blur' },
+          { validator: checkdoublenum, trigger: 'blur' }
         ],
         inventory: [
-          { required: true, message: '请输入商品库存', trigger: 'blur' }
+          { required: true, message: '请输入商品库存', trigger: 'blur' },
+          { validator: checknum, trigger: 'blur' }
         ],
         goodsClassfication: [
           { required: true, message: '请输入商品归属', trigger: 'blur' }
@@ -423,10 +439,12 @@ export default {
           { required: true, message: '请输入商品分类', trigger: 'blur' }
         ],
         goodsPrice: [
-          { required: true, message: '请输入商品价格', trigger: 'blur' }
+          { required: true, message: '请输入商品价格', trigger: 'blur' },
+          { validator: checkdoublenum, trigger: 'blur' }
         ],
         inventory: [
-          { required: true, message: '请输入商品库存', trigger: 'blur' }
+          { required: true, message: '请输入商品库存', trigger: 'blur' },
+          { validator: checknum, trigger: 'blur' }
         ],
         goodsClassfication: [
           { required: true, message: '请输入商品归属', trigger: 'blur' }
