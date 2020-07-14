@@ -198,7 +198,7 @@
       </el-form>
       <div slot="footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="submitaddform" :disabled="zhinenganyici">确定</el-button>
+        <el-button type="primary" @click="submitaddform" :disabled="zhinenganyici">{{loadingtext}}</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑商品" @opened="showtooltipedit" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
@@ -377,6 +377,7 @@ export default {
         }
       },
       content: '',
+      loadingtext: '确认',
       zhinenganyici: false,
       tableData: [],
       total: 100,
@@ -624,6 +625,7 @@ export default {
         }
         this.addForm.goodsPrice *= 100
         this.zhinenganyici = true
+        this.loadingtext = '提交中...'
         this.addForm.goodsDescription = this.content
         const msg = await this.$http.post('store/addGoods', formData, { params: this.addForm })
         if (msg.status !== 200) {
@@ -637,6 +639,7 @@ export default {
     },
     closeaddform () {
       this.zhinenganyici = false
+      this.loadingtext = '确认'
       const editbtn = document.querySelector('.addgoodscover .el-upload')
       editbtn.style.display = 'inline-block'
       this.$refs.addFormRef.resetFields()

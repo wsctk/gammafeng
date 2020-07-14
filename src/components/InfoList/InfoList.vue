@@ -134,7 +134,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="submitaddinfo" :disabled="zhinenganyici">确定</el-button>
+        <el-button type="primary" @click="submitaddinfo" :disabled="zhinenganyici">{{loadingtext}}</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑资讯" @opened="showtooltipedit" :visible.sync="dialogVisible1" width="800px" @close="closeeditform">
@@ -239,6 +239,7 @@ export default {
         }
       },
       content: '',
+      loadingtext: '确认',
       zhinenganyici: false,
       tableData: [],
       total: 100,
@@ -381,6 +382,7 @@ export default {
         formData.append('content', this.content)
         formData.append('state', this.additionalInfo.state)
         this.zhinenganyici = true
+        this.loadingtext = '提交中...'
         const msg = await this.$http.post('information/addInformation', formData)
         if (msg.status !== 200) {
           return this.$message.error('添加文章资讯失败！')
@@ -392,6 +394,7 @@ export default {
     },
     closeaddform () {
       this.zhinenganyici = false
+      this.loadingtext = '确认'
       const addbtn = document.querySelector('.addgoodscover .el-upload')
       addbtn.style.display = 'inline-block'
       this.$refs.additionalInfoRef.resetFields()

@@ -86,7 +86,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="addlunboimg" :disabled="zhinenganyici">确认</el-button>
+        <el-button type="primary" @click="addlunboimg" :disabled="zhinenganyici">{{loadingtext}}</el-button>
       </div>
     </el-dialog>
     <el-dialog title="编辑轮播图片" @opened="hiddenaddbtn" :visible.sync="dialogVisible2" width="600px" @close="closeeditform">
@@ -161,6 +161,7 @@ export default {
       dialogVisible3: false,
       dialogImageUrl: '',
       fileList: [],
+      loadingtext: '确认',
       zhinenganyici: false,
       tableData: [],
       total: 1,
@@ -242,6 +243,7 @@ export default {
         formdata.append('status', this.addForm.status)
         formdata.append('file', this.$refs.addimgRef.uploadFiles[0].raw)
         this.zhinenganyici = true
+        this.loadingtext = '提交中...'
         const msg = await this.$http.post('rotation/insertRotation', formdata)
         if (msg.status !== 200) {
           return this.$message.error('添加轮播图失败！')
@@ -253,6 +255,7 @@ export default {
     },
     closeaddform () {
       this.zhinenganyici = false
+      this.loadingtext = '确认'
       const addbtn = document.querySelector('.addgoodscover .el-upload')
       addbtn.style.display = 'inline-block'
       this.$refs.addimgRef.clearFiles()
