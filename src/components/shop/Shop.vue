@@ -179,7 +179,7 @@
                 :show-file-list="false"
                 :on-success="handleSuccess"
                 :before-upload="beforeUpload"
-                action="https://admin-api.gamma.it-10.com/picture/loadPicture">
+                :action="uploadimgurl">
                 <el-button icon="ios-cloud-upload-outline" ></el-button>
               </el-upload>
               <div>
@@ -291,7 +291,7 @@
                 :show-file-list="false"
                 :on-success="handleSuccess"
                 :before-upload="beforeUpload"
-                action="https://admin-api.gamma.it-10.com/picture/loadPicture">
+                :action="uploadimgurl">
                 <el-button icon="ios-cloud-upload-outline" ></el-button>
               </el-upload>
               <div>
@@ -352,6 +352,7 @@ export default {
       cb(new Error('请输入正确格式的数字！'))
     }
     return {
+      uploadimgurl: 'https://admin-api.gamma.it-10.com/picture/loadPicture',
       editorOption: {
         modules: {
           toolbar: {

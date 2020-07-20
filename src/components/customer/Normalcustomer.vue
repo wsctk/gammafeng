@@ -52,9 +52,10 @@
               {{scope.row.registerTime | dateFormat}}
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="" label="操作" min-width="100px" v-slot="scope" fixed="right">
+          <el-table-column align="center" prop="" label="操作" min-width="160px" v-slot="scope" fixed="right">
             <template>
               <el-button plain size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
+              <el-button plain size="small" type="danger" @click="removeuser(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -204,6 +205,7 @@ export default {
     },
     async getCustomerList () {
       const msg = await this.$http('user/userList', { params: { userStatus: '0', pageNum: this.pageNum, pageSize: this.pageSize } })
+      console.log(msg)
       let arr = {}
       arr = msg
       if (arr.status !== 200) {
@@ -261,6 +263,22 @@ export default {
         this.dialogVisible1 = false
         this.$message.success('编辑普通用户信息成功!')
       })
+    },
+    async removeuser (id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该普通用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const msg = await this.$http.post('user/delete', this.$qs.stringify({ userId: id }))
+      if (msg.status !== 200) {
+        return this.$message.error('删除普通用户失败')
+      }
+      this.$message.success('该普通用户已删除')
+      this.getCustomerList()
     }
   }
 }

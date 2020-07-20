@@ -44,6 +44,30 @@
             </el-form>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="6">
+            <el-form>
+              <el-form-item>
+                  <el-input placeholder="请输入商品分销佣金比例" v-model="distributionProportion">
+                    <template slot="prepend">商品分销佣金比例(千分比)：</template>
+                    <el-button slot="append" @click="savegoodsretail">提交</el-button>
+                  </el-input>
+              </el-form-item>
+            </el-form>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="6">
+            <el-form>
+              <el-form-item>
+                  <el-input placeholder="请输入派单分销佣金比例" v-model="dispatcherProportion">
+                    <template slot="prepend">派单分销佣金比例(千分比)：</template>
+                    <el-button slot="append" @click="saveorderretail">提交</el-button>
+                  </el-input>
+              </el-form-item>
+            </el-form>
+          </el-col>
+        </el-row>
       </el-card>
     </div>
 </template>
@@ -54,30 +78,37 @@ export default {
       tixian: '',
       goodsPoints: '',
       distributePoints: '',
-      editForm: {}
+      dispatcherProportion: '',
+      distributionProportion: ''
     }
   },
+  created () {
+    this.getinfolist()
+  },
   methods: {
-    // async getinfolist () {
-    //   const msg = await this.$http.get()
-    //   if (msg.status !== 200) {
-    //     return this.$message.error('获取基础设置信息失败！')
-    //   }
-    //   this.tixian = msg.data.data.minCash
-    //   this.goods = msg.data.data.minCash
-    //   this.order = msg.data.data.minCash
-    // },
+    async getinfolist () {
+      const msg = await this.$http.get('system/getSystemConfig')
+      console.log(msg.data[0])
+      if (msg.status !== 200) {
+        return this.$message.error('获取基础设置信息失败！')
+      }
+      this.tixian = msg.data[0].minCash / 100
+      this.goodsPoints = msg.data[0].goodsPoints
+      this.distributePoints = msg.data[0].distributePoints
+      this.dispatcherProportion = msg.data[0].dispatcherProportion
+      this.distributionProportion = msg.data[0].distributionProportion
+    },
     async savemenkan () {
       const reg = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
       if (!reg.test(this.tixian)) {
         return this.$message.error('请输入正确的数字格式！')
       }
-      const tixian = this.tixian * 100
-      const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ minCash: tixian }))
+      const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ minCash: this.tixian }))
       if (msg.status !== 200) {
         return this.$message.error('提交提现门槛失败！')
       }
       this.$message.success('提交提现门槛成功！')
+      this.getinfolist()
     },
     async savegoods () {
       const reg = /^(([1-9]\d*)|(0))$/
@@ -89,6 +120,7 @@ export default {
         return this.$message.error('提交商品积分转化比失败！')
       }
       this.$message.success('提交商品积分转化比成功！')
+      this.getinfolist()
     },
     async saveorder () {
       const reg = /^(([1-9]\d*)|(0))$/
@@ -100,6 +132,31 @@ export default {
         return this.$message.error('提交派单积分转化比失败！')
       }
       this.$message.success('提交派单积分转化比成功！')
+      this.getinfolist()
+    },
+    async savegoodsretail () {
+      const reg = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
+      if (!reg.test(this.distributionProportion)) {
+        return this.$message.error('请输入正确的数字格式！')
+      }
+      const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ distributionProportion: this.distributionProportion }))
+      if (msg.status !== 200) {
+        return this.$message.error('提交商品分销比例失败！')
+      }
+      this.$message.success('提交商品分销比例成功！')
+      this.getinfolist()
+    },
+    async saveorderretail () {
+      const reg = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
+      if (!reg.test(this.dispatcherProportion)) {
+        return this.$message.error('请输入正确的数字格式！')
+      }
+      const msg = await this.$http.post('system/updateSystemConfig', this.$qs.stringify({ dispatcherProportion: this.dispatcherProportion }))
+      if (msg.status !== 200) {
+        return this.$message.error('提交派单分销比例失败！')
+      }
+      this.$message.success('提交派单分销比例成功！')
+      this.getinfolist()
     }
   }
 }

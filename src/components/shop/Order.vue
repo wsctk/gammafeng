@@ -66,6 +66,8 @@
           </el-table-column>
           <el-table-column align="center" prop="address.orderPhoneNumber" label="收货人手机号码" min-width="150px">
           </el-table-column>
+          <el-table-column align="center" prop="remarks" label="备注" min-width="200px" show-overflow-tooltip>
+          </el-table-column>
           <el-table-column align="center" prop="" label="操作" min-width="220px" v-slot="scope" fixed="right">
             <template>
               <el-popover
@@ -123,7 +125,8 @@ export default {
         创建时间: 'createTime',
         收货地址: 'address.address',
         收货人: 'address.name',
-        收货人手机号码: 'address.orderPhoneNumber'
+        收货人手机号码: 'address.orderPhoneNumber',
+        备注: 'address.remarks'
       },
       total: 100,
       pageNum: 1,

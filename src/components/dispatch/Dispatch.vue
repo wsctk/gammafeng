@@ -29,9 +29,9 @@
         <el-table :data="tableData" style="width: 100%" border height="100%">
           <el-table-column align="center" prop="id" label="订单ID" min-width="70px">
           </el-table-column>
-          <el-table-column align="center" prop="wechat_name" label="用户名" min-width="70px">
+          <el-table-column align="center" prop="wechat_name" label="联系人姓名" min-width="100px">
           </el-table-column>
-          <el-table-column align="center" prop="phone_number" label="手机号码" min-width="100px">
+          <el-table-column align="center" prop="phone_number" label="联系人手机号码" min-width="120px">
           </el-table-column>
           <el-table-column align="center" prop="demand_mu" label="需求亩数" min-width="70px">
           </el-table-column>
@@ -39,6 +39,10 @@
             <template v-slot="scope">
               {{ scope.row.service_time | dateFormat}}
             </template>
+          </el-table-column>
+          <el-table-column align="center" prop="service_location" label="飞防地址" min-width="200px" show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column align="center" prop="note" label="备注" min-width="200px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="order_amount" label="订单金额(元)" min-width="100px">
           </el-table-column>

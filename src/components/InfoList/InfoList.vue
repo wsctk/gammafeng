@@ -107,7 +107,7 @@
                 :show-file-list="false"
                 :before-upload="beforeUpload"
                 :on-success="handleSuccess"
-                action="https://admin-api.gamma.it-10.com/picture/loadPicture">
+                :action="uploadimgurl">
                 <el-button icon="ios-cloud-upload-outline" ></el-button>
               </el-upload>
               <div>
@@ -177,7 +177,7 @@
                 :show-file-list="false"
                 :on-success="handleSuccess"
                 :before-upload="beforeUpload"
-                action="https://admin-api.gamma.it-10.com/picture/loadPicture">
+                :action="uploadimgurl">
                 <el-button icon="ios-cloud-upload-outline" ></el-button>
               </el-upload>
               <div>
@@ -214,6 +214,7 @@ import { quilltitle } from '../../assets/js/quill-title.js'
 export default {
   data () {
     return {
+      uploadimgurl: 'https://admin-api.gamma.it-10.com/picture/loadPicture',
       editorOption: {
         modules: {
           toolbar: {
