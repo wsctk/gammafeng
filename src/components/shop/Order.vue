@@ -62,7 +62,7 @@
           </el-table-column>
           <el-table-column align="center" prop="address.address" label="收货地址" min-width="200px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="address.name" label="收货人" min-width="70px">
+          <el-table-column align="center" prop="address.name" label="收货人" min-width="70px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="address.orderPhoneNumber" label="收货人手机号码" min-width="150px">
           </el-table-column>
