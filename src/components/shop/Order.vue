@@ -35,13 +35,13 @@
       </download-excel>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="orderNumber" label="订单号" min-width="200px">
+          <el-table-column align="center" prop="orderNumber" label="订单号" min-width="200px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="goodsName" label="商品名" min-width="200px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="orderAmout" label="订单金额(元)" min-width="100px">
+          <el-table-column align="center" prop="orderAmout" label="订单金额(元)" min-width="100px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="paidAmout" label="实付金额(元)" min-width="100px">
+          <el-table-column align="center" prop="paidAmout" label="实付金额(元)" min-width="100px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="paidTime" label="付款时间" min-width="200px">
             <template v-slot="scope">
@@ -51,7 +51,7 @@
           </el-table-column>
           <el-table-column align="center" prop="orderState" label="订单状态" min-width="70px">
           </el-table-column>
-          <el-table-column align="center" prop="wechatName" label="用户昵称" min-width="70px">
+          <el-table-column align="center" prop="wechatName" label="用户昵称" min-width="70px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="phoneNumber" label="用户手机号码" min-width="120px">
           </el-table-column>

@@ -20,11 +20,11 @@
       <el-button plain class="addbtn" type="primary" size="large" @click="dialogVisible1=true">+ 新建</el-button>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="index" label="分类排序权重" min-width="120px">
+          <el-table-column align="center" prop="index" label="分类排序权重" min-width="120px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="id" label="分类ID" min-width="120px">
+          <el-table-column align="center" prop="id" label="分类ID" min-width="120px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="categoryName" label="分类名称" min-width="70px">
+          <el-table-column align="center" prop="categoryName" label="分类名称" min-width="70px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="categoryStateName" label="分类状态" min-width="70px">
           </el-table-column>

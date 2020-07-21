@@ -11,11 +11,11 @@
       <el-button plain class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="value" label="优惠券面额(元)" min-width="90px">
+          <el-table-column align="center" prop="value" label="优惠券面额(元)" min-width="90px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="useCondition" label="使用门槛" min-width="110px">
+          <el-table-column align="center" prop="useCondition" label="使用门槛" min-width="110px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="expirationDate" label="优惠券有效期(天)" min-width="100px">
+          <el-table-column align="center" prop="expirationDate" label="优惠券有效期(天)" min-width="100px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="useType" label="使用类型" min-width="100px">
           </el-table-column>

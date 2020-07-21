@@ -28,9 +28,9 @@
       </el-form>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="id" label="认证ID" min-width="120px">
+          <el-table-column align="center" prop="id" label="认证ID" min-width="120px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="wechatName" label="用户名" min-width="100px">
+          <el-table-column align="center" prop="wechatName" label="用户名" min-width="100px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
             <template v-slot="scope">
@@ -45,7 +45,7 @@
           </el-table-column>
           <el-table-column align="center" prop="status" label="认证身份" min-width="100px">
           </el-table-column>
-          <el-table-column align="center" prop="idNumber" label="身份证号码" min-width="150px">
+          <el-table-column align="center" prop="idNumber" label="身份证号码" min-width="150px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="idCardFront" label="身份证正面" min-width="70px">
             <template v-slot="scope">
@@ -301,9 +301,12 @@ export default {
       this.maxPage = arr.data.maxPage
     },
     async showdetails (id) {
-      this.dialogVisible = true
       const msg = await this.$http.get('auth/getUserAuthDetails', { params: { id: id } })
+      if (msg.status !== 200) {
+        return this.$message.error('获取详情失败！')
+      }
       this.details = msg.data.data[0]
+      this.dialogVisible = true
     },
     closeform () {
       this.details = {}

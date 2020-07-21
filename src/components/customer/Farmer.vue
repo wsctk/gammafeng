@@ -22,9 +22,9 @@
       </el-form>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="id" label="用户ID" min-width="50px">
+          <el-table-column align="center" prop="id" label="用户ID" min-width="100px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="wechatName" label="用户名" min-width="50px">
+          <el-table-column align="center" prop="wechatName" label="用户名" min-width="100px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
             <template v-slot="scope">
@@ -35,27 +35,28 @@
               </el-image>
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="70px">
+          <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="100px">
           </el-table-column>
-          <el-table-column align="center" prop="statusState" label="身份状态" min-width="50px">
+          <el-table-column align="center" prop="statusState" label="身份状态" min-width="80px">
           </el-table-column>
-          <el-table-column align="center" prop="points" label="用户积分" min-width="50px">
+          <el-table-column align="center" prop="points" label="用户积分" min-width="70px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="commissionRate" label="商品佣金比例" min-width="50px">
+          <el-table-column align="center" prop="commissionRate" label="商品佣金比例(千分比)" min-width="100px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="distributionRate" label="派单分销佣金比例" min-width="50px">
+          <el-table-column align="center" prop="distributionRate" label="派单分销佣金比例(千分比)" min-width="100px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="balance" label="钱包余额" min-width="50px">
+          <el-table-column align="center" prop="balance" label="钱包余额" min-width="80px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="parentPhoneNumber" label="邀请人" min-width="50px">
+          <el-table-column align="center" prop="parentPhoneNumber" label="邀请人" min-width="100px">
           </el-table-column>
-          <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope" min-width="100px">
+          <el-table-column align="center" prop="sonNumber" label="下级用户个数" min-width="120px">
+          </el-table-column>
+          <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope" min-width="200px">
+              {{scope.row.registerTime}}
+          </el-table-column>
+          <el-table-column align="center" prop="" label="操作" min-width="240px" v-slot="scope" fixed="right">
             <template>
-              {{scope.row.registerTime | dateFormat}}
-            </template>
-          </el-table-column>
-          <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
-            <template>
+              <el-button plain size="small" type="success" @click="showdetails(scope.row)">详情</el-button>
               <el-button plain size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
               <el-button plain size="small" type="danger" @click="removefarmer(scope.row.id)">删除</el-button>
             </template>
@@ -117,6 +118,155 @@
         <el-button type="primary" @click="editdialog">确定</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="农资商详情" :visible.sync="dialogVisible" width="900px" @close="closeform">
+      <el-form label-width="170px" :model="details" ref="editFormRef" label-position="right">
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="用户ID：">
+              <el-input v-model="details.id" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="用户名：">
+              <el-input v-model="details.wechatName" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="微信头像：">
+              <el-image
+              style="width: 100px; height: 100px"
+              :src="details.wechatAvatar"
+              :preview-src-list="[details.wechatAvatar]">
+              </el-image>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="手机号码：">
+              <el-input v-model="details.phoneNumber" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="派单佣金比例(千分比)：">
+              <el-input v-model="details.distributionRate" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="商品佣金比例(千分比)：">
+              <el-input v-model="details.commissionRate" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="用户积分：">
+              <el-input v-model="details.points" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="钱包余额：">
+              <el-input v-model="details.balance" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="邀请人(手机号码)：">
+              <el-input v-model="details.parentPhoneNumber" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="注册时间：">
+              <el-input v-model="details.registerTime" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="法人姓名：">
+              <el-input v-model="secdetails.name" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="手机号码：">
+              <el-input v-model="secdetails.phoneNumber" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="身份证号码：">
+              <el-input v-model="secdetails.idNumber" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="企业名称：">
+              <el-input v-model="secdetails.enterpriseName" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="身份证正面：">
+              <el-image
+              style="width: 100px; height: 100px"
+              :src="secdetails.idCardFront"
+              :preview-src-list="[secdetails.idCardFront]">
+              </el-image>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="身份证反面：">
+              <el-image
+              style="width: 100px; height: 100px"
+              :src="secdetails.idCardReverse"
+              :preview-src-list="[secdetails.idCardReverse]">
+              </el-image>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="营业执照：">
+              <el-image
+              style="width: 100px; height: 100px"
+              :src="secdetails.business"
+              :preview-src-list="[secdetails.business]">
+              </el-image>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="20">
+            <el-form-item label="下级用户：">
+              <el-table :data="sonlist" style="width: 100%" border height="100%">
+                <el-table-column align="center" prop="id" label="用户ID" min-width="100px">
+                </el-table-column>
+                <el-table-column align="center" prop="wechatName" label="用户名" min-width="80px">
+                </el-table-column>
+                <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
+                  <template v-slot="scope">
+                    <el-image
+                      style="width: 26px; height: 26px"
+                      :src="scope.row.wechatAvatar"
+                      :preview-src-list="[scope.row.wechatAvatar]">
+                    </el-image>
+                  </template>
+                </el-table-column>
+                <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="100px">
+                </el-table-column>
+              </el-table>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible=false">关闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -130,6 +280,9 @@ export default {
       cb(new Error('请输入正确的数字！'))
     }
     return {
+      details: {},
+      secdetails: {},
+      sonlist: [],
       tableData: [],
       total: 100,
       pageNum: 1,
@@ -142,6 +295,7 @@ export default {
         pageNum: '',
         pageSize: ''
       },
+      dialogVisible: false,
       dialogVisible1: false,
       editForm: {},
       editFormRules: {
@@ -185,6 +339,7 @@ export default {
             msg.data.rows[i].statusState = '已认证'
             break
         }
+        msg.data.rows[i].registerTime = this.tranformtime(msg.data.rows[i].registerTime)
       }
       this.tableData = msg.data.rows
       this.maxPage = msg.data.maxPage
@@ -254,6 +409,30 @@ export default {
     closeeditform () {
       this.editForm = {}
       this.getCustomerList(0)
+    },
+    tranformtime (originVal) {
+      const dt = new Date(originVal)
+      const y = dt.getFullYear()
+      const m = (dt.getMonth() + 1 + '').padStart(2, '0')
+      const d = (dt.getDate() + '').padStart(2, '0')
+      const hh = (dt.getHours() + '').padStart(2, '0')
+      const mm = (dt.getMinutes() + '').padStart(2, '0')
+      const sec = (dt.getSeconds() + '').padStart(2, '0')
+      return `${y}年${m}月${d}日${hh}:${mm}:${sec}`
+    },
+    async showdetails (user) {
+      const msg = await this.$http.get('user/getSonList', { params: { id: user.id } })
+      if (msg.status !== 200) {
+        return this.$message.error('获取下级用户列表失败！')
+      }
+      this.details = user
+      this.secdetails = user.userAuth
+      this.sonlist = msg.data.data
+      this.dialogVisible = true
+    },
+    closeform () {
+      this.details = {}
+      this.sonlist = []
     },
     async removefarmer (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该飞手, 是否继续?', '提示', {

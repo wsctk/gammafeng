@@ -27,64 +27,40 @@
       </el-form>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="id" label="订单ID" min-width="70px">
+          <el-table-column align="center" prop="id" label="订单ID" min-width="70px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="wechat_name" label="联系人姓名" min-width="100px">
+          <el-table-column align="center" prop="wechat_name" label="联系人姓名" min-width="100px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="phone_number" label="联系人手机号码" min-width="120px">
           </el-table-column>
-          <el-table-column align="center" prop="demand_mu" label="需求亩数" min-width="70px">
+          <el-table-column align="center" prop="demand_mu" label="需求亩数" min-width="70px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="service_time" label="预约时间" min-width="200px">
-            <template v-slot="scope">
-              {{ scope.row.service_time | dateFormat}}
-            </template>
+          <el-table-column align="center" prop="service_time" label="预约时间" min-width="200px" v-slot="scope">
+              {{ scope.row.service_time}}
           </el-table-column>
           <el-table-column align="center" prop="service_location" label="飞防地址" min-width="200px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="note" label="备注" min-width="200px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="order_amount" label="订单金额(元)" min-width="100px">
+          <el-table-column align="center" prop="order_amount" label="订单金额(元)" min-width="100px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="pay_time" label="付款时间" min-width="200px">
-            <template v-slot="scope">
-              <p v-if="scope.row.pay_time">{{ scope.row.pay_time | dateFormat}}</p>
-              <p v-else></p>
-            </template>
+          <el-table-column align="center" prop="pay_time" label="付款时间" min-width="200px" v-slot="scope">
+              {{ scope.row.pay_time}}
           </el-table-column>
           <el-table-column align="center" prop="feishou_name" label="服务飞手" min-width="100px">
           </el-table-column>
           <el-table-column align="center" prop="order_state_name" label="订单状态" min-width="70px">
           </el-table-column>
-          <el-table-column align="center" prop="create_time" label="创建时间" min-width="200px">
-            <template v-slot="scope">
-              {{ scope.row.create_time | dateFormat}}
-            </template>
+          <el-table-column align="center" prop="create_time" label="创建时间" min-width="200px" v-slot="scope">
+              {{ scope.row.create_time}}
           </el-table-column>
           <el-table-column align="center" prop="process_time" label="处理时间" min-width="200px" v-slot="scope">
-            <template>
-              <p v-if="scope.row.process_time">{{ scope.row.process_time | dateFormat}}</p>
-              <p v-else></p>
-            </template>
+              {{ scope.row.process_time}}
           </el-table-column>
-          <el-table-column align="center" prop="" label="操作" min-width="180px" v-slot="scope" fixed="right">
+          <el-table-column align="center" prop="" label="操作" min-width="240px" v-slot="scope" fixed="right">
             <template>
-              <!-- <el-popover
-                @hide="hidepopover"
-                popper-class="editprice"
-                placement="left"
-                width="200"
-                :ref="scope.row.id">
-                <el-input v-model="scope.row.order_amount" size="small">
-                  <template slot="prepend">订单金额</template>
-                </el-input>
-                <div style="text-align: right; margin: 0">
-                  <el-button size="mini" plain @click="cancelinput(scope.row.id)">取消</el-button>
-                  <el-button type="primary" size="mini" @click="submitordermoney(scope.row)">确定</el-button>
-                </div>
-                <el-button plain type="primary" slot="reference" size="small">修改</el-button>
-              </el-popover> -->
-              <el-button plain size="small" type="success" @click="showAppoint(scope.row)">转派</el-button>
+              <el-button plain size="small" type="success" @click="showdetails(scope.row)">详情</el-button>
+              <el-button plain size="small" type="primary" @click="showAppoint(scope.row)">转派</el-button>
               <el-button plain size="small" type="warning" @click="showorderconfirm(scope.row)">审核</el-button>
             </template>
           </el-table-column>
@@ -104,6 +80,115 @@
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
+    <el-dialog title="订单详情" :visible.sync="dialogVisible2" width="900px" @close="closeform">
+      <el-form label-width="170px" :model="details" ref="editFormRef" label-position="right">
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="订单ID：">
+              <el-input v-model="details.id" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="联系人姓名：">
+              <el-input v-model="details.wechat_name" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="联系人手机号码：">
+             <el-input v-model="details.phone_number" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="需求亩数：">
+              <el-input v-model="details.demand_mu" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="预约时间：">
+              <el-input v-model="details.service_time" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="飞防地址：">
+              <el-input v-model="details.service_location" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="备注：">
+              <el-input v-model="details.note" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="订单金额(元)：">
+              <el-input v-model="details.order_amount" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="付款时间：">
+              <el-input v-model="details.pay_time" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="服务飞手：">
+              <el-input v-model="details.feishou_name" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="订单状态：">
+              <el-input v-model="details.order_state_name" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="创建时间：">
+              <el-input v-model="details.create_time" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="处理时间：">
+              <el-input v-model="details.process_time" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+        <el-col :span="5" v-for="item in confirmimgs" :key="item.id">
+          <el-card>
+            <el-image
+              style="width: 65px; height: 65px"
+              :src="item.pic1"
+              :preview-src-list="[item.pic1]">
+            </el-image>
+          </el-card>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="11">
+          <el-form-item label="飞防地址：">
+            <el-input v-model="details.service_location" readonly></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      </el-form>
+      <div class="amap-page-container">
+        <el-amap vid="amapDemo" :center="mapCenter" :zoom="12" class="amap-demo">
+          <el-amap-marker vid="component-marker" :position="mapCenter"></el-amap-marker>
+        </el-amap>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible2=false">关闭</el-button>
+      </div>
+    </el-dialog>
     <el-dialog title="添加飞手" :visible.sync="dialogVisible" width="30%" @close="picked=''">
       <el-row>
         <el-col :span="20" :offset="3">
@@ -142,9 +227,15 @@
   </div>
 </template>
 <script>
+// import { AMapManager, lazyAMapApiLoaderInstance } from 'vue-amap'
+// const amapManager = new AMapManager()
+// const lazyamapManager = new lazyAMapApiLoaderInstance()
 export default {
   data () {
     return {
+      address: '',
+      mapCenter: ['121.500035', '31.239250'],
+      details: {},
       tableData: [],
       pageSize: 7,
       total: 100,
@@ -158,6 +249,7 @@ export default {
       },
       dialogVisible: false,
       dialogVisible1: false,
+      dialogVisible2: false,
       appointForm: {
         feishou: ''
       },
@@ -171,6 +263,25 @@ export default {
     this.getInformationList()
   },
   methods: {
+    async geocode () {
+      const msg = await this.$http.get('https://restapi.amap.com/v3/geocode/geo', {
+        params: {
+          key: '27fa650ff8a558de85b5a344c6a0e7fc',
+          address: this.address
+        },
+        withCredentials: false
+      })
+      if (msg.data.count === '0') {
+        return this.$message.error('获取地理位置有误！')
+      }
+      this.mapCenter = []
+      const zuobiao = msg.data.geocodes[0].location
+      const comma = zuobiao.indexOf(',')
+      const log = zuobiao.slice(0, comma)
+      const lat = zuobiao.slice((comma + 1))
+      this.mapCenter.push(log)
+      this.mapCenter.push(lat)
+    },
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
@@ -180,25 +291,16 @@ export default {
         return this.$message.error('获取派单列表失败！')
       }
       for (let i = 0; i < msg.data.rows.length; i++) {
-        switch (msg.data.rows[i].order_state_name) {
-          case 0:
-            msg.data.rows[i].order_state_name = '待付款'
-            break
-          case 1:
-            msg.data.rows[i].order_state_name = '待指派'
-            break
-          case 2:
-            msg.data.rows[i].order_state_name = '待服务'
-            break
-          case 3:
-            msg.data.rows[i].order_state_name = '待确认'
-            break
-          case 4:
-            msg.data.rows[i].order_state_name = '已完成'
-            break
-        }
         msg.data.rows[i].order_amount /= 100
         msg.data.rows[i].order_amount = msg.data.rows[i].order_amount.toFixed(2)
+        msg.data.rows[i].create_time = this.tranformtime(msg.data.rows[i].create_time)
+        msg.data.rows[i].service_time = this.tranformtime(msg.data.rows[i].service_time)
+        if (msg.data.rows[i].pay_time) {
+          msg.data.rows[i].pay_time = this.tranformtime(msg.data.rows[i].pay_time)
+        }
+        if (msg.data.rows[i].process_time) {
+          msg.data.rows[i].process_time = this.tranformtime(msg.data.rows[i].process_time)
+        }
       }
       this.tableData = msg.data.rows
       this.total = msg.data.total
@@ -214,23 +316,6 @@ export default {
         return this.$message.error('查询失败！')
       }
       for (let i = 0; i < msg.data.rows.length; i++) {
-        switch (msg.data.rows[i].order_state_name) {
-          case 0:
-            msg.data.rows[i].order_state_name = '待付款'
-            break
-          case 1:
-            msg.data.rows[i].order_state_name = '待指派'
-            break
-          case 2:
-            msg.data.rows[i].order_state_name = '待服务'
-            break
-          case 3:
-            msg.data.rows[i].order_state_name = '待确认'
-            break
-          case 4:
-            msg.data.rows[i].order_state_name = '已完成'
-            break
-        }
         msg.data.rows[i].order_amount /= 100
         msg.data.rows[i].order_amount = msg.data.rows[i].order_amount.toFixed(2)
       }
@@ -247,23 +332,6 @@ export default {
         return this.$message.error('查询失败！')
       }
       for (let i = 0; i < msg.data.rows.length; i++) {
-        switch (msg.data.rows[i].order_state_name) {
-          case 0:
-            msg.data.rows[i].order_state_name = '待付款'
-            break
-          case 1:
-            msg.data.rows[i].order_state_name = '待指派'
-            break
-          case 2:
-            msg.data.rows[i].order_state_name = '待服务'
-            break
-          case 3:
-            msg.data.rows[i].order_state_name = '待确认'
-            break
-          case 4:
-            msg.data.rows[i].order_state_name = '已完成'
-            break
-        }
         msg.data.rows[i].order_amount /= 100
         msg.data.rows[i].order_amount = msg.data.rows[i].order_amount.toFixed(2)
       }
@@ -271,26 +339,32 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
-    // hidepopover () {
-    //   this.getInformationList()
-    // },
-    // cancelinput (id) {
-    //   this.$refs[id].doClose()
-    // },
-    // async submitordermoney (order) {
-    //   if (order.order_state_name !== '待付款') {
-    //     this.$refs[order.id].doClose()
-    //     return this.$message.error('只有待付款的派单可以修改金额！')
-    //   }
-    //   order.order_amount *= 100
-    //   const msg = await this.$http.post('order/updateOrderAmount', this.$qs.stringify({ id: order.id, version: order.version, orderAmout: order.orderAmout }))
-    //   if (msg.status !== 200) {
-    //     return this.$message.error('修改派单金额失败！')
-    //   }
-    //   this.$refs[order.id].doClose()
-    //   this.$message.success('修改派单金额成功！')
-    //   this.getInformationList()
-    // },
+    tranformtime (originVal) {
+      const dt = new Date(originVal)
+      const y = dt.getFullYear()
+      const m = (dt.getMonth() + 1 + '').padStart(2, '0')
+      const d = (dt.getDate() + '').padStart(2, '0')
+      const hh = (dt.getHours() + '').padStart(2, '0')
+      const mm = (dt.getMinutes() + '').padStart(2, '0')
+      const sec = (dt.getSeconds() + '').padStart(2, '0')
+      return `${y}年${m}月${d}日${hh}:${mm}:${sec}`
+    },
+    async showdetails (user) {
+      const msg = await this.$http.get('gmTask/getTask', { params: { orderId: user.id } })
+      this.id = user.id
+      if (msg.status !== 200) {
+        return this.$message.error('订单未确认或请求确认订单失败！')
+      }
+      this.confirmimgs = msg.data
+      this.details = user
+      this.address = user.service_location
+      this.geocode()
+      this.dialogVisible2 = true
+    },
+    closeform () {
+      this.details = {}
+      this.address = []
+    },
     async showAppoint (order) {
       if (order.feishou_name !== '未指派') {
         return this.$message.error('飞手已指派！')
@@ -363,6 +437,19 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.amap-demo {
+  height: 500px;
+}
+
+.search-box {
+  position: absolute;
+  top: 25px;
+  left: 20px;
+}
+
+.amap-page-container {
+  position: relative;
+}
  .el-popover__reference {
    margin-right:10px;
  }

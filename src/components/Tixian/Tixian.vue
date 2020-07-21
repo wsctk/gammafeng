@@ -26,17 +26,17 @@
       </el-form>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="id" label="提现记录ID" min-width="100px">
+          <el-table-column align="center" prop="id" label="提现记录ID" min-width="100px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="gmUser.wechatName" label="用户名" min-width="70px">
+          <el-table-column align="center" prop="gmUser.wechatName" label="用户名" min-width="70px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="gmUser.phoneNumber" label="手机号码" min-width="120px">
           </el-table-column>
           <el-table-column align="center" prop="gmUser.userStatus" label="用户身份" min-width="100px">
           </el-table-column>
-          <el-table-column align="center" prop="drawMoney" label="提现金额(元)" min-width="120px">
+          <el-table-column align="center" prop="drawMoney" label="提现金额(元)" min-width="120px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="balance" label="钱包余额(元)" min-width="120px">
+          <el-table-column align="center" prop="balance" label="钱包余额(元)" min-width="120px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="drawTime" label="发起时间" min-width="200px">
             <template v-slot="scope">

@@ -11,6 +11,7 @@
         </el-header>
         <el-container>
           <el-aside width="14%">
+            <div class="menusize">
             <el-menu background-color="#333744" text-color="#fff" unique-opened router :default-active="activepath">
               <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
                 <template slot="title">
@@ -24,6 +25,7 @@
                 </el-menu-item>
               </el-submenu>
             </el-menu>
+            </div>
           </el-aside>
           <el-main width="86%">
             <router-view></router-view>
@@ -100,11 +102,11 @@ export default {
       ],
       iconObj: {
         0: 'iconfont icon-account',
-        1: 'iconfont icon-account',
-        2: 'iconfont icon-editor',
-        3: 'iconfont icon-data',
-        4: 'iconfont icon-rejected-order',
-        5: 'iconfont icon-signboard'
+        1: 'iconfont icon-icon-test1',
+        2: 'iconfont icon-icon-test2',
+        3: 'iconfont icon-icon-test',
+        4: 'iconfont icon-icon-test3',
+        5: 'iconfont icon-icon-test4'
       },
       isCollapse: false,
       activepath: '/normalcustomer'
@@ -144,7 +146,6 @@ export default {
 }
 .el-header {
   display:flex;
-  justify-content: flex-start;
   background-color: #fff;
   font-size:16px;
   width:100%;
@@ -181,10 +182,6 @@ export default {
 .el-icon-bell:before {
   font-size:28px !important;
   margin-left:15px;
-}
-.el-avatar--small {
-  margin-left: 15px;
-  height: 29px;
 }
 .el-aside {
   background-color: #333744;

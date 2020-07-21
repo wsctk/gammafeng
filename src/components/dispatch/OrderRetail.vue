@@ -36,17 +36,17 @@
       </el-form>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%" row-key="did">
-          <el-table-column align="center" prop="did" label="分销ID" min-width="70px">
+          <el-table-column align="center" prop="did" label="分销ID" min-width="70px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="first_name" label="一级用户" min-width="150px">
+          <el-table-column align="center" prop="first_name" label="一级用户" min-width="150px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="seconde_name" label="二级用户" min-width="150px">
+          <el-table-column align="center" prop="seconde_name" label="二级用户" min-width="150px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="mu_amount" label="亩数" min-width="100px">
+          <el-table-column align="center" prop="mu_amount" label="亩数" min-width="100px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="order_amount" label="订单金额(元)" min-width="90px">
+          <el-table-column align="center" prop="order_amount" label="订单金额(元)" min-width="90px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="profit" label="分销收益(元)" min-width="90px">
+          <el-table-column align="center" prop="profit" label="分销收益(元)" min-width="90px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="create_time" label="成单时间" min-width="200px">
             <template v-slot="scope">

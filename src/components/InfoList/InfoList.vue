@@ -23,7 +23,7 @@
       <el-button plain class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       <div class="tablediv">
       <el-table :data="tableData" style="width: 100%" border height="100%">
-        <el-table-column align="center" prop="id" label="图文ID" min-width="50px">
+        <el-table-column align="center" prop="id" label="图文ID" min-width="50px" show-overflow-tooltip>
         </el-table-column>
         <el-table-column align="center" prop="articleName" label="文章名称" min-width="150px" show-overflow-tooltip>
         </el-table-column>
@@ -41,9 +41,9 @@
             {{ scope.row.createTime | dateFormat}}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="readNumber" label="查看人数" min-width="80px">
+        <el-table-column align="center" prop="readNumber" label="查看人数" min-width="80px" show-overflow-tooltip>
         </el-table-column>
-        <el-table-column align="center" prop="orderStateName" label="状态" min-width="50px">
+        <el-table-column align="center" prop="orderStateName" label="状态" min-width="70px">
         </el-table-column>
         <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
           <template>

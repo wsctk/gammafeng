@@ -22,9 +22,9 @@
       </el-form>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-            <el-table-column align="center" prop="id" label="用户ID" min-width="100px">
+            <el-table-column align="center" prop="id" label="用户ID" min-width="100px" show-overflow-tooltip>
             </el-table-column>
-            <el-table-column align="center" prop="wechatName" label="用户名" min-width="80px">
+            <el-table-column align="center" prop="wechatName" label="用户名" min-width="80px" show-overflow-tooltip>
             </el-table-column>
             <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
               <template v-slot="scope">
@@ -37,25 +37,26 @@
             </el-table-column>
             <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="100px">
             </el-table-column>
-            <el-table-column align="center" prop="points" label="用户积分" min-width="70px">
+            <el-table-column align="center" prop="points" label="用户积分" min-width="70px" show-overflow-tooltip>
             </el-table-column>
-            <el-table-column align="center" prop="commissionRate" label="商品佣金比例(千分比)" min-width="100px">
+            <el-table-column align="center" prop="commissionRate" label="商品佣金比例(千分比)" min-width="100px" show-overflow-tooltip>
             </el-table-column>
-            <el-table-column align="center" prop="distributionRate" label="派单佣金比例(千分比)" min-width="100px">
+            <el-table-column align="center" prop="distributionRate" label="派单佣金比例(千分比)" min-width="100px" show-overflow-tooltip>
             </el-table-column>
-            <el-table-column align="center" prop="shareProp" label="派单分成比例(千分比)" min-width="100px">
+            <el-table-column align="center" prop="shareProp" label="派单分成比例(千分比)" min-width="100px" show-overflow-tooltip>
             </el-table-column>
-            <el-table-column align="center" prop="balance" label="钱包余额(元)" min-width="100px">
+            <el-table-column align="center" prop="balance" label="钱包余额(元)" min-width="100px" show-overflow-tooltip>
             </el-table-column>
             <el-table-column align="center" prop="parentPhoneNumber" label="邀请人(手机号码)" min-width="120px">
             </el-table-column>
-            <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope" min-width="200px">
-              <template>
-                {{scope.row.registerTime | dateFormat}}
-              </template>
+            <el-table-column align="center" prop="sonNumber" label="下级用户个数" min-width="120px">
             </el-table-column>
-            <el-table-column align="center" prop="" label="操作" min-width="150px" v-slot="scope" fixed="right">
+            <el-table-column align="center" prop="registerTime" label="注册时间" v-slot="scope" min-width="200px">
+              {{scope.row.registerTime}}
+            </el-table-column>
+            <el-table-column align="center" prop="" label="操作" min-width="240px" v-slot="scope" fixed="right">
               <template>
+                <el-button plain size="small" type="success" @click="showdetails(scope.row)">详情</el-button>
                 <el-button plain size="small" type="primary" @click="showDialogForm(scope.row)">编辑</el-button>
                 <el-button plain size="small" type="danger" @click="removeflyer(scope.row.id)">删除</el-button>
               </template>
@@ -125,6 +126,153 @@
         派单分成比例：飞手完成任务后从派单金额获得佣金的比例）
       </div>
     </el-dialog>
+    <el-dialog title="飞手详情" :visible.sync="dialogVisible" width="900px" @close="closeform">
+      <el-form label-width="170px" :model="details" ref="editFormRef" label-position="right">
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="用户ID：">
+              <el-input v-model="details.id" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="用户名：">
+              <el-input v-model="details.wechatName" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="微信头像：">
+              <el-image
+              style="width: 100px; height: 100px"
+              :src="details.wechatAvatar"
+              :preview-src-list="[details.wechatAvatar]">
+              </el-image>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="手机号码：">
+              <el-input v-model="details.phoneNumber" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="派单佣金比例(千分比)：">
+              <el-input v-model="details.distributionRate" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="商品佣金比例(千分比)：">
+              <el-input v-model="details.commissionRate" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="用户积分：">
+              <el-input v-model="details.points" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="钱包余额：">
+              <el-input v-model="details.balance" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="邀请人(手机号码)：">
+              <el-input v-model="details.parentPhoneNumber" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="注册时间：">
+              <el-input v-model="details.registerTime" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="真实姓名：">
+              <el-input v-model="secdetails.name" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="飞手手机号码：">
+              <el-input v-model="secdetails.phoneNumber" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="机器型号：">
+              <el-input v-model="secdetails.machineModel" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="机器数量：">
+              <el-input v-model="secdetails.machineNumber" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="飞手资质：">
+              <el-input v-model="secdetails.qualifications" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="作业经验：">
+              <el-input type="textarea" rows="4" v-model="secdetails.experience" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="20">
+            <el-form-item label="下级用户：">
+              <el-table :data="sonlist" style="width: 100%" border height="100%">
+                <el-table-column align="center" prop="id" label="用户ID" min-width="100px">
+                </el-table-column>
+                <el-table-column align="center" prop="wechatName" label="用户名" min-width="80px">
+                </el-table-column>
+                <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
+                  <template v-slot="scope">
+                    <el-image
+                      style="width: 26px; height: 26px"
+                      :src="scope.row.wechatAvatar"
+                      :preview-src-list="[scope.row.wechatAvatar]">
+                    </el-image>
+                  </template>
+                </el-table-column>
+                <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="100px">
+                </el-table-column>
+              </el-table>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="所在地：">
+              <el-input v-model="secdetails.address" readonly></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item label="详细地址：">
+              <el-input v-model="secdetails.detaileAddress" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div class="amap-page-container">
+        <el-amap vid="amapDemo" :center="mapCenter" :zoom="12" class="amap-demo">
+          <el-amap-marker vid="component-marker" :position="mapCenter"></el-amap-marker>
+        </el-amap>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible=false">关闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -138,6 +286,11 @@ export default {
       cb(new Error('请输入正确的数字！'))
     }
     return {
+      address: '',
+      mapCenter: [121.59996, 31.197646],
+      details: {},
+      secdetails: {},
+      sonlist: [],
       tableData: [],
       total: 100,
       pageNum: 1,
@@ -150,6 +303,7 @@ export default {
         pageNum: '',
         pageSize: ''
       },
+      dialogVisible: false,
       dialogVisible1: false,
       editForm: {},
       editFormRules: {
@@ -176,6 +330,25 @@ export default {
     this.getCustomerList()
   },
   methods: {
+    async geocode () {
+      const msg = await this.$http.get('https://restapi.amap.com/v3/geocode/geo', {
+        params: {
+          key: '27fa650ff8a558de85b5a344c6a0e7fc',
+          address: this.address
+        },
+        withCredentials: false
+      })
+      if (msg.data.count === '0') {
+        return this.$message.error('获取地理位置有误！')
+      }
+      this.mapCenter = []
+      const zuobiao = msg.data.geocodes[0].location
+      const comma = zuobiao.indexOf(',')
+      const log = zuobiao.slice(0, comma)
+      const lat = zuobiao.slice((comma + 1))
+      this.mapCenter.push(log)
+      this.mapCenter.push(lat)
+    },
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
@@ -238,6 +411,7 @@ export default {
             msg.data.rows[i].statusState = '已认证'
             break
         }
+        msg.data.rows[i].registerTime = this.tranformtime(msg.data.rows[i].registerTime)
       }
       this.tableData = msg.data.rows
       this.maxPage = msg.data.maxPage
@@ -282,6 +456,33 @@ export default {
       this.$refs.editFormRef.resetFields()
       this.getCustomerList()
     },
+    tranformtime (originVal) {
+      const dt = new Date(originVal)
+      const y = dt.getFullYear()
+      const m = (dt.getMonth() + 1 + '').padStart(2, '0')
+      const d = (dt.getDate() + '').padStart(2, '0')
+      const hh = (dt.getHours() + '').padStart(2, '0')
+      const mm = (dt.getMinutes() + '').padStart(2, '0')
+      const sec = (dt.getSeconds() + '').padStart(2, '0')
+      return `${y}年${m}月${d}日${hh}:${mm}:${sec}`
+    },
+    async showdetails (user) {
+      this.details = user
+      this.address = user.userAuth.address + user.userAuth.detaileAddress
+      this.geocode()
+      this.secdetails = user.userAuth
+      this.dialogVisible = true
+      const msg = await this.$http.get('user/getSonList', { params: { id: user.id } })
+      if (msg.status !== 200) {
+        return this.$message.error('获取下级用户列表失败！')
+      }
+      this.sonlist = msg.data.data
+    },
+    closeform () {
+      this.details = {}
+      this.sonlist = []
+      this.mapCenter = [121.59996, 31.197646]
+    },
     async removeflyer (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该飞手, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -302,6 +503,19 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.amap-demo {
+  height: 500px;
+}
+
+.search-box {
+  position: absolute;
+  top: 25px;
+  left: 20px;
+}
+
+.amap-page-container {
+  position: relative;
+}
 .textdiv {
   padding:50px;
 }

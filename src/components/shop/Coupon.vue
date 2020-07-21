@@ -27,13 +27,13 @@
       <el-button plain class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="id" label="优惠券ID" min-width="80px">
+          <el-table-column align="center" prop="id" label="优惠券ID" min-width="80px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="phoneNumber" label="被绑定用户(手机号码)" min-width="150px">
           </el-table-column>
-          <el-table-column align="center" prop="value" label="优惠券面额(元)" min-width="90px">
+          <el-table-column align="center" prop="value" label="优惠券面额(元)" min-width="90px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="useCondition" label="使用门槛" min-width="110px">
+          <el-table-column align="center" prop="useCondition" label="使用门槛" min-width="110px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="acquireTime" label="优惠券开始时间" min-width="200px">
             <template v-slot="scope">

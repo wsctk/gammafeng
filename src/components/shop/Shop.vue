@@ -36,13 +36,13 @@
       <el-button plain class="addbtn" type="primary" size="large" @click="dialogVisible=true">+ 新建</el-button>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="id" label="商品ID" min-width="120px">
+          <el-table-column align="center" prop="id" label="商品ID" min-width="120px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="goodsName" label="商品名" min-width="200px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="cateGoryName" label="商品分类" min-width="70px">
+          <el-table-column align="center" prop="cateGoryName" label="商品分类" min-width="70px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="goodsCover" label="封面图片" v-slot="scope" min-width="60px">
+          <el-table-column align="center" prop="goodsCover" label="封面图片" v-slot="scope" min-width="60px" show-overflow-tooltip>
             <template>
               <el-image
                 style="width: 27px; height: 27px"
@@ -56,13 +56,13 @@
               <el-button plain type="success" size="small" @click="showimgs(scope.row.id)">查看</el-button>
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="goodsPrice" label="价格(元)/积分" min-width="90px">
+          <el-table-column align="center" prop="goodsPrice" label="价格(元)/积分" min-width="90px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="inventory" label="库存" min-width="70px">
+          <el-table-column align="center" prop="inventory" label="库存" min-width="70px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="goodsClassficationname" label="商品归属" min-width="80px">
+          <el-table-column align="center" prop="goodsClassficationname" label="商品归属" min-width="80px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="goodsStatename" label="商品状态" min-width="70px">
+          <el-table-column align="center" prop="goodsStatename" label="商品状态" min-width="70px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="createTime" label="创建时间" v-slot="scope" min-width="200px">
             <template>

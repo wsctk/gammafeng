@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import './plugins/element.js'
-import './assets/iconfont/iconfont.css'
+import './assets/iconfont6/iconfont.css'
 import './assets/css/global.css'
 import qs from 'qs'
 import axios from 'axios'
@@ -12,6 +12,15 @@ import JsonExcel from 'vue-json-excel'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
+import VueAMap from 'vue-amap'
+Vue.use(VueAMap)
+
+VueAMap.initAMapApiLoader({
+  key: '528e36c76f2bcdfbe0fa6d6e731dcf35',
+  plugin: ['AMap.Scale', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor'],
+  v: '1.4.4',
+  uiVersion: '1.0'
+})
 
 Vue.component('downloadExcel', JsonExcel)
 Vue.use(VueQuillEditor)
@@ -19,7 +28,6 @@ Vue.prototype.$qs = qs
 
 axios.defaults.withCredentials = true
 var instance = axios.create({
-  // baseURL: 'https://admin-api.gamma.it-10.com/',
   // baseURL: 'http://192.168.18.5:8181/',
   baseURL: 'http://192.168.18.8:8181/',
   // baseURL: 'http://admin-api-gmf.it-10.com/',

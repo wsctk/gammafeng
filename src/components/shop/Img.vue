@@ -19,7 +19,7 @@
       </el-form>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="id" label="图片ID" min-width="50px">
+          <el-table-column align="center" prop="id" label="图片ID" min-width="70px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="goodsName" label="商品名称" min-width="200px" show-overflow-tooltip>
           </el-table-column>

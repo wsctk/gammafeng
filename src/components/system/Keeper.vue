@@ -29,11 +29,11 @@
       <el-button plain class="addbtn" type="primary" size="large" @click="showaddform">+ 新建</el-button>
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
-          <el-table-column align="center" prop="id" label="用户ID" min-width="70px">
+          <el-table-column align="center" prop="id" label="用户ID" min-width="70px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="realName" label="管理员姓名" min-width="80px">
+          <el-table-column align="center" prop="realName" label="管理员姓名" min-width="80px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="userName" label="管理员帐号" min-width="80px">
+          <el-table-column align="center" prop="userName" label="管理员帐号" min-width="80px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="120px">
           </el-table-column>
