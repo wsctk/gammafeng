@@ -286,11 +286,11 @@ export default {
       cb(new Error('请输入正确的数字！'))
     }
     return {
-      address: '',
-      mapCenter: [121.59996, 31.197646],
+      address: '', // 临时存储需要显示的地址，之后提交转换成可以直接显示在地图上的经纬度
+      mapCenter: [121.59996, 31.197646], // 地图渲染失败默认坐标
       details: {},
       secdetails: {},
-      sonlist: [],
+      sonlist: [], // 下级用户
       tableData: [],
       total: 100,
       pageNum: 1,
@@ -306,6 +306,7 @@ export default {
       dialogVisible: false,
       dialogVisible1: false,
       editForm: {},
+      // 编辑表单验证规则
       editFormRules: {
         points: [
           { required: true, message: '请输入用户积分', trigger: 'blur' },
@@ -330,6 +331,7 @@ export default {
     this.getCustomerList()
   },
   methods: {
+    // 获取需要显示的地址的经纬度
     async geocode () {
       const msg = await this.$http.get('https://restapi.amap.com/v3/geocode/geo', {
         params: {
@@ -349,9 +351,11 @@ export default {
       this.mapCenter.push(log)
       this.mapCenter.push(lat)
     },
+    // 重置搜索框
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 搜索框搜索
     async queryinfo () {
       this.pageNum = 1
       this.queryInfo.pageNum = this.pageNum
@@ -375,6 +379,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索之后所有结果分页
     async queryinfopage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
@@ -397,6 +402,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 获取table数据
     async getCustomerList () {
       const msg = await this.$http.get('user/userList', { params: { userStatus: '1', pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
@@ -417,6 +423,7 @@ export default {
       this.maxPage = msg.data.maxPage
       this.total = msg.data.total
     },
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
@@ -424,6 +431,7 @@ export default {
       }
       this.queryinfopage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
@@ -431,10 +439,12 @@ export default {
       }
       this.queryinfopage()
     },
+    // 显示编辑dialog
     showDialogForm (user) {
       this.editForm = user
       this.dialogVisible1 = true
     },
+    // 提交编辑表单数据
     async editdialog () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
@@ -443,6 +453,7 @@ export default {
           this.dialogVisible1 = false
           return this.$message.error('编辑飞手信息失败！')
         }
+        // 根据返回值判断输入的上级用户是否存在
         if (msg.data.code === 9) {
           return this.$message.error('上级用户不存在！')
         }
@@ -451,11 +462,13 @@ export default {
         this.dialogVisible1 = false
       })
     },
+    // 关闭编辑dialog
     closeeditform () {
       this.editForm = {}
       this.$refs.editFormRef.resetFields()
       this.getCustomerList()
     },
+    // 将毫秒值转为日期
     tranformtime (originVal) {
       const dt = new Date(originVal)
       const y = dt.getFullYear()
@@ -466,6 +479,7 @@ export default {
       const sec = (dt.getSeconds() + '').padStart(2, '0')
       return `${y}年${m}月${d}日${hh}:${mm}:${sec}`
     },
+    // 显示详情dialog
     async showdetails (user) {
       this.details = user
       this.address = user.userAuth.address + user.userAuth.detaileAddress
@@ -478,11 +492,13 @@ export default {
       }
       this.sonlist = msg.data.data
     },
+    // 关闭详情dialog
     closeform () {
       this.details = {}
       this.sonlist = []
       this.mapCenter = [121.59996, 31.197646]
     },
+    // 删除飞手
     async removeflyer (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该飞手, 是否继续?', '提示', {
         confirmButtonText: '确定',

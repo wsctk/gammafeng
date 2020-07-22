@@ -161,8 +161,8 @@ export default {
       dialogVisible3: false,
       dialogImageUrl: '',
       fileList: [],
-      loadingtext: '确认',
-      zhinenganyici: false,
+      loadingtext: '确认', // 新增dialog提交按钮内文字
+      zhinenganyici: false, // 新增dialog提交按钮是否禁用状态
       tableData: [],
       total: 1,
       pageNum: 1,
@@ -173,6 +173,7 @@ export default {
         index: 0,
         status: 0
       },
+      // 添加图片表单规则
       addFormRules: {
         banner: [
           { required: true, message: '请选择标题！', trigger: 'blur' }],
@@ -185,6 +186,7 @@ export default {
           { required: true, message: '请选择显示状态！', trigger: 'blur' }]
       },
       editForm: {},
+      // 编辑图片表单规则
       editFormRules: {
         banner: [
           { required: true, message: '请选择标题！', trigger: 'blur' }],
@@ -202,6 +204,7 @@ export default {
     this.getInformationList()
   },
   methods: {
+    // 获取table数据
     async getInformationList () {
       const msg = await this.$http.get('rotation/rotationList')
       if (msg.status !== 200) {
@@ -219,17 +222,22 @@ export default {
       }
       this.tableData = msg.data.data
     },
+    // el-upload原生提交方法，写了个空方法，不写会报错
     uploadaddFormFile () {},
+    // 文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用
     changeaddimg () {
       if (this.$refs.addimgRef.uploadFiles[0]) {
+        // 添加图片后隐藏添加图片按钮
         const addbtn = document.querySelector('.addgoodscover .el-upload')
         addbtn.style.display = 'none'
       }
     },
+    // 添加图片的预览
     addimgPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible1 = true
     },
+    // 添加轮播图片
     async addlunboimg () {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
@@ -237,11 +245,13 @@ export default {
           return this.$message.error('请添加图片之后再提交！')
         }
         this.addForm.index = Math.ceil(this.addForm.index)
+        // 创建表单对象，添加需要上传的图片和其他数据
         const formdata = new FormData()
         formdata.append('banner', this.addForm.banner)
         formdata.append('index', this.addForm.index)
         formdata.append('status', this.addForm.status)
         formdata.append('file', this.$refs.addimgRef.uploadFiles[0].raw)
+        // 提交后禁用提交按钮，并把按钮内文字改为‘提交中。。。’
         this.zhinenganyici = true
         this.loadingtext = '提交中...'
         const msg = await this.$http.post('rotation/insertRotation', formdata)
@@ -253,14 +263,18 @@ export default {
         this.dialogVisible = false
       })
     },
+    // 关闭添加图片dialog
     closeaddform () {
+      // 恢复提交按钮
       this.zhinenganyici = false
       this.loadingtext = '确认'
+      // 恢复图片添加按钮
       const addbtn = document.querySelector('.addgoodscover .el-upload')
       addbtn.style.display = 'inline-block'
       this.$refs.addimgRef.clearFiles()
       this.$refs.addFormRef.resetFields()
     },
+    // 图片上传前检查
     beforeUpload (file) {
       const isJPG = file.type === 'image/jpeg'
       const isPNG = file.type === 'image/png'
@@ -274,28 +288,35 @@ export default {
       }
       return isPG && isLt2M
     },
+    // 显示编辑dialog
     async showeditform (user) {
       this.dialogVisible2 = true
       this.editForm = user
+      // dialog回显轮播图片
       this.fileList.push({ url: user.route })
     },
+    // 隐藏编辑dialog图片添加按钮
     hiddenaddbtn () {
       if (this.$refs.editimgRef.uploadFiles[0]) {
         const editbtn = document.querySelector('.editgoodscover .el-upload')
         editbtn.style.display = 'none'
       }
     },
+    // 同上，站位方法
     uploadeditFormFile () {},
+    // 改变编辑dialog中图片后是否需要隐藏图片添加按钮
     changeeditimg (file, fileList) {
       if (this.$refs.editimgRef.uploadFiles[0]) {
         const addbtn = document.querySelector('.editgoodscover .el-upload')
         addbtn.style.display = 'none'
       }
     },
+    // 添加dialog图片预览
     editimgPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible3 = true
     },
+    // 提交编辑dialog表单数据，同提交新增dialog
     async editlunboimg () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
@@ -319,12 +340,14 @@ export default {
         this.dialogVisible2 = false
       })
     },
+    // 关闭编辑dialog
     closeeditform () {
       this.$refs.editFormRef.resetFields()
       this.fileList = []
       this.$refs.editimgRef.clearFiles()
       this.getInformationList()
     },
+    // 删除轮播图片
     async removeimg (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该商品图片, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -341,10 +364,12 @@ export default {
       this.$message.success('删除成功！')
       this.getInformationList()
     },
+    // 新增dialog文件列表移除文件时的钩子，显示图片添加按钮
     handleRemoveadd (file, fileList) {
       const addbtn = document.querySelector('.addgoodscover .el-upload')
       addbtn.style.display = 'inline-block'
     },
+    // 编辑dialog文件列表移除文件时的钩子，显示图片添加按钮
     handleRemoveedit (file, fileList) {
       const addbtn = document.querySelector('.editgoodscover .el-upload')
       addbtn.style.display = 'inline-block'

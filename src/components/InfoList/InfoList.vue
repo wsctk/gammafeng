@@ -262,12 +262,14 @@ export default {
         state: '',
         article: ''
       },
+      // 新增表单验证规则
       addFormRules: {
         title: [
           { required: true, message: '请输入标题！', trigger: 'blur' }
         ]
       },
       editForm: {},
+      // 编辑表单验证规则
       editFormRules: {
         articleName: [
           { required: true, message: '请输入标题！', trigger: 'blur' }
@@ -281,9 +283,11 @@ export default {
     this.getInformationList()
   },
   methods: {
+    // 重置搜索框
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 搜索框搜索
     async queryinfo () {
       this.pageNum = 1
       this.queryInfo.pageSize = this.pageSize
@@ -297,6 +301,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索之后所有结果分页
     async queryinfopage () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
@@ -309,6 +314,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 获取table数据
     async getInformationList () {
       const msg = await this.$http.get('information/selectInformation', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
@@ -318,9 +324,11 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 打开dialog前渲染富文本选项中文提示
     showtooltipadd () {
       quilltitle()
     },
+    // 打开dialog前渲染富文本选项中文提示，并隐藏图片添加框
     showtooltipedit () {
       quilltitle()
       if (this.$refs.editimgRef.uploadFiles[0]) {
@@ -328,6 +336,7 @@ export default {
         editbtn.style.display = 'none'
       }
     },
+    // 富文本插入图片
     handleSuccess (res) {
       const quill = this.$refs.myQuillEditor.quill
       if (res) {
@@ -338,6 +347,7 @@ export default {
         this.$message.error('图片插入失败')
       }
     },
+    // 删除图片之后恢复图片添加框
     handleRemoveadd (file, fileList) {
       const addbtn = document.querySelector('.addgoodscover .el-upload')
       addbtn.style.display = 'inline-block'
@@ -346,12 +356,14 @@ export default {
       const addbtn = document.querySelector('.editgoodscover .el-upload')
       addbtn.style.display = 'inline-block'
     },
+    // 文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用，用来隐藏图片添加框
     changeaddcover (file, fileList) {
       if (this.$refs.addimgRef.uploadFiles[0]) {
         const addbtn = document.querySelector('.addgoodscover .el-upload')
         addbtn.style.display = 'none'
       }
     },
+    // 图片上传前检查
     beforeUpload (file) {
       const isJPG = file.type === 'image/jpeg'
       const isPNG = file.type === 'image/png'
@@ -365,23 +377,28 @@ export default {
       }
       return isPG && isLt2M
     },
-    uploadaddFormFile (params) {
-    },
+    // 上传组件默认占位方法
+    uploadaddFormFile (params) {},
+    // 新增dialog封面图片预览
     addimgPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible2 = true
     },
+    // 提交新增表单
     async submitaddinfo () {
+      // 表单验证
       this.$refs.additionalInfoRef.validate(async valid => {
         if (!valid) return
         if (!this.$refs.addimgRef.uploadFiles[0]) {
           return this.$message.error('请添加图片之后再提交！')
         }
+        // 创建表单对象并添加图片和其他数据，用以上传
         const formData = new FormData()
         formData.append('file', this.$refs.addimgRef.uploadFiles[0].raw)
         formData.append('articleName', this.additionalInfo.title)
         formData.append('content', this.content)
         formData.append('state', this.additionalInfo.state)
+        // 提交之后禁用提交按钮
         this.zhinenganyici = true
         this.loadingtext = '提交中...'
         const msg = await this.$http.post('information/addInformation', formData)
@@ -393,37 +410,46 @@ export default {
         this.dialogVisible = false
       })
     },
+    // 关闭新增表单
     closeaddform () {
+      // 恢复提交按钮
       this.zhinenganyici = false
       this.loadingtext = '确认'
+      // 恢复图片添加框
       const addbtn = document.querySelector('.addgoodscover .el-upload')
       addbtn.style.display = 'inline-block'
       this.$refs.additionalInfoRef.resetFields()
       this.$refs.addimgRef.clearFiles()
       this.content = ''
     },
+    // 显示编辑dialog
     showeditform (user) {
       this.dialogVisible1 = true
       this.editForm = user
       this.fileList.push({ url: user.cover })
       this.content = this.editForm.article
     },
+    // 文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用，用来隐藏图片添加框
     changeeditcover (file, fileList) {
       if (this.$refs.editimgRef.uploadFiles[0]) {
         const editbtn = document.querySelector('.editgoodscover .el-upload')
         editbtn.style.display = 'none'
       }
     },
-    uploadeditFormFile (params) {
-    },
+    // 上传组件默认占位方法
+    uploadeditFormFile (params) {},
+    // 编辑dialog封面图片预览
     editimgPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible3 = true
     },
+    // 提交编辑表单
     async submiteditinfo () {
+      // 表单验证
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
         const formData = new FormData()
+        // 如果没有更换封面，则回传url，否则回传二进制流
         if (!this.$refs.editimgRef.uploadFiles[0].raw) {
           formData.append('path', this.$refs.editimgRef.uploadFiles[0].url)
         } else {
@@ -442,6 +468,7 @@ export default {
         this.dialogVisible1 = false
       })
     },
+    // 关闭编辑dialog
     closeeditform () {
       this.$refs.editFormRef.resetFields()
       this.fileList = []
@@ -449,6 +476,7 @@ export default {
       this.$refs.editimgRef.clearFiles()
       this.getInformationList()
     },
+    // 删除资讯
     async removeuser (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该条资讯, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -460,14 +488,16 @@ export default {
       }
       const msg = await this.$http.post('information/deleteInformationList', this.$qs.stringify({ id: id }))
       if (msg.status !== 200) {
-        return this.$message.error('删除用户失败')
+        return this.$message.error('删除资讯失败')
       }
-      this.$message.success('用户已删除')
+      this.$message.success('资讯已删除')
       this.getInformationList()
     },
+    // 富文本占位方法
     onEditorBlur (e) {},
     onEditorFocus (e) {},
     onEditorReady (e) {},
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.articleName && !this.queryInfo.createTime) {
@@ -475,6 +505,7 @@ export default {
       }
       this.queryinfopage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.articleName && !this.queryInfo.createTime) {

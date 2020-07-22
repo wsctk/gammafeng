@@ -152,6 +152,7 @@
 <script>
 export default {
   data () {
+    // 判断输入是否是最多两位小数的数字格式
     var checkdoublenum = (rule, value, cb) => {
       const regbili = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
       if (regbili.test(value)) {
@@ -160,12 +161,13 @@ export default {
       cb(new Error('请输入正确格式的数字！'))
     }
     return {
+      // 日期时间选择器配置
       pickeroptions: {
         disabledDate (time) {
           return time.getTime() <= Date.now()
         }
       },
-      zhinenganyici: false,
+      zhinenganyici: false, // 新增按钮禁用状态
       tableData: [],
       total: 100,
       pageNum: 1,
@@ -188,6 +190,7 @@ export default {
         phoneNumber: '',
         useCondition: 0
       },
+      // 新增表单验证规则
       addFormRules: {
         value: [
           { required: true, message: '请输入优惠券面额', trigger: 'blur' },
@@ -219,6 +222,7 @@ export default {
     this.getcouponlist()
   },
   methods: {
+    // 搜索框搜索
     async queryinfo () {
       this.pageNum = 1
       this.queryInfo.pageNum = this.pageNum
@@ -247,6 +251,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索之后所有结果分页
     async queryinfopage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
@@ -274,9 +279,11 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 重置搜索框
     resetquery () {
       this.$refs.queryinfoRef.resetFields()
     },
+    // 获取table数据
     async getcouponlist () {
       const msg = await this.$http.get('coupons/couponsList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
@@ -301,7 +308,9 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 新增优惠券
     async addcoupon () {
+      // 表单验证
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
         if (this.addForm.acquireTime >= this.addForm.expirationDate) {
@@ -320,10 +329,12 @@ export default {
         this.dialogVisible = false
       })
     },
+    // 关闭新增dialog
     closeaddform () {
       this.zhinenganyici = false
       this.$refs.addFormRef.resetFields()
     },
+    // 删除优惠券
     async removecoupon (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -340,6 +351,7 @@ export default {
       this.$message.success('删除成功！')
       this.getcouponlist()
     },
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.useCondition && !this.queryInfo.state) {
@@ -347,6 +359,7 @@ export default {
       }
       this.queryinfopage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.useCondition && !this.queryInfo.state) {

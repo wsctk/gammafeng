@@ -83,7 +83,7 @@
 export default {
   data () {
     return {
-      zhinenganyici: false,
+      zhinenganyici: false, // 新增优惠券提交按钮状态
       tableData: [],
       dialogVisible: false,
       addForm: {
@@ -93,6 +93,7 @@ export default {
         expirationDate: '',
         useCondition: 0
       },
+      // 表单验证规则
       addFormRules: {
         value: [
           { required: true, message: '请输入优惠券面额', trigger: 'blur' }
@@ -116,6 +117,7 @@ export default {
     this.getcouponlist()
   },
   methods: {
+    // 获取并处理table数据
     async getcouponlist () {
       const msg = await this.$http.get('coupons/getRegisterCouponsList')
       if (msg.status !== 200) {
@@ -135,11 +137,13 @@ export default {
       }
       this.tableData = msg.data.data
     },
+    // 添加优惠券
     async addcoupon () {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
         this.addForm.value *= 100
         this.addForm.useCondition *= 100
+        // 提交后禁用按钮
         this.zhinenganyici = true
         const msg = await this.$http.post('coupons/addRegisterCoupons', this.$qs.stringify(this.addForm))
         if (msg.status !== 200) {
@@ -151,10 +155,14 @@ export default {
         this.dialogVisible = false
       })
     },
+    // 关闭添加dialog
     closeaddform () {
+      // 恢复提交按钮
       this.zhinenganyici = false
+      // 重置dialog表单数据
       this.$refs.addFormRef.resetFields()
     },
+    // 删除优惠券
     async removecoupon (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
         confirmButtonText: '确定',

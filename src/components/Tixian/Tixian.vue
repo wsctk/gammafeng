@@ -101,9 +101,11 @@ export default {
     this.getCustomerList()
   },
   methods: {
+    // 重置搜索框内容方法
     resetField () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 获取并处理table数据
     async getCustomerList () {
       const msg = await this.$http.get('draw/drawList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
@@ -125,10 +127,10 @@ export default {
         msg.data.rows[i].balance = (msg.data.rows[i].balance /= 100).toFixed(2)
       }
       this.tableData = msg.data.rows
-      console.log(this.tableData)
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索框搜索方法
     async querylist () {
       this.pageNum = 1
       this.queryinfo.pageNum = this.pageNum
@@ -156,6 +158,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索之后分页调用搜索结果
     async querylistpage () {
       this.queryinfo.pageNum = this.pageNum
       this.queryinfo.pageSize = this.pageSize
@@ -182,7 +185,9 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 通过提现
     async tixiansuccess (user) {
+      // 确认前提示
       if (user.drawStatus !== '0') {
         return this.$message.error('该提现记录已提交，无法重复修改')
       }
@@ -199,12 +204,15 @@ export default {
         return this.$message.error('提交提现结果失败！')
       }
       this.$message.success('提交提现结果成功！')
+      // 重新获取table数据
       this.getCustomerList()
     },
+    // 驳回提现
     async tixianfailed (user) {
       if (user.drawStatus !== 0) {
         return this.$message.error('该提现记录已提交，无法重复修改')
       }
+      // 驳回前提示
       const confirmResult = await this.$confirm('该结果只能更改一次,确定该提现已失败！', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -218,8 +226,10 @@ export default {
         return this.$message.error('提交提现结果失败！')
       }
       this.$message.success('提交提现结果成功！')
+      // 重新获取table数据
       this.getCustomerList()
     },
+    // 改变页面显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.userStatus && !this.queryInfo.phoneNumber) {
@@ -227,6 +237,7 @@ export default {
       }
       this.querylistpage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.userStatus && !this.queryInfo.phoneNumber) {

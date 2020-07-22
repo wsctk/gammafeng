@@ -43,6 +43,7 @@
 export default {
   data () {
     return {
+      // 侧边栏数据
       menuList: [
         {
           authName: '用户管理',
@@ -100,6 +101,7 @@ export default {
           ]
         }
       ],
+      // 侧边栏iconfont
       iconObj: {
         0: 'iconfont icon-account',
         1: 'iconfont icon-icon-test1',
@@ -108,7 +110,7 @@ export default {
         4: 'iconfont icon-icon-test3',
         5: 'iconfont icon-icon-test4'
       },
-      isCollapse: false,
+      // 侧边栏导航地址
       activepath: '/normalcustomer'
     }
   },
@@ -116,20 +118,25 @@ export default {
     this.getNavState()
   },
   methods: {
+    // 登出方法
     async quitlogin () {
       const msg = await this.$http.post('loginOut')
       if (msg.status !== 200) {
         return this.$message.error('登出失败！')
       }
+      // 清除储存的session状态
       window.sessionStorage.clear()
+      // 改变记住密码状态
       localStorage.removeItem('checked')
       this.$message.success('登出成功！')
       this.$router.push('/login')
     },
+    // 存储侧边栏index
     saveNavState (activePath) {
       window.sessionStorage.setItem('activePath', activePath)
       this.activepath = activePath
     },
+    // 获取侧边栏index
     getNavState () {
       const navpath = window.sessionStorage.getItem('activePath')
       if (navpath) {

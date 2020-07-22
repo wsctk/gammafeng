@@ -282,7 +282,7 @@ export default {
     return {
       details: {},
       secdetails: {},
-      sonlist: [],
+      sonlist: [], // 下级用户信息
       tableData: [],
       total: 100,
       pageNum: 1,
@@ -298,6 +298,7 @@ export default {
       dialogVisible: false,
       dialogVisible1: false,
       editForm: {},
+      // 编辑表单验证规则
       editFormRules: {
         points: [
           { required: true, message: '请输入用户积分', trigger: 'blur' },
@@ -318,13 +319,16 @@ export default {
     this.getCustomerList()
   },
   methods: {
+    // 显示编辑dialog
     showDialogForm (user) {
       this.dialogVisible1 = true
       this.editForm = user
     },
+    // 重置搜索框
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 获取table数据
     async getCustomerList () {
       const msg = await this.$http.get('user/userList', { params: { userStatus: 2, pageSize: this.pageSize, pageNum: this.pageNum } })
       if (msg.status !== 200) {
@@ -345,6 +349,7 @@ export default {
       this.maxPage = msg.data.maxPage
       this.total = msg.data.total
     },
+    // 搜索框搜索
     async queryinfo () {
       this.pageNum = 1
       this.queryInfo.pageSize = this.pageSize
@@ -368,6 +373,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索之后所有结果分页
     async queryinfopage () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
@@ -390,6 +396,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 提交编辑表单数据
     async editdialog () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
@@ -406,10 +413,12 @@ export default {
         this.dialogVisible1 = false
       })
     },
+    // 关闭编辑dialog
     closeeditform () {
       this.editForm = {}
       this.getCustomerList(0)
     },
+    // 将毫秒值转换为日期
     tranformtime (originVal) {
       const dt = new Date(originVal)
       const y = dt.getFullYear()
@@ -420,6 +429,7 @@ export default {
       const sec = (dt.getSeconds() + '').padStart(2, '0')
       return `${y}年${m}月${d}日${hh}:${mm}:${sec}`
     },
+    // 显示详情dialog
     async showdetails (user) {
       const msg = await this.$http.get('user/getSonList', { params: { id: user.id } })
       if (msg.status !== 200) {
@@ -430,10 +440,12 @@ export default {
       this.sonlist = msg.data.data
       this.dialogVisible = true
     },
+    // 关闭详情dialog
     closeform () {
       this.details = {}
       this.sonlist = []
     },
+    // 删除农资商
     async removefarmer (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该飞手, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -450,6 +462,7 @@ export default {
       this.$message.success('农资商身份已删除')
       this.getCustomerList()
     },
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
@@ -457,6 +470,7 @@ export default {
       }
       this.queryinfopage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {

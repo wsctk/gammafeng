@@ -46,6 +46,7 @@ export default {
     this.getsys()
   },
   methods: {
+    // 获取回显数据
     async getsys () {
       const msg = await this.$http.get('system/getMuConfig')
       if (msg.status !== 200) {
@@ -53,12 +54,15 @@ export default {
       }
       this.rowlist = msg.data.data
     },
+    // 新增一行
     add () {
       this.rowlist.push({ end: 0, price: 0 })
     },
+    // 删除一行
     remove () {
       this.rowlist.pop({ end: 0, price: 0 })
     },
+    // 提交亩数定价
     async rangeload () {
       const reg1 = /^(([1-9]\d*)|(0))([.]\d{0,1})?$/
       const reg2 = /^(([1-9]\d*)|(0))$/

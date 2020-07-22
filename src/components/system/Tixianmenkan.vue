@@ -86,6 +86,7 @@ export default {
     this.getinfolist()
   },
   methods: {
+    // 获取并处理回显数据
     async getinfolist () {
       const msg = await this.$http.get('system/getSystemConfig')
       console.log(msg.data[0])
@@ -98,6 +99,7 @@ export default {
       this.dispatcherProportion = msg.data[0].dispatcherProportion
       this.distributionProportion = msg.data[0].distributionProportion
     },
+    // 提交提现门槛
     async savemenkan () {
       const reg = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
       if (!reg.test(this.tixian)) {
@@ -110,6 +112,7 @@ export default {
       this.$message.success('提交提现门槛成功！')
       this.getinfolist()
     },
+    // 提交商品积分转化比
     async savegoods () {
       const reg = /^(([1-9]\d*)|(0))$/
       if (!reg.test(this.goodsPoints)) {
@@ -122,6 +125,7 @@ export default {
       this.$message.success('提交商品积分转化比成功！')
       this.getinfolist()
     },
+    // 提交派单积分转化比
     async saveorder () {
       const reg = /^(([1-9]\d*)|(0))$/
       if (!reg.test(this.goodsPoints)) {
@@ -134,6 +138,7 @@ export default {
       this.$message.success('提交派单积分转化比成功！')
       this.getinfolist()
     },
+    // 提交商品分销比例
     async savegoodsretail () {
       const reg = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
       if (!reg.test(this.distributionProportion)) {
@@ -146,6 +151,7 @@ export default {
       this.$message.success('提交商品分销比例成功！')
       this.getinfolist()
     },
+    // 提交派单分销比例
     async saveorderretail () {
       const reg = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
       if (!reg.test(this.dispatcherProportion)) {

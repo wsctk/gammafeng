@@ -337,6 +337,7 @@
 import { quilltitle } from '../../assets/js/quill-title.js'
 export default {
   data () {
+    // 检查输入是否是正整数的表单验证规则
     var checknum = (rule, value, cb) => {
       const regbili = /^(([1-9]\d*)|(0))$/
       if (regbili.test(value)) {
@@ -344,6 +345,7 @@ export default {
       }
       cb(new Error('请输入正确格式的数字！'))
     }
+    // 检查输入是否是最多带两位小数的正数的表单验证规则
     var checkdoublenum = (rule, value, cb) => {
       const regbili = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
       if (regbili.test(value)) {
@@ -353,6 +355,7 @@ export default {
     }
     return {
       uploadimgurl: 'https://admin-api.gamma.it-10.com/picture/loadPicture',
+      // 富文本配置
       editorOption: {
         modules: {
           toolbar: {
@@ -378,8 +381,8 @@ export default {
         }
       },
       content: '',
-      loadingtext: '确认',
-      zhinenganyici: false,
+      loadingtext: '确认', // 新增dialog提交按钮内文字
+      zhinenganyici: false, // 新增dialog提交按钮禁用状态
       tableData: [],
       total: 100,
       pageNum: 1,
@@ -410,6 +413,7 @@ export default {
         goodsState: '',
         goodsDescription: ''
       },
+      // 新增商品表单规则
       addFormRules: {
         goodsName: [
           { required: true, message: '请输入商品名称', trigger: 'blur' }
@@ -433,6 +437,7 @@ export default {
         ]
       },
       editForm: {},
+      // 编辑商品表单规则
       editFormRules: {
         goodsName: [
           { required: true, message: '请输入商品名称', trigger: 'blur' }
@@ -465,9 +470,11 @@ export default {
     this.getcategory()
   },
   methods: {
+    // 重置搜索框
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 搜索框搜索
     async query () {
       this.pageNum = 1
       this.queryInfo.pageNum = this.pageNum
@@ -505,6 +512,7 @@ export default {
       this.total = arr.data.total
       this.maxPage = arr.data.maxPage
     },
+    // 搜索之后搜索结果分页
     async querypage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
@@ -541,6 +549,7 @@ export default {
       this.total = arr.data.total
       this.maxPage = arr.data.maxPage
     },
+    // 获取table数据
     async getgoodList () {
       const msg = await this.$http.get('store/goodsList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
@@ -574,6 +583,7 @@ export default {
       this.total = arr.data.total
       this.maxPage = arr.data.maxPage
     },
+    // 获取所有分类信息，方便之后调用
     async getcategory () {
       const cate = await this.$http.get('category/categoryListNotPage')
       if (cate.status !== 200) {
@@ -581,9 +591,11 @@ export default {
       }
       this.category = cate.data.data
     },
+    // 打开新增商品dialog前渲染富文本选项中文提示
     showtooltipadd () {
       quilltitle()
     },
+    // 打开编辑商品dialog前渲染富文本选项中文提示顺带隐藏封面图片添加按钮
     showtooltipedit () {
       quilltitle()
       if (this.$refs.editimgRef.uploadFiles[0]) {
@@ -591,17 +603,19 @@ export default {
         editbtn.style.display = 'none'
       }
     },
+    // 封面图片删除站位方法
     handleRemove (file, fileList) {},
-    uploadaddimg (params) {
-    },
-    uploadaddimgs (params) {
-    },
+    // 封面图片默认提交站位方法
+    uploadaddimg (params) {},
+    uploadaddimgs (params) {},
+    // 文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用，判断是否要隐藏图片添加框
     changeaddcover (file, fileList) {
       if (this.$refs.addimgRef.uploadFiles[0]) {
         const addbtn = document.querySelector('.addgoodscover .el-upload')
         addbtn.style.display = 'none'
       }
     },
+    // 富文本上传图片
     handleSuccess (res) {
       const quill = this.$refs.myQuillEditor.quill
       if (res) {
@@ -612,19 +626,25 @@ export default {
         this.$message.error('图片插入失败')
       }
     },
+    // 新增图片表单提交
     async submitaddform () {
+      // 表单验证
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
+        // 创建表单对象上传图片和其他数据
         const formData = new FormData()
+        // 提交前判断是否最少各提交一张封面和详情图片
         if (!this.$refs.addimgRef.uploadFiles[0] || !this.$refs.addimgsRef.uploadFiles[0]) {
           return this.$message.error('请添加图片之后再提交！')
         }
+        // 将图片二进制流添加进表单对象
         var addimg = this.$refs.addimgRef.uploadFiles[0].raw
         formData.append('multipartFileile', addimg)
         for (var i = 0; i < this.$refs.addimgsRef.uploadFiles.length; i++) {
           formData.append('file', this.$refs.addimgsRef.uploadFiles[i].raw)
         }
         this.addForm.goodsPrice *= 100
+        // 提交后禁用提交按钮
         this.zhinenganyici = true
         this.loadingtext = '提交中...'
         this.addForm.goodsDescription = this.content
@@ -638,9 +658,12 @@ export default {
         this.dialogVisible = false
       })
     },
+    // 关闭新增商品dialog
     closeaddform () {
+      // 恢复提交按钮
       this.zhinenganyici = false
       this.loadingtext = '确认'
+      // 恢复图片添加框
       const editbtn = document.querySelector('.addgoodscover .el-upload')
       editbtn.style.display = 'inline-block'
       this.$refs.addFormRef.resetFields()
@@ -648,6 +671,7 @@ export default {
       this.$refs.addimgsRef.clearFiles()
       this.content = ''
     },
+    // 显示编辑商品dialog，回显相应数据
     async showeditForm (user) {
       this.dialogVisible1 = true
       const msg = await this.$http.get('picture/pictureListNotPage', { params: { goodsId: user.id } })
@@ -662,10 +686,10 @@ export default {
       }
       this.content = this.editForm.goodsDescription
     },
-    uploadeditimg (params) {
-    },
-    uploadeditimgs (params) {
-    },
+    // 图片上传默认站位方法
+    uploadeditimg (params) {},
+    uploadeditimgs (params) {},
+    // 图片上传前检查
     beforeUpload (file) {
       const isJPG = file.type === 'image/jpeg'
       const isPNG = file.type === 'image/png'
@@ -679,15 +703,19 @@ export default {
       }
       return isPG && isLt2M
     },
+    // 编辑dialog里封面图片上传时文件状态改变时的钩子，添加文件、上传成功和上传失败时都会被调用，判断是否要隐藏图片添加框
     changeeditcover (file, fileList) {
       if (this.$refs.editimgRef.uploadFiles[0]) {
         const editbtn = document.querySelector('.editgoodscover .el-upload')
         editbtn.style.display = 'none'
       }
     },
+    // 编辑dialog表单提交
     async submiteditform () {
+      // 表单验证
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
+        // 同新增商品方法相同，不赘述
         const formData = new FormData()
         var editimg = ''
         if (!this.$refs.editimgRef.uploadFiles[0].raw) {
@@ -717,6 +745,7 @@ export default {
         this.dialogVisible1 = false
       })
     },
+    // 关闭编辑dialog之后清除相应缓存数据
     closeeditform () {
       this.editForm = {}
       this.editimglist = []
@@ -727,6 +756,7 @@ export default {
       this.$refs.editimgsRef.clearFiles()
       this.getgoodList()
     },
+    // 文件列表移除文件时的钩子，判断封面图片是否存在，存在就隐藏图片添加框
     handleaddcoverRemove (file, fileList) {
       if (!this.$refs.addimgRef.uploadFiles[0]) {
         const addbtn = document.querySelector('.addgoodscover .el-upload')
@@ -739,6 +769,7 @@ export default {
         addbtn.style.display = 'inline-block'
       }
     },
+    // 图片预览
     addimgPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible2 = true
@@ -755,7 +786,9 @@ export default {
       this.dialogImageUrl = file.url
       this.dialogVisible5 = true
     },
+    // 删除商品
     async remove (id) {
+      // 删除前确认
       const confirmResult = await this.$confirm('此操作将永久删除该商品, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -771,6 +804,7 @@ export default {
       this.$message.success('商品已删除')
       this.getgoodList()
     },
+    // 显示商品图册
     async showimgs (id) {
       this.dialogVisibleimgs = true
       const msg = await this.$http.get('picture/pictureListNotPage', { params: { goodsId: id } })
@@ -779,9 +813,11 @@ export default {
       }
       this.showimgslist = msg.data.data
     },
+    // 富文本占位方法
     onEditorBlur (e) {},
     onEditorFocus (e) {},
     onEditorReady (e) {},
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.goodsName && !this.queryInfo.cateGoryName && !this.queryInfo.goodsClassfication) {
@@ -789,6 +825,7 @@ export default {
       }
       this.querypage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.goodsName && !this.queryInfo.cateGoryName && !this.queryInfo.goodsClassfication) {

@@ -226,9 +226,11 @@ export default {
     this.getInformationList()
   },
   methods: {
+    // 重置搜索框内容
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 搜索框搜索
     async querykeeper () {
       this.pageNum = 1
       this.queryInfo.pageNum = this.pageNum
@@ -252,6 +254,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索完成之后搜索结果分页
     async querykeeperpage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
@@ -274,6 +277,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 获取并处理table数据
     async getInformationList () {
       const msg = await this.$http.get('admin/getAdminList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
@@ -293,13 +297,16 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 显示新增管理员dialog
     showaddform () {
       const Super = window.sessionStorage.getItem('jurisdict')
+      // 判断用户是否是超级管理员
       if (!(Super > 0)) {
         return this.$message.error('您没有权限！')
       }
       this.dialogVisible = true
     },
+    // 新增keeper
     async addkeeper () {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
@@ -317,19 +324,24 @@ export default {
         this.dialogVisible = false
       })
     },
+    // 关闭新增dialog
     closeaddform () {
       this.zhinenganyici = false
       this.$refs.addFormRef.resetFields()
     },
+    // 显示编辑管理员dialog
     showeditform (user) {
       const Super = window.sessionStorage.getItem('jurisdict')
+      // 判断用户是否是超级管理员
       if (!(Super > 0)) {
         return this.$message.error('您没有权限！')
       }
+      // 由于密码经过不可逆加密，所以无法回显，故设置为空，只能修改
       user.password = ''
       this.editForm = user
       this.dialogVisible1 = true
     },
+    // 提交编辑keeper
     async editkeeper () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
@@ -346,15 +358,19 @@ export default {
         this.dialogVisible1 = false
       })
     },
+    // 关闭编辑dialog
     closeeditform () {
       this.$refs.editFormRef.resetFields()
       this.getInformationList()
     },
+    // 删除管理员
     async removekeeper (id) {
+      // 判断用户是否是超级管理员
       const Super = window.sessionStorage.getItem('jurisdict')
       if (!(Super > 0)) {
         return this.$message.error('您没有权限！')
       }
+      // 删除前确认
       const confirmResult = await this.$confirm('此操作将永久删除该管理员, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -370,15 +386,19 @@ export default {
       this.$message.success('删除成功！')
       this.getInformationList()
     },
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
+      // 如果搜索栏为空，调用全部数据分页，否则调用搜索数据分页
       if (!this.queryInfo.userName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
         return this.getInformationList()
       }
       this.querykeeperpage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
+      // 如果搜索栏为空，调用全部数据分页，否则调用搜索数据分页
       if (!this.queryInfo.userName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
         return this.getInformationList()
       }

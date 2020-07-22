@@ -196,9 +196,11 @@ export default {
     this.getAuthList()
   },
   methods: {
+    // 重置搜索框
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 获取table数据
     async getAuthList () {
       const msg = await this.$http.get('auth/authList', { params: { pageSize: this.pageSize, pageNum: this.pageNum } })
       if (msg.status !== 200) {
@@ -231,6 +233,7 @@ export default {
       this.total = arr.data.total
       this.maxPage = arr.data.maxPage
     },
+    // 搜索框搜索
     async queryinfo () {
       this.pageNum = 1
       this.queryInfo.pageNum = this.pageNum
@@ -266,6 +269,7 @@ export default {
       this.total = arr.data.total
       this.maxPage = arr.data.maxPage
     },
+    // 搜索之后所有结果分页
     async queryinfopage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
@@ -300,6 +304,7 @@ export default {
       this.total = arr.data.total
       this.maxPage = arr.data.maxPage
     },
+    // 显示详情dialog
     async showdetails (id) {
       const msg = await this.$http.get('auth/getUserAuthDetails', { params: { id: id } })
       if (msg.status !== 200) {
@@ -308,9 +313,11 @@ export default {
       this.details = msg.data.data[0]
       this.dialogVisible = true
     },
+    // 关闭详情dialog
     closeform () {
       this.details = {}
     },
+    // 通过认证
     async authsuccess (id) {
       const confirmResult = await this.$confirm('确定要通过该认证？', '提示', {
         confirmButtonText: '确定',
@@ -327,6 +334,7 @@ export default {
       this.$message.success('认证成功！')
       this.getAuthList()
     },
+    // 驳回认证
     async refuse (user) {
       if (user.authenticationState !== '未认证') {
         return this.$message.error('认证已通过或已驳回！')
@@ -338,6 +346,7 @@ export default {
       this.$message.success('驳回成功！')
       this.getAuthList()
     },
+    // 删除认证记录
     async remove (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -354,6 +363,7 @@ export default {
       this.$message.success('删除成功！')
       this.getAuthList()
     },
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {
@@ -361,6 +371,7 @@ export default {
       }
       this.queryinfopage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber && !this.queryInfo.status) {

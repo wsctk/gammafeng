@@ -75,8 +75,8 @@
 export default {
   data () {
     return {
-      leveloneuser: [],
-      leveltwouser: [],
+      leveloneuser: [], // 一级用户
+      leveltwouser: [], // 二级用户
       pageSize: 7,
       tableData: [],
       total: 100,
@@ -97,6 +97,7 @@ export default {
     this.getseconduser()
   },
   methods: {
+    // 获取table数据
     async getInformationList () {
       const msg = await this.$http.get('distribution/getDistribution', { params: { pageNum: this.pageNum, pageSize: this.pageSize, status: 0 } })
       if (msg.status !== 200) {
@@ -114,17 +115,21 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 获取所有一级用户
     async getfirstuser () {
       const msg = await this.$http.get('distribution/getFirstUser', { params: { status: '0' } })
       this.leveloneuser = msg.data.data
     },
+    // 获取所有二级用户
     async getseconduser () {
       const msg = await this.$http.get('distribution/getSecondUser', { params: { status: '0' } })
       this.leveltwouser = msg.data.data
     },
+    // 重置搜索框
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 搜索框搜索
     async queryretailbtn () {
       this.pageNum = 1
       this.queryInfo.pageSize = this.pageSize
@@ -146,6 +151,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索之后所有结果分页
     async queryretail () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
@@ -166,6 +172,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.goodsName && !this.queryInfo.firstUser && !this.queryInfo.secondUser) {
@@ -173,6 +180,7 @@ export default {
       }
       this.queryretail()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.goodsName && !this.queryInfo.firstUser && !this.queryInfo.secondUser) {

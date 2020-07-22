@@ -113,6 +113,7 @@ export default {
     return {
       dialogVisible: false,
       tableData: [],
+      // 导出配置
       json_fields: {
         订单号: 'orderNumber',
         商品名: 'goodsName',
@@ -140,7 +141,7 @@ export default {
         pageNum: '',
         pageSize: ''
       },
-      allorders: []
+      allorders: [] // 需要导出的数据
     }
   },
   created () {
@@ -148,9 +149,11 @@ export default {
     this.getAllOrder()
   },
   methods: {
+    // 重置搜索框
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 搜索框搜索
     async queryinfo () {
       this.pageNum = 1
       this.queryInfo.pageSize = this.pageSize
@@ -189,6 +192,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索之后搜索结果分页
     async queryinfopage () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
@@ -226,6 +230,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 获取并处理table数据
     async getorderlist () {
       const msg = await this.$http.get('order/orderList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
@@ -260,6 +265,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 将毫秒值转化为‘年月日时分秒’的日期
     changedate (date) {
       const dt = new Date(date)
       const y = dt.getFullYear()
@@ -270,6 +276,7 @@ export default {
       const sec = (dt.getSeconds() + '').padStart(2, '0')
       return `${y}年${m}月${d}日${hh}:${mm}:${sec}`
     },
+    // 获取并处理excel导出所需的所有数据
     async getAllOrder () {
       const msg = await this.$http.get('order/orderListNotPage')
       if (msg.status !== 200) {
@@ -313,14 +320,18 @@ export default {
         }
       }
     },
+    // 取消修改订单金额
     cancelinput (id) {
       this.$refs[id].doClose()
     },
+    // 提交修改后的订单金额
     async submitordermoney (order) {
+      // 判断是否满足修改条件
       if (order.orderState !== '等待付款') {
         this.$refs[order.id].doClose()
         return this.$message.error('只有待付款的订单可以修改金额！')
       }
+      // 判断输入的格式
       const reg = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
       if (!reg.test(order.orderAmout)) {
         this.$refs[order.id].doClose()
@@ -336,10 +347,13 @@ export default {
       this.getorderlist()
       this.getAllOrder()
     },
+    // 修改金额弹框消失后刷新table数据
     hidepopover () {
       this.getorderlist()
     },
+    // 发货
     async changestate (user, state) {
+      // 发货前确认
       const confirmResult = await this.$confirm('确定执行该操作吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -348,6 +362,7 @@ export default {
       if (confirmResult !== 'confirm') {
         return this.$message.info('已取消操作！')
       }
+      // 判断是否满足条件
       if (user.orderState !== '等待发货') {
         return this.$message.error('该订单不满足发货的条件')
       }
@@ -359,10 +374,13 @@ export default {
       this.getorderlist()
       this.getAllOrder()
     },
+    // 删除订单
     async deleteorder (order) {
+      // 判断是否满足条件
       if (order.orderState !== '已取消') {
         return this.$message.error('只能删除状态为‘已取消’的订单！')
       }
+      // 删除前确认
       const confirmResult = await this.$confirm('此操作将永久删除该订单, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -379,6 +397,7 @@ export default {
       this.getorderlist()
       this.getAllOrder()
     },
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.orderNumber && !this.queryInfo.goodsName && !this.queryInfo.phoneNumber && !this.queryInfo.orderState) {
@@ -386,6 +405,7 @@ export default {
       }
       this.queryinfopage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.orderNumber && !this.queryInfo.goodsName && !this.queryInfo.phoneNumber && !this.queryInfo.orderState) {

@@ -134,7 +134,7 @@ export default {
       cb(new Error('请输入正确格式的数字！'))
     }
     return {
-      zhinenganyici: false,
+      zhinenganyici: false, // 新增按钮禁用状态
       tableData: [],
       total: 100,
       pageNum: 1,
@@ -150,6 +150,7 @@ export default {
         categoryName: '',
         categoryState: ''
       },
+      // 新增表单验证规则
       addFormRules: {
         index: [
           { required: true, message: '请输入分类排序权重', trigger: 'blur' },
@@ -163,6 +164,7 @@ export default {
         ]
       },
       editForm: {},
+      // 编辑表单验证规则
       editFormRules: {
         index: [
           { required: true, message: '请输入分类排序权重', trigger: 'blur' },
@@ -183,9 +185,11 @@ export default {
     this.getInformationList()
   },
   methods: {
+    // 重置搜索框
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 搜索框搜索
     async querycate () {
       this.pageNum = 1
       this.queryInfo.pageSize = this.pageSize
@@ -198,6 +202,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索之后所有结果分页
     async querycatepage () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
@@ -209,6 +214,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 获取table数据
     async getInformationList () {
       const msg = await this.$http.get('category/categoryList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
@@ -228,9 +234,12 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 新增分类
     async addcate () {
+      // 表单验证
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
+        // 提交之后禁用提交按钮
         this.zhinenganyici = true
         this.addForm.index = Math.ceil(this.addForm.index)
         const msg = await this.$http.post('category/addCategory', this.$qs.stringify(this.addForm))
@@ -238,27 +247,27 @@ export default {
           this.dialogVisible1 = false
           return this.$message.error('添加分类失败！')
         }
+        // 根据返回的数据判断排序权重是否重复
         if (msg.data.code === 2) {
           this.dialogVisible1 = false
           return this.$message.error('分类排序权重已存在！')
-        }
-        if (msg.data.code === 10) {
-          this.dialogVisible1 = false
-          return this.$message.error('分类排序权重不能为负！')
         }
         this.getInformationList()
         this.$message.success('添加分类成功！')
         this.dialogVisible1 = false
       })
     },
+    // 关闭新增dialog
     closeaddform () {
       this.zhinenganyici = false
       this.$refs.addFormRef.resetFields()
     },
+    // 显示编辑dialog并完成初始化赋值
     showDialogForm (user) {
       this.dialogVisible2 = true
       this.editForm = user
     },
+    // 提交编辑表单
     async editcate () {
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
@@ -267,6 +276,7 @@ export default {
         if (msg.status !== 200) {
           return this.$message.error('编辑分类失败！')
         }
+        // 根据返回数据判断排序权重是否重复
         if (msg.data.code === 2) {
           return this.$refs.message.error('分类排序权重已存在！')
         }
@@ -275,10 +285,12 @@ export default {
         this.dialogVisible2 = false
       })
     },
+    // 关闭编辑dialog
     closeeditform () {
       this.editForm = {}
       this.$refs.editFormRef.resetFields()
     },
+    // 删除分类
     async removecate (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -295,6 +307,7 @@ export default {
       this.getInformationList()
       this.$message.success('删除分类成功！')
     },
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.categoryName) {
@@ -302,6 +315,7 @@ export default {
       }
       this.querycatepage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.categoryName) {

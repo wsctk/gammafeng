@@ -51,7 +51,7 @@
           </el-tabs>
           <el-row class="xuanxiangrow">
             <el-col :span="5">
-              <el-checkbox v-model="checked">自动登录</el-checkbox>
+              <el-checkbox v-model="checked">记住密码</el-checkbox>
             </el-col>
           </el-row>
           <el-button type="primary" size="small" class="dlbtn" @click="login">登录</el-button>
@@ -68,6 +68,7 @@
 <script>
 export default {
   data () {
+    // 验证手机号码方法
     var checkMobile = (rule, value, cb) => {
       const regMobile = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
       if (regMobile.test(value)) {
@@ -79,9 +80,9 @@ export default {
       timer: null,
       cangetcode: true,
       count: 60,
-      btnavalible: false,
-      img: '',
-      activeName: 'zhanghaomimadengluTab',
+      btnavalible: false, // 验证码按钮禁用状态
+      img: '', // 图片验证码
+      activeName: 'zhanghaomimadengluTab', // 登录tab切换状态
       loginMessage: {
         userName: '',
         phoneNumber: '',
@@ -90,8 +91,8 @@ export default {
         imgCode: '',
         imgcodekey: ''
       },
-      checked: false,
-      rememberphonenumber: false,
+      checked: false, // 记住密码状态
+      // 表单验证规则
       loginFormRules: {
         userName: [
           { required: true, message: '请输入登录名称', trigger: 'blur' },
@@ -121,21 +122,26 @@ export default {
     this.autoLogin()
   },
   methods: {
+    // 保存记住密码状态
     async autoLogin () {
       const check = localStorage.getItem('checked')
       if (check === 'true') {
         this.checked = true
       }
     },
+    // 获取图片验证码
     async getimgcode () {
       const msg = await this.$http.get('code/getImgCode')
       this.img = msg.data.data
       this.loginMessage.imgcodekey = msg.data.imgCodeKey
     },
+    // 点击刷新图片验证码
     uploadimgcode () {
       this.getimgcode()
     },
+    // 获取手机验证码
     async getCode () {
+      // 表单验证
       this.$refs.loginFormRef2.validateField('phoneNumber', async valid => {
         if (valid) return
         const msg = await this.$http.post('sendSMS',
@@ -148,22 +154,28 @@ export default {
         if (msg.data.code === 21) {
           return this.$message.error('该手机号未绑定管理员！')
         }
+        // 禁用获取验证码按钮
         this.btnavalible = true
         this.cangetcode = false
+        // 调用倒计时方法
         this.daojishi()
         this.$message.success('验证码发送成功！')
       })
     },
+    // 发送手机验证码之后显示倒计时
     daojishi () {
       const timeCount = 60
       if (!this.timer) {
         this.count = timeCount
+        // 成功发送后禁止点击刷新
         this.cangetcode = false
         this.timer = setInterval(() => {
           if (this.count > 0) {
             this.count--
           } else {
+            // 60s后恢复点击刷新
             this.cangetcode = true
+            // 恢复登录按钮
             this.btnavalible = false
             clearInterval(this.timer)
             this.timer = null
@@ -171,10 +183,13 @@ export default {
         }, 1000)
       }
     },
+    // 登录方法
     async login () {
+      // 表单验证
       if (this.activeName === 'zhanghaomimadengluTab') {
         this.$refs.loginFormRef1.validate(async valid => {
           if (!valid) return
+          // 发送请求
           const msg = await this.$http.post('adminLogin',
             this.$qs.stringify({
               userName: this.loginMessage.userName,
@@ -183,19 +198,25 @@ export default {
               code: this.loginMessage.imgCode,
               rememberMe: this.checked
             }))
+          // 清空验证码
           this.loginMessage.imgCode = ''
           if (msg.data.message === 'success') {
+            // 登录成功后获取是否选择了记住密码
             localStorage.setItem('checked', this.checked)
+            // 登录成功后保存登录状态
             window.sessionStorage.setItem('login', 1)
             this.$message.success('登录成功')
+            // 登录成功后保存是否为超级管理员
             window.sessionStorage.setItem('jurisdict', msg.data.data.jurisdict)
             this.$router.push('/home')
           } else {
             this.$message.error('登录失败')
+            // 刷新验证码
             this.getimgcode()
           }
         })
       } else {
+        // 表单验证
         this.$refs.loginFormRef2.validate(async valid => {
           if (!valid) return
           const msg = await this.$http.post('SMSLogin',
@@ -203,8 +224,10 @@ export default {
               phoneNumber: this.loginMessage.phoneNumber,
               code: this.loginMessage.code
             }))
+          // 登录后禁用按钮
           this.btnavalible = false
           if (msg.data.message === 'success') {
+            // 保存成功登录状态
             window.sessionStorage.setItem('login', 1)
             this.$message.success('登录成功')
             this.$router.push('/home')

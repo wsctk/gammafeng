@@ -85,9 +85,11 @@ export default {
     this.getInformationList()
   },
   methods: {
+    // 重置搜索
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 搜索框搜索
     async queryinfo () {
       this.pageNum = 1
       this.queryInfo.pageNum = this.pageNum
@@ -101,6 +103,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 搜索之后所有结构分页
     async queryinfopage () {
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
@@ -113,6 +116,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 获取table数据
     async getInformationList () {
       const msg = await this.$http.get('picture/pictureList', { params: { pageNum: this.pageNum, pageSize: this.pageSize } })
       if (msg.status !== 200) {
@@ -122,6 +126,7 @@ export default {
       this.total = msg.data.total
       this.maxPage = msg.data.maxPage
     },
+    // 删除商品图片
     async removeimg (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该商品图片, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -138,6 +143,7 @@ export default {
       this.$message.success('删除成功！')
       this.getInformationList()
     },
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.goodsName) {
@@ -145,6 +151,7 @@ export default {
       }
       this.queryinfopage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.goodsName) {

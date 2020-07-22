@@ -210,6 +210,7 @@
 <script>
 export default {
   data () {
+    // 判断是否是正整数的表单规则
     var checkbili = (rule, value, cb) => {
       const regbili = /^[1-9]\d*$/
       if (regbili.test(value)) {
@@ -233,6 +234,7 @@ export default {
       dialogVisible: false,
       dialogVisible1: false,
       editForm: {},
+      // 编辑dialog表单规则
       editFormRules: {
         commissionRate: [
           { required: true, message: '请输入商品佣金分成比例', trigger: 'blur' },
@@ -255,9 +257,11 @@ export default {
     this.getCustomerList()
   },
   methods: {
+    // 重置搜索框
     resetQueryForm () {
       this.$refs.queryInfoRef.resetFields()
     },
+    // 搜索框搜索
     async queryinfo () {
       this.pageNum = 1
       this.queryInfo.pageSize = this.pageSize
@@ -280,6 +284,7 @@ export default {
       this.tableData = msg.data.rows
       this.total = msg.data.total
     },
+    // 搜索之后所有结果分页
     async queryinfopage () {
       this.queryInfo.pageSize = this.pageSize
       this.queryInfo.pageNum = this.pageNum
@@ -301,6 +306,7 @@ export default {
       this.tableData = msg.data.rows
       this.total = msg.data.total
     },
+    // 获取table数据
     async getCustomerList () {
       const msg = await this.$http('user/userList', { params: { userStatus: '0', pageNum: this.pageNum, pageSize: this.pageSize } })
       let arr = {}
@@ -323,6 +329,7 @@ export default {
       this.total = arr.data.total
       this.maxPage = arr.data.maxPage
     },
+    // 改变页面最大显示条数
     handleSizeChange (newSize) {
       this.pageSize = newSize
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
@@ -330,6 +337,7 @@ export default {
       }
       this.queryinfopage()
     },
+    // 改变当前页面索引
     handleCurrentChange (newPage) {
       this.pageNum = newPage
       if (!this.queryInfo.wechatName && !this.queryInfo.phoneNumber) {
@@ -337,16 +345,20 @@ export default {
       }
       this.queryinfopage()
     },
+    // 显示编辑dialog
     showDialogForm (user) {
       this.editForm = user
       this.dialogVisible1 = true
     },
+    // 关闭编辑dialog
     closeeditform () {
       this.editForm = {}
       this.$refs.editFormRef.resetFields()
       this.getCustomerList()
     },
+    // 提交编辑表单数据
     async editdialog () {
+      // 表单验证
       this.$refs.editFormRef.validate(async valid => {
         if (!valid) return
         const msg = await this.$http.post('user/updateUser', this.$qs.stringify({ commissionRate: this.editForm.commissionRate, parentPhoneNumber: this.editForm.parentPhoneNumber, distributionRate: this.editForm.distributionRate, id: this.editForm.id, points: this.editForm.points }))
@@ -354,6 +366,7 @@ export default {
           this.dialogVisible1 = false
           return this.$message.error('编辑普通用户信息失败！')
         }
+        // 根据返回的数据判断绑定的上级用户是否存在
         if (msg.data.code === 9) {
           return this.$message.error('上级号码不存在！')
         }
@@ -362,6 +375,7 @@ export default {
         this.$message.success('编辑普通用户信息成功!')
       })
     },
+    // 把毫秒值转换为日期
     tranformtime (originVal) {
       const dt = new Date(originVal)
       const y = dt.getFullYear()
@@ -372,6 +386,7 @@ export default {
       const sec = (dt.getSeconds() + '').padStart(2, '0')
       return `${y}年${m}月${d}日${hh}:${mm}:${sec}`
     },
+    // 显示详情并完成相应赋值
     async showdetails (user) {
       const msg = await this.$http.get('user/getSonList', { params: { id: user.id } })
       if (msg.status !== 200) {
@@ -381,10 +396,12 @@ export default {
       this.sonlist = msg.data.data
       this.dialogVisible = true
     },
+    // 关闭详情dialog
     closeform () {
       this.details = {}
       this.sonlist = []
     },
+    // 删除用户
     async removeuser (id) {
       const confirmResult = await this.$confirm('此操作将永久删除该普通用户, 是否继续?', '提示', {
         confirmButtonText: '确定',
