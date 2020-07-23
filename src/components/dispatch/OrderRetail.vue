@@ -2,10 +2,10 @@
   <div>
     <div class="head">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item>商城管理</el-breadcrumb-item>
-        <el-breadcrumb-item>商品分销记录</el-breadcrumb-item>
+        <el-breadcrumb-item>派单管理</el-breadcrumb-item>
+        <el-breadcrumb-item>派单分销记录</el-breadcrumb-item>
       </el-breadcrumb>
-      <p class="indexText">商品分销记录</p>
+      <p class="indexText">派单分销记录</p>
     </div>
     <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">

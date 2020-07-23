@@ -64,13 +64,12 @@ export default {
     },
     // 提交亩数定价
     async rangeload () {
-      const reg1 = /^(([1-9]\d*)|(0))([.]\d{0,1})?$/
-      const reg2 = /^(([1-9]\d*)|(0))$/
+      const reg = /^(([1-9]\d*)|(0))([.]\d{0,2})?$/
       for (let i = 0; i < this.rowlist.length; i++) {
-        if (!reg1.test(this.rowlist[i].end)) {
+        if (!reg.test(this.rowlist[i].end)) {
           return this.$message.error('请输入正确的数字格式！')
         }
-        if (!reg2.test(this.rowlist[i].price)) {
+        if (!reg.test(this.rowlist[i].price)) {
           return this.$message.error('请输入正确的数字格式！')
         }
       }

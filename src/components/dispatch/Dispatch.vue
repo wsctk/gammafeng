@@ -177,32 +177,32 @@
           </el-col>
         </el-row>
         <el-row>
-        <el-col :span="5" v-for="item in confirmimgs" :key="item.id">
-          <el-card>
-            <el-image
-              style="width: 65px; height: 65px"
-              :src="item.pic1"
-              :preview-src-list="[item.pic1]">
-            </el-image>
-          </el-card>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="11">
-          <el-form-item label="飞防地址：">
-            <el-input v-model="details.service_location" readonly></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      </el-form>
-      <div class="amap-page-container">
-        <el-amap vid="amapDemo" :center="mapCenter" :zoom="12" class="amap-demo">
-          <el-amap-marker vid="component-marker" :position="mapCenter"></el-amap-marker>
-        </el-amap>
-      </div>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible2=false">关闭</el-button>
-      </div>
+          <el-col :span="4" v-for="item in confirmimgs" :key="item.id">
+            <el-card>
+              <el-image
+                style="width: 50px; height: 50px"
+                :src="item.pic1"
+                :preview-src-list="[item.pic1]">
+              </el-image>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="飞防地址：">
+              <el-input v-model="details.service_location" readonly></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        </el-form>
+        <div class="amap-page-container">
+          <el-amap vid="amapDemo" :center="mapCenter" :zoom="12" class="amap-demo">
+            <el-amap-marker vid="component-marker" :position="mapCenter"></el-amap-marker>
+          </el-amap>
+        </div>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible2=false">关闭</el-button>
+        </div>
     </el-dialog>
     <el-dialog title="添加飞手" :visible.sync="dialogVisible" width="30%" @close="picked=''">
       <el-row>
@@ -458,7 +458,7 @@ export default {
     // 关闭详情dialog
     closeform () {
       this.details = {}
-      this.address = []
+      this.mapCenter = ['121.500035', '31.239250']
     },
     // 显示转派dialog
     async showAppoint (order) {
