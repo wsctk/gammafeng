@@ -142,6 +142,7 @@ export default {
       if (navpath) {
         this.activepath = navpath
       }
+      this.$router.push(this.activepath)
     }
   }
 }

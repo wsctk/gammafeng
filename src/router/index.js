@@ -41,7 +41,7 @@ const router = new VueRouter({
     {
       path: '/home',
       component: Home,
-      redirect: '/normalcustomer',
+      // redirect: '/normalcustomer',
       children: [
         { path: '/infoList', component: InfoList },
         { path: '/normalcustomer', component: Normalcustomer },
