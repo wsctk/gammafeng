@@ -97,7 +97,7 @@
       </el-pagination>
     </el-card>
     <el-dialog title="认证详情" :visible.sync="dialogVisible" width="700px" @close="closeform">
-      <el-form label-width="150px" :model="details" ref="editFormRef" label-position="right">
+      <el-form label-width="170px" :model="details" ref="editFormRef" label-position="right">
         <el-row>
           <el-col :span="11" :offset="1">
             <el-form-item label="真实(法人)姓名：">
@@ -156,7 +156,7 @@
         </el-row>
         <el-row v-if="details.business">
           <el-col :span="17" :offset="1">
-            <el-form-item label="营业执照副本">
+            <el-form-item label="营业执照副本/飞手资质">
               <el-image
               style="width: 100px; height: 100px"
               :src="details.business"

@@ -41,7 +41,7 @@ const router = new VueRouter({
     {
       path: '/home',
       component: Home,
-      // redirect: '/normalcustomer',
+      redirect: '/normalcustomer',
       children: [
         { path: '/infoList', component: InfoList },
         { path: '/normalcustomer', component: Normalcustomer },
@@ -67,19 +67,6 @@ const router = new VueRouter({
   ]
 })
 router.beforeEach((to, from, next) => {
-  // if (to.path === '/login') {
-  //   const checked = localStorage.getItem('checked')
-  //   if (checked === 'true') {
-  //     next()
-  //     return next('/home')
-  //   }
-  //   const login = window.sessionStorage.getItem('login')
-  //   if (!login) {
-  //     next()
-  //     return next('/login')
-  //   }
-  // }
-  // next()
   if (to.path === '/login') {
     const checked = localStorage.getItem('checked')
     if (checked === 'true') {

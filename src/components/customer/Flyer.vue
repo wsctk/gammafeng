@@ -229,6 +229,17 @@
           </el-col>
         </el-row>
         <el-row>
+          <el-col :span="11">
+            <el-form-item label="飞手资质：">
+              <el-image
+              style="width: 100px; height: 100px"
+              :src="secdetails.business"
+              :preview-src-list="[secdetails.business]">
+              </el-image>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="20">
             <el-form-item label="下级用户：">
               <el-table :data="sonlist" style="width: 100%" border height="100%">
