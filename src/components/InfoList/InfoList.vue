@@ -182,6 +182,7 @@
               </el-upload>
               <div>
                 <quill-editor
+                  class="ql-editor-class"
                   ref="myQuillEditor"
                   v-model="content"
                   :options="editorOption"
@@ -259,7 +260,7 @@ export default {
       dialogVisible3: false,
       additionalInfo: {
         title: '',
-        state: '',
+        state: '5',
         article: ''
       },
       // 新增表单验证规则
@@ -517,6 +518,18 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.ql-editor-class {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    line-height: 1.42;
+    height: 100%;
+    outline: none;
+    padding: 0 !important;
+    tab-size: 4;
+    -moz-tab-size: 4;
+    text-align: left;
+    word-wrap: break-word;
+}
 /deep/.ql-editor{
   height:220px;
 }

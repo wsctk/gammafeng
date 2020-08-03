@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+import DataPreview from '../components/data/DataPreview.vue'
+
 import CheckList from '../components/customer/CheckList.vue'
 import Farmer from '../components/customer/Farmer.vue'
 import Flyer from '../components/customer/Flyer.vue'
@@ -41,7 +43,7 @@ const router = new VueRouter({
     {
       path: '/home',
       component: Home,
-      redirect: '/normalcustomer',
+      redirect: '/datapreview',
       children: [
         { path: '/infoList', component: InfoList },
         { path: '/normalcustomer', component: Normalcustomer },
@@ -61,7 +63,8 @@ const router = new VueRouter({
         { path: '/mushu', component: Mushu },
         { path: '/keeper', component: Keeper },
         { path: '/lunbotu', component: Lunbotu },
-        { path: '/registercoupon', component: RegisterCoupon }
+        { path: '/registercoupon', component: RegisterCoupon },
+        { path: '/datapreview', component: DataPreview }
       ]
     }
   ]

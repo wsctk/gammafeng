@@ -13,6 +13,9 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 import VueAMap from 'vue-amap'
+import echarts from 'echarts'
+Vue.prototype.$echarts = echarts
+
 Vue.use(VueAMap)
 
 VueAMap.initAMapApiLoader({
@@ -28,7 +31,7 @@ Vue.prototype.$qs = qs
 
 axios.defaults.withCredentials = true
 var instance = axios.create({
-  baseURL: 'http://192.168.18.15:8181/',
+  baseURL: 'http://192.168.18.10:8181/',
   // baseURL: 'http://admin-api-gmf.it-10.com/',
   timeout: 10000,
   header: {

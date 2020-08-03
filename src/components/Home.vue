@@ -46,6 +46,13 @@ export default {
       // 侧边栏数据
       menuList: [
         {
+          authName: '数据预览',
+          id: 6,
+          children: [
+            { authName: '数据预览', id: 1, path: 'datapreview' }
+          ]
+        },
+        {
           authName: '用户管理',
           id: 0,
           children: [
@@ -108,10 +115,11 @@ export default {
         2: 'iconfont icon-icon-test2',
         3: 'iconfont icon-icon-test',
         4: 'iconfont icon-icon-test3',
-        5: 'iconfont icon-icon-test4'
+        5: 'iconfont icon-icon-test4',
+        6: 'iconfont icon-tradingdata'
       },
       // 侧边栏导航地址
-      activepath: '/normalcustomer'
+      activepath: '/datapreview'
     }
   },
   created () {
