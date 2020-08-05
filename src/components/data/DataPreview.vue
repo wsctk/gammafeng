@@ -1,37 +1,7 @@
 <template>
     <div>
       <div class="rowTitle"><i class="el-icon-s-data"></i><span>数据概览</span></div>
-      <el-row class="cardshow">
-        <el-col :span="6" class="cardcol">
-          <el-card>
-            <div class="cardTitle">用户总数</div>
-            <div class="cardContent">66</div>
-            <div class="cardDescription"><span class="key">月环比</span><span class="decrease">0%</span></div>
-          </el-card>
-        </el-col>
-        <el-col :span="6" class="cardcol">
-          <el-card>
-            <div class="cardTitle">总金额</div>
-            <div class="cardContent">￥6600</div>
-            <div class="cardDescription"><span class="key">月环比</span><span class="decrease">0%</span></div>
-          </el-card>
-        </el-col>
-        <el-col :span="6" class="cardcol">
-          <el-card>
-            <div class="cardTitle">报名学生数</div>
-            <div class="cardContent">32</div>
-            <div class="cardDescription"><span class="key">月环比</span><span class="decrease">0%</span></div>
-          </el-card>
-        </el-col>
-        <el-col :span="6" class="cardcol">
-          <el-card>
-            <div class="cardTitle">机构数</div>
-            <div class="cardContent">6</div>
-            <div class="cardDescription"><span class="key">月环比</span><span class="decrease">0%</span></div>
-          </el-card>
-        </el-col>
-      </el-row>
-      <el-card class="cardchart">
+      <el-card class="cardchart card1">
         <div class="chart1 chart">
           <div class="selectbox">
             <el-select v-model="userDateValue" @change='userDateChange'>
@@ -66,6 +36,7 @@
 </template>
 
 <script>
+import echarts from 'echarts'
 export default {
   data () {
     return {
@@ -92,7 +63,7 @@ export default {
       dateBefore: '',
       pickedUserDate: [],
       userScaleList: [
-        { value: 10, name: '普通用户' },
+        { value: 120, name: '普通用户' },
         { value: 5, name: '飞手' },
         { value: 15, name: '农资商' }
       ]
@@ -101,11 +72,10 @@ export default {
   created () {
     this.getScaleAmount()
     this.userDateChange()
-    this.getUserAmount()
   },
   methods: {
     async getUserAmount () {
-      const msg = await this.$http.post('user/userAmount', this.$qs.stringify({ startTime: this.now, endTime: this.dateBeforeTime }))
+      const msg = await this.$http.post('user/userAmount', this.$qs.stringify({ startTime: this.dateBeforeTime, endTime: this.now }))
       if (msg.data.data.length === 0) {
         return this.$message.error('当前时间段没有新增用户！')
       }
@@ -140,7 +110,7 @@ export default {
       this.drawLine1()
     },
     drawLine () {
-      const myChart = this.$echarts.init(document.getElementById('echarts'))
+      const myChart = echarts.init(document.getElementById('echarts'))
       myChart.setOption({
         title: { text: '新增用户数', top: 10, left: 30 },
         legend: {
@@ -176,7 +146,7 @@ export default {
       })
     },
     drawLine1 () {
-      const myChart = this.$echarts.init(document.getElementById('echarts1'))
+      const myChart = echarts.init(document.getElementById('echarts1'))
       myChart.setOption({
         title: {
           text: '用户组成',
@@ -235,14 +205,25 @@ export default {
           this.dateBefore = this.dateTransform(thirtyday)
           break
       }
+      if (check === 2) {
+        return 2
+      }
       this.getUserAmount()
     },
     async shwoDateChange (check) {
       const msg = await this.$http.post('user/userAmount', this.$qs.stringify({ startTime: check[0], endTime: check[1] }))
-      console.log(check)
       if (msg.data.data.length === 0) {
         return this.$message.error('当前时间段没有新增用户！')
       }
+      this.addedUserList = []
+      this.addedUserDate = []
+      for (const item of msg.data.data) {
+        this.addedUserList.push(item.amount)
+        this.addedUserDate.push(item.date)
+      }
+      this.userMax = Math.max(...this.addedUserList)
+      this.userStep = Math.floor(this.userMax / 5)
+      this.drawLine()
     }
   }
 }
@@ -253,7 +234,7 @@ export default {
     color:#606266;
   }
   .rowTitle {
-    line-height:50px;
+    line-height:30px;
     font-size: 16px;
     font-weight: 700;
     color: #f89213;
@@ -262,43 +243,11 @@ export default {
       padding-left:6px;
     }
   }
-  .cardshow {
-    height:200px;
-     .el-card {
-       box-shadow: 0 0 20px rgba(0,0,0,.14) !important;
-    }
-     .cardcol {
-       padding: 0 33px 0 33px;
-    }
-     .cardTitle {
-      font-size: 14px;
-      font-weight: 700;
-      color: #333;
-      margin-top: 26px;
-      text-align: center;
-    }
-     .cardContent {
-      font-size: 30px;
-      font-weight: 700;
-      color: #ec6738;
-      margin-top: 18px;
-      text-align: center;
-    }
-     .cardDescription {
-      font-size: 14px;
-      text-align: center;
-      margin-top: 19px;
-       .key {
-         color: #999;
-       }
-       .decrease {
-         padding-left:4px;
-         color: red;
-       }
-     }
-  }
   .cardchart {
     margin:30px;
+  }
+  .cardchart.card1 {
+    margin-top:0;
   }
   .selectbox {
     display:inline-block;

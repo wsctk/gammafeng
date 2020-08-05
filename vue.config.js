@@ -11,6 +11,9 @@ module.exports = {
   chainWebpack: config => {
     config.when(process.env.NODE_ENV === 'production', config => {
       config.entry('app').clear().add('./src/main-prod.js')
+      config.set('externals', {
+        echarts: 'echarts'
+      })
       config.plugin('html').tap(args => {
         args[0].isProd = true
         return args
@@ -18,6 +21,9 @@ module.exports = {
     })
     config.when(process.env.NODE_ENV === 'development', config => {
       config.entry('app').clear().add('./src/main-dev.js')
+      config.set('externals', {
+        echarts: 'echarts'
+      })
       config.plugin('html').tap(args => {
         args[0].isProd = false
         return args

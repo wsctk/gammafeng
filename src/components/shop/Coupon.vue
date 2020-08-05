@@ -10,7 +10,7 @@
     <el-card class="main">
       <el-form :inline="true" :model="queryInfo" ref="queryinfoRef">
         <el-form-item label="使用门槛：" prop="useCondition" class="firInput">
-          <el-input v-model="queryInfo.useCondition" placeholder="请输入条件金额" @keydown.enter.native="queryinfo"></el-input>
+          <el-input v-model="queryInfo.searchUseCondition" placeholder="请输入条件金额" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
         <el-form-item label="优惠券状态：" prop="state">
           <el-select placeholder="请选择" v-model="queryInfo.state" @keydown.enter.native="queryinfo">
@@ -174,6 +174,7 @@ export default {
       pageSize: 7,
       maxPage: 14,
       queryInfo: {
+        searchUseCondition: '',
         useCondition: '',
         state: '',
         pageNum: '',
@@ -227,6 +228,7 @@ export default {
       this.pageNum = 1
       this.queryInfo.pageNum = this.pageNum
       this.queryInfo.pageSize = this.pageSize
+      this.queryInfo.useCondition = this.queryInfo.searchUseCondition * 100
       const msg = await this.$http.get('coupons/couponsList', { params: this.queryInfo })
       if (msg.status !== 200) {
         this.resetquery()
