@@ -8,10 +8,7 @@
       <p class="indexText">飞手</p>
     </div>
     <el-card class="main">
-      <el-form :inline="true" :model="queryInfo" ref="queryInfoRef">
-        <el-form-item label="用户名：" class="firInput" prop="wechatName">
-          <el-input placeholder="请输入" v-model="queryInfo.wechatName" @keydown.enter.native="queryinfo"></el-input>
-        </el-form-item>
+      <el-form :inline="true" :model="queryInfo" ref="queryInfoRef" class='firInput'>
         <el-form-item label="手机号码：" prop="phoneNumber">
           <el-input placeholder="请输入" v-model="queryInfo.phoneNumber" @keydown.enter.native="queryinfo"></el-input>
         </el-form-item>
@@ -23,17 +20,6 @@
       <div class="tablediv">
         <el-table :data="tableData" style="width: 100%" border height="100%">
             <el-table-column align="center" prop="id" label="用户ID" min-width="100px" show-overflow-tooltip>
-            </el-table-column>
-            <el-table-column align="center" prop="wechatName" label="用户名" min-width="80px" show-overflow-tooltip>
-            </el-table-column>
-            <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
-              <template v-slot="scope">
-                <el-image
-                  style="width: 40px; height: 40px"
-                  :src="scope.row.wechatAvatar"
-                  :preview-src-list="[scope.row.wechatAvatar]">
-                </el-image>
-              </template>
             </el-table-column>
             <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="100px">
             </el-table-column>
@@ -135,22 +121,6 @@
             </el-form-item>
           </el-col>
           <el-col :span="11">
-            <el-form-item label="用户名：">
-              <el-input v-model="details.wechatName" readonly></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="11">
-            <el-form-item label="微信头像：">
-              <el-image
-              style="width: 100px; height: 100px"
-              :src="details.wechatAvatar"
-              :preview-src-list="[details.wechatAvatar]">
-              </el-image>
-            </el-form-item>
-          </el-col>
-          <el-col :span="11">
             <el-form-item label="手机号码：">
               <el-input v-model="details.phoneNumber" readonly></el-input>
             </el-form-item>
@@ -244,17 +214,6 @@
             <el-form-item label="下级用户：">
               <el-table :data="sonlist" style="width: 100%" border height="100%">
                 <el-table-column align="center" prop="id" label="用户ID" min-width="100px">
-                </el-table-column>
-                <el-table-column align="center" prop="wechatName" label="用户名" min-width="80px">
-                </el-table-column>
-                <el-table-column align="center" prop="wechatAvatar" label="微信头像" min-width="70px">
-                  <template v-slot="scope">
-                    <el-image
-                      style="width: 26px; height: 26px"
-                      :src="scope.row.wechatAvatar"
-                      :preview-src-list="[scope.row.wechatAvatar]">
-                    </el-image>
-                  </template>
                 </el-table-column>
                 <el-table-column align="center" prop="phoneNumber" label="手机号" min-width="100px">
                 </el-table-column>

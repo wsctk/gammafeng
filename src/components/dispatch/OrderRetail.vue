@@ -14,7 +14,7 @@
             <el-option
               v-for="item in leveloneuser"
               :key="item.firstUser"
-              :label="item.wechatName"
+              :label="item.phoneNumber"
               :value="item.firstUser">
             </el-option>
           </el-select>
@@ -24,7 +24,7 @@
             <el-option
               v-for="item in leveltwouser"
               :key="item.secondUser"
-              :label="item.wechatName"
+              :label="item.phoneNumber"
               :value="item.secondUser">
             </el-option>
           </el-select>
@@ -38,9 +38,9 @@
         <el-table :data="tableData" style="width: 100%" border height="100%" row-key="did">
           <el-table-column align="center" prop="did" label="分销ID" min-width="70px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="first_name" label="一级用户" min-width="150px" show-overflow-tooltip>
+          <el-table-column align="center" prop="first_user_phone_number" label="一级用户" min-width="150px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="seconde_name" label="二级用户" min-width="150px" show-overflow-tooltip>
+          <el-table-column align="center" prop="second_user_phone_number" label="二级用户" min-width="150px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="mu_amount" label="亩数" min-width="100px" show-overflow-tooltip>
           </el-table-column>
