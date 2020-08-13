@@ -31,8 +31,8 @@ Vue.prototype.$qs = qs
 
 axios.defaults.withCredentials = true
 var instance = axios.create({
-  // baseURL: 'http://192.168.18.10:8181/',
-  baseURL: 'http://admin.gamma.it-10.com/',
+  baseURL: 'http://192.168.18.7:8181/',
+  // baseURL: 'http://admin.gamma.it-10.com/',
   // baseURL: 'http://admin-api-gmf.it-10.com/',
   timeout: 10000,
   header: {

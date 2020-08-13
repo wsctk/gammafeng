@@ -37,8 +37,6 @@
         <el-table :data="tableData" style="width: 100%" border height="100%">
           <el-table-column align="center" prop="orderNumber" label="订单号" min-width="200px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="goodsName" label="商品名" min-width="200px" show-overflow-tooltip>
-          </el-table-column>
           <el-table-column align="center" prop="orderAmout" label="订单金额(元)" min-width="100px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="paidAmout" label="实付金额(元)" min-width="100px" show-overflow-tooltip>
@@ -50,8 +48,6 @@
             </template>
           </el-table-column>
           <el-table-column align="center" prop="orderState" label="订单状态" min-width="70px">
-          </el-table-column>
-          <el-table-column align="center" prop="wechatName" label="用户昵称" min-width="70px" show-overflow-tooltip>
           </el-table-column>
           <el-table-column align="center" prop="phoneNumber" label="用户手机号码" min-width="120px">
           </el-table-column>
@@ -68,7 +64,7 @@
           </el-table-column>
           <el-table-column align="center" prop="remarks" label="备注" min-width="200px" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column align="center" prop="" label="操作" min-width="220px" v-slot="scope" fixed="right">
+          <el-table-column align="center" prop="" label="操作" min-width="300px" v-slot="scope" fixed="right">
             <template>
               <el-popover
                 @hide="hidepopover"
@@ -85,6 +81,7 @@
                 </div>
                 <el-button plain type="warning" slot="reference" size="small">修改</el-button>
               </el-popover>
+               <el-button plain size="small" type="info" @click="showdetail(scope.row)">详情</el-button>
               <el-button plain size="small" type="success" @click="changestate(scope.row, 2)">发货</el-button>
               <el-button plain size="small" type="danger" @click="deleteorder(scope.row)">删除</el-button>
             </template>
@@ -105,6 +102,33 @@
       <span class="slotText">第{{pageNum}}/{{maxPage}}页</span>
     </el-pagination>
     </el-card>
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="50%">
+      <el-table
+        border
+        :data="subtableData"
+        style="width: 100%">
+        <el-table-column
+          prop="goodsName"
+          label="商品名"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="goodsNumber"
+          label="商品数量"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="price"
+          label="商品价格(元)">
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -113,6 +137,7 @@ export default {
     return {
       dialogVisible: false,
       tableData: [],
+      subtableData: [],
       // 导出配置
       json_fields: {
         订单号: 'orderNumber',
@@ -319,6 +344,13 @@ export default {
             break
         }
       }
+    },
+    showdetail (info) {
+      this.subtableData = info.gmOrderDetailList
+      for (let i = 0; i < this.subtableData.length; i++) {
+        this.subtableData[i].price /= 100
+      }
+      this.dialogVisible = true
     },
     // 取消修改订单金额
     cancelinput (id) {
