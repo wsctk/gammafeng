@@ -70,7 +70,7 @@
                 </el-input>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" plain @click="cancelinput(scope.row.id)">取消</el-button>
-                  <el-button type="primary" size="mini" @click="submitordermoney(scope.row)">确定</el-button>
+                  <el-button type="primary" size="mini" @click="submitordermoney(scope.row)" :disabled="isbtnava">确定</el-button>
                 </div>
                 <el-button plain type="warning" slot="reference" size="small">修改</el-button>
               </el-popover>
@@ -265,6 +265,7 @@ export default {
       appointForm: {
         feishou: ''
       },
+      isbtnava: false,
       addtable: [], // 所有的飞手
       picked: '', // 转派的飞手
       confirmimgs: [], // 飞手提交的工作照片
@@ -359,6 +360,7 @@ export default {
     },
     // 修改派单金额弹窗关闭之后刷新table数据
     hidepopover () {
+      this.isbtnava = false
       this.getInformationList()
     },
     // 取消修改派单金额
@@ -379,6 +381,7 @@ export default {
         return this.$message.error('请输入正确格式的数字！')
       }
       order.order_amount *= 100
+      this.isbtnava = true
       const msg = await this.$http.post('dispatcher/modifyDispatcher', this.$qs.stringify({ id: order.id, price: order.order_amount }))
       if (msg.status !== 200) {
         return this.$message.error('修改派单金额失败！')

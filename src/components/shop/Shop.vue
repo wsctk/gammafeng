@@ -354,7 +354,8 @@ export default {
       cb(new Error('请输入正确格式的数字！'))
     }
     return {
-      uploadimgurl: 'https://admin-api.gamma.it-10.com/picture/loadPicture',
+      // uploadimgurl: 'http://admin-api-gmf.it-10.com/picture/loadPicture',
+      uploadimgurl: 'http://admin-gmf.it-10.com/apis/picture/loadPicture',
       // 富文本配置
       editorOption: {
         modules: {

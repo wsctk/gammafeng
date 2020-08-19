@@ -77,7 +77,7 @@
                 </el-input>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" plain @click="cancelinput(scope.row.id)">取消</el-button>
-                  <el-button type="primary" size="mini" @click="submitordermoney(scope.row)">确定</el-button>
+                  <el-button type="primary" size="mini" @click="submitordermoney(scope.row)" :disabled="isbtnava">确定</el-button>
                 </div>
                 <el-button plain type="warning" slot="reference" size="small">修改</el-button>
               </el-popover>
@@ -138,6 +138,7 @@ export default {
       dialogVisible: false,
       tableData: [],
       subtableData: [],
+      isbtnava: false,
       // 导出配置
       json_fields: {
         订单号: 'orderNumber',
@@ -285,6 +286,9 @@ export default {
         } else {
           msg.data.rows[i].paidAmout = ''
         }
+        for (let j = 0; j < msg.data.rows[i].gmOrderDetailList.length; j++) {
+          msg.data.rows[i].gmOrderDetailList[j].price /= 100
+        }
       }
       this.tableData = msg.data.rows
       this.total = msg.data.total
@@ -347,9 +351,6 @@ export default {
     },
     showdetail (info) {
       this.subtableData = info.gmOrderDetailList
-      for (let i = 0; i < this.subtableData.length; i++) {
-        this.subtableData[i].price /= 100
-      }
       this.dialogVisible = true
     },
     // 取消修改订单金额
@@ -370,6 +371,7 @@ export default {
         return this.$message.error('请输入正确格式的数字！')
       }
       order.orderAmout *= 100
+      this.isbtnava = true
       const msg = await this.$http.post('order/updateOrderAmount', this.$qs.stringify({ id: order.id, version: order.version, orderAmout: order.orderAmout }))
       if (msg.status !== 200) {
         return this.$message.error('修改订单金额失败！')
@@ -381,6 +383,7 @@ export default {
     },
     // 修改金额弹框消失后刷新table数据
     hidepopover () {
+      this.isbtnava = false
       this.getorderlist()
     },
     // 发货

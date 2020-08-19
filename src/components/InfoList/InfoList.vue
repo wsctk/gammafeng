@@ -215,7 +215,9 @@ import { quilltitle } from '../../assets/js/quill-title.js'
 export default {
   data () {
     return {
-      uploadimgurl: 'https://admin-api.gamma.it-10.com/picture/loadPicture',
+      // uploadimgurl: 'http://192.168.18.7:8181/picture/loadPicture',
+      // uploadimgurl: 'http://admin-api-gmf.it-10.com/picture/loadPicture',
+      uploadimgurl: 'http://admin-gmf.it-10.com/apis/picture/loadPicture',
       editorOption: {
         modules: {
           toolbar: {

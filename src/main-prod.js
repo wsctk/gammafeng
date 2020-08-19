@@ -28,7 +28,8 @@ Vue.prototype.$qs = qs
 
 axios.defaults.withCredentials = true
 var instance = axios.create({
-  baseURL: 'http://admin-api-gmf.it-10.com/',
+  // baseURL: 'http://admin-api-gmf.it-10.com/',
+  baseURL: 'http://admin-gmf.it-10.com/apis/',
   timeout: 10000,
   header: {
     'content-type': 'application/x-www-form-urlencode, multipart/form-data;charset=utf-8'
